@@ -1,0 +1,193 @@
+{
+  "id": "SIN-SEED-01",
+  "origem": "sintetico",
+  "dominio": "atendimento",
+  "perfil_solicitante": "negocio",
+  "situacao_dados": "amostra_suficiente",
+  "ficha": {
+    "id": "SIN-SEED-01",
+    "titulo": "Busca semântica na FAQ do atendimento",
+    "dominio": "atendimento",
+    "problema": "Analistas de atendimento demoram para encontrar a resposta certa na FAQ e nos procedimentos durante a ligação.",
+    "publico_afetado": "40 analistas da central de pós-pago, cerca de 2 horas por dia cada em buscas",
+    "hipotese": "Se os analistas usarem busca semântica com respostas citando a fonte, então o tempo de busca por atendimento cai pelo menos 20%.",
+    "tecnologia": "ia_generativa",
+    "tecnica": "RAG",
+    "justificativa_tecnica": "O analista pergunta com as próprias palavras e a busca semântica encontra o trecho certo da FAQ.",
+    "golden_path": "rag-busca-semantica",
+    "metricas": [
+      {
+        "nome": "reducao_tempo_busca",
+        "descricao": "Redução do tempo médio de busca por atendimento",
+        "meta": "-20%",
+        "obrigatoria": true
+      },
+      {
+        "nome": "respostas_corretas",
+        "descricao": "Respostas corretas avaliadas por especialista",
+        "meta": ">= 0.85",
+        "obrigatoria": true
+      },
+      {
+        "nome": "respostas_com_fonte",
+        "descricao": "Respostas que citam a fonte",
+        "meta": ">= 0.90",
+        "obrigatoria": false
+      }
+    ],
+    "dados": "FAQ interna e procedimentos de 2026, classificação interna",
+    "amostra": "468 pares pergunta-resposta, margem de ±4 p.p.",
+    "skills": [
+      "Python",
+      "Embeddings e banco vetorial",
+      "Engenharia de prompt",
+      "Avaliação de LLM"
+    ],
+    "execucao": "laboratorio",
+    "riscos": [
+      "18% da FAQ cita planos descontinuados"
+    ]
+  },
+  "descricao_amostra": "Planilha da FAQ com 230 pares pergunta-resposta, complementada por 238 itens de procedimentos.",
+  "plano": {
+    "abordagem": "RAG com divisão da FAQ em trechos, busca semântica e resposta com citação.",
+    "etapas": [
+      "Limpeza e deduplicação",
+      "Divisão em 1.140 trechos",
+      "Indexação vetorial",
+      "Prompt com citação obrigatória",
+      "Avaliação com 120 perguntas reais"
+    ],
+    "componentes": [
+      "ingestao.py",
+      "indice.py",
+      "responder.py",
+      "avaliar.py"
+    ],
+    "criterios_atendidos": [
+      "reducao_tempo_busca: teste com 6 analistas",
+      "respostas_corretas: rubrica do especialista"
+    ],
+    "riscos_tecnicos": [
+      "Conteúdo desatualizado gera respostas erradas"
+    ]
+  },
+  "resultados": {
+    "simulado": true,
+    "metricas": [
+      {
+        "metrica": "reducao_tempo_busca",
+        "meta": "-20%",
+        "resultado": "-27%",
+        "atendida": true
+      },
+      {
+        "metrica": "respostas_corretas",
+        "meta": ">= 0.85",
+        "resultado": "0.89",
+        "atendida": true
+      },
+      {
+        "metrica": "respostas_com_fonte",
+        "meta": ">= 0.90",
+        "resultado": "0.96",
+        "atendida": true
+      }
+    ],
+    "observacoes": [
+      "Perguntas sobre exceções contratuais ainda exigem especialista"
+    ]
+  },
+  "parecer": {
+    "veredito": "validada",
+    "titulo": "A busca semântica deixa os analistas 27% mais rápidos para encontrar respostas",
+    "resumo": "Com 120 perguntas reais, 89% das respostas vieram corretas e 96% citaram a fonte. Resultados simulados nesta versão do corpus.",
+    "evidencias": [
+      "Tempo médio de busca caiu de 4m10s para 3m03s",
+      "89% de acerto na rubrica"
+    ],
+    "riscos": [
+      "FAQ com planos descontinuados",
+      "Exceções contratuais"
+    ],
+    "proximos_passos": [
+      "Piloto de 4 semanas com 10 analistas"
+    ],
+    "oportunidades": [
+      "Incluir procedimentos de suporte técnico"
+    ]
+  },
+  "conversa": [
+    {
+      "papel": "cientista",
+      "texto": "Oi! Sou o Cientista do beOn Labs. Qual problema você quer resolver?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Quero usar IA para ajudar o atendimento."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Gosto da ideia, mas IA é o meio. O que acontece hoje que você gostaria que fosse diferente?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Os analistas demoram para achar a resposta certa na FAQ durante a ligação."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Quem sente isso e quanto tempo se perde?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Uns 40 analistas, umas 2 horas por dia cada."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Como você saberia que deu certo?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Se eles achassem mais rápido."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Preciso de um número para dar um veredito. 20% de redução é realista. Fechamos?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Fechado."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Então é IA generativa com RAG, porque é uma pesquisa semântica nos seus dados. Você tem dados disponíveis?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Tenho a FAQ numa planilha."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Encontrei 230 registros bem estruturados; preciso de pelo menos mais 200. Consegue?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Consigo, tenho os procedimentos também."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Você precisa que eu execute ou você mesma vai executar?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Quero que vocês executem."
+    }
+  ],
+  "lead_time_dias": 6,
+  "tags": [
+    "faq",
+    "busca",
+    "atendimento",
+    "rag"
+  ]
+}

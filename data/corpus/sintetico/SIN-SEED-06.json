@@ -1,0 +1,129 @@
+{
+  "id": "SIN-SEED-06",
+  "origem": "sintetico",
+  "dominio": "operacoes",
+  "perfil_solicitante": "desenvolvedor",
+  "situacao_dados": "amostra_suficiente",
+  "ficha": {
+    "id": "SIN-SEED-06",
+    "titulo": "Previsão de volume de chamadas da central técnica",
+    "dominio": "operacoes",
+    "problema": "O dimensionamento da central técnica erra o volume semanal em até 25% e gera filas ou ociosidade.",
+    "publico_afetado": "Planejamento de força de trabalho e 600 técnicos da central",
+    "hipotese": "Se o volume for previsto com um modelo sazonal com feriados e eventos de rede, então o MAPE semanal fica abaixo de 10%.",
+    "tecnologia": "estatistica",
+    "tecnica": "Modelo de séries temporais com sazonalidade e regressores",
+    "justificativa_tecnica": "Há 30 meses de histórico com sazonalidade clara.",
+    "golden_path": "previsao-demanda",
+    "metricas": [
+      {
+        "nome": "mape_semanal",
+        "descricao": "Erro percentual absoluto médio semanal",
+        "meta": "< 10%",
+        "obrigatoria": true
+      },
+      {
+        "nome": "vies",
+        "descricao": "Viés médio da previsão",
+        "meta": "entre -3% e 3%",
+        "obrigatoria": false
+      }
+    ],
+    "dados": "30 meses de volume diário e calendário de eventos de rede",
+    "amostra": "30 meses, acima do mínimo de 24",
+    "skills": [
+      "Python",
+      "Séries temporais"
+    ],
+    "execucao": "solicitante",
+    "riscos": [
+      "Eventos de rede imprevisíveis"
+    ]
+  },
+  "descricao_amostra": "Série diária de 30 meses de chamadas com calendário de feriados e incidentes massivos.",
+  "resultados": {
+    "simulado": true,
+    "metricas": [
+      {
+        "metrica": "mape_semanal",
+        "meta": "< 10%",
+        "resultado": "13.4%",
+        "atendida": false
+      },
+      {
+        "metrica": "vies",
+        "meta": "entre -3% e 3%",
+        "resultado": "-1.2%",
+        "atendida": true
+      }
+    ],
+    "observacoes": [
+      "Incidentes massivos explicam 60% do erro"
+    ]
+  },
+  "parecer": {
+    "veredito": "invalidada",
+    "titulo": "O modelo não bate a meta de erro por causa dos incidentes massivos",
+    "resumo": "MAPE de 13,4%, acima da meta de 10%. Sem prever incidentes, a meta não é alcançável.",
+    "evidencias": [
+      "MAPE 13,4% em 12 semanas de teste"
+    ],
+    "riscos": [
+      "Usar a previsão sem margem para incidentes"
+    ],
+    "proximos_passos": [
+      "Registrar aprendizado e testar previsão com cenários de incidente"
+    ],
+    "oportunidades": [
+      "Alertas de incidente como regressor em tempo real"
+    ]
+  },
+  "conversa": [
+    {
+      "papel": "cientista",
+      "texto": "Olá! Qual problema você quer resolver?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Preciso de um forecast semanal de chamadas, pensei em Prophet."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Qual é o erro hoje e quem sofre com ele?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Erramos até 25%, e o planejamento escala 600 técnicos."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Qual erro seria aceitável?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "MAPE abaixo de 10%."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Quanto histórico existe?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "30 meses diários com feriados."
+    },
+    {
+      "papel": "cientista",
+      "texto": "É estatística com séries temporais. Você precisa que eu execute ou você mesmo vai executar?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Eu executo."
+    }
+  ],
+  "lead_time_dias": 10,
+  "tags": [
+    "forecast",
+    "central",
+    "dimensionamento"
+  ]
+}

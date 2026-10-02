@@ -1,0 +1,153 @@
+{
+  "id": "SIN-SEED-02",
+  "origem": "sintetico",
+  "dominio": "rede",
+  "perfil_solicitante": "negocio",
+  "situacao_dados": "amostra_suficiente",
+  "ficha": {
+    "id": "SIN-SEED-02",
+    "titulo": "Correlação de alarmes da infraestrutura de vídeo",
+    "dominio": "rede",
+    "problema": "Excesso de alarmes redundantes eleva o tempo de triagem do NOC e mascara a causa raiz dos incidentes.",
+    "publico_afetado": "Equipe de NOC de vídeo, cerca de 9 mil alarmes por semana",
+    "hipotese": "Se os alarmes forem agrupados por proximidade temporal e topológica, então o volume tratado cai pelo menos 40% preservando 90% dos incidentes reais.",
+    "tecnologia": "machine_learning",
+    "tecnica": "Agrupamento temporal com grafo de topologia",
+    "justificativa_tecnica": "Alarmes do mesmo incidente acontecem juntos e em equipamentos vizinhos.",
+    "golden_path": "correlacao-eventos",
+    "metricas": [
+      {
+        "nome": "reducao_volume_alertas",
+        "descricao": "Redução do volume de alertas tratados",
+        "meta": ">= 0.40",
+        "obrigatoria": true
+      },
+      {
+        "nome": "recall_incidentes",
+        "descricao": "Incidentes reais preservados",
+        "meta": ">= 0.90",
+        "obrigatoria": true
+      },
+      {
+        "nome": "precisao_causa_raiz",
+        "descricao": "Acerto da causa raiz apontada",
+        "meta": ">= 0.70",
+        "obrigatoria": false
+      }
+    ],
+    "dados": "Logs de alarmes de 90 dias e inventário de topologia",
+    "amostra": "412 incidentes rotulados, acima do mínimo de 385",
+    "skills": [
+      "Python",
+      "Séries temporais",
+      "Grafos"
+    ],
+    "execucao": "laboratorio",
+    "riscos": [
+      "Inventário de topologia desatualizado"
+    ]
+  },
+  "descricao_amostra": "Logs de alarmes de 90 dias (1,28 milhão de linhas) e 412 incidentes rotulados pelo NOC.",
+  "resultados": {
+    "simulado": true,
+    "metricas": [
+      {
+        "metrica": "reducao_volume_alertas",
+        "meta": ">= 0.40",
+        "resultado": "0.46",
+        "atendida": true
+      },
+      {
+        "metrica": "recall_incidentes",
+        "meta": ">= 0.90",
+        "resultado": "0.92",
+        "atendida": true
+      },
+      {
+        "metrica": "precisao_causa_raiz",
+        "meta": ">= 0.70",
+        "resultado": "0.64",
+        "atendida": false
+      }
+    ],
+    "observacoes": [
+      "71% dos erros de causa raiz vêm de 3 regionais com inventário desatualizado"
+    ]
+  },
+  "parecer": {
+    "veredito": "parcialmente_comprovada",
+    "titulo": "Agrupar alarmes corta 46% do ruído, mas a causa raiz ainda erra demais",
+    "resumo": "Os critérios obrigatórios foram atendidos; a precisão de causa raiz ficou abaixo da meta opcional.",
+    "evidencias": [
+      "Redução de 46% no volume",
+      "Recall de 92%"
+    ],
+    "riscos": [
+      "Dependência do inventário atualizado"
+    ],
+    "proximos_passos": [
+      "Piloto em uma regional",
+      "Novo ciclo para causa raiz"
+    ],
+    "oportunidades": [
+      "Estender para transporte óptico"
+    ]
+  },
+  "conversa": [
+    {
+      "papel": "cientista",
+      "texto": "Olá! Qual problema você quer resolver?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "O NOC de vídeo recebe alarme demais e perde tempo triando."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Quanto alarme e quanto tempo isso consome hoje?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Uns 9 mil por semana, metade é repetido."
+    },
+    {
+      "papel": "cientista",
+      "texto": "O que seria sucesso para você?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Cortar pelo menos 40% sem perder incidente."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Perder nenhum é difícil de garantir; 90% dos incidentes preservados funciona?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Funciona."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Isso é machine learning, um agrupamento temporal com a topologia. Quais dados existem?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Logs de 90 dias e o inventário."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Você precisa que eu execute ou você mesmo vai executar?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Vocês executam, eu valido os incidentes."
+    }
+  ],
+  "lead_time_dias": 14,
+  "tags": [
+    "noc",
+    "alarmes",
+    "video",
+    "correlacao"
+  ]
+}

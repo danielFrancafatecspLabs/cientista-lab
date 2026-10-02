@@ -1,0 +1,110 @@
+{
+  "id": "SIN-SEED-07",
+  "origem": "sintetico",
+  "dominio": "rede",
+  "perfil_solicitante": "negocio",
+  "situacao_dados": "sem_dados",
+  "ficha": {
+    "id": "SIN-SEED-07",
+    "titulo": "Aceitação remota de elementos de rede por imagem",
+    "dominio": "rede",
+    "problema": "A aceitação de instalações exige visita de um técnico sênior e atrasa a ativação de sites em até 10 dias.",
+    "publico_afetado": "Engenharia de implantação, cerca de 180 aceitações por mês",
+    "hipotese": "Se fotos padronizadas forem avaliadas por visão computacional, então 80% das aceitações dispensam a visita com falso aceite abaixo de 2%.",
+    "tecnologia": "visao_computacional",
+    "tecnica": "Classificação de imagens",
+    "justificativa_tecnica": "A aceitação depende de itens visíveis em fotos.",
+    "golden_path": "visao-computacional",
+    "metricas": [
+      {
+        "nome": "dispensa_visita",
+        "descricao": "Aceitações sem visita",
+        "meta": ">= 0.80",
+        "obrigatoria": true
+      },
+      {
+        "nome": "falso_aceite",
+        "descricao": "Taxa de falso aceite",
+        "meta": "< 2%",
+        "obrigatoria": true
+      }
+    ],
+    "dados": "Não há fotos rotuladas; o padrão de fotos ainda será criado",
+    "amostra": "Sem amostra: experimento bloqueado no G1",
+    "skills": [
+      "Python",
+      "Visão computacional",
+      "GPU"
+    ],
+    "execucao": "laboratorio",
+    "riscos": [
+      "Sem dados rotulados"
+    ]
+  },
+  "descricao_amostra": "Nenhuma foto rotulada disponível; apenas fotos avulsas sem padrão no e-mail dos técnicos.",
+  "parecer": {
+    "veredito": "inconclusiva",
+    "titulo": "Sem fotos rotuladas, o experimento não pode começar",
+    "resumo": "O G1 bloqueou o experimento por falta de dados.",
+    "evidencias": [
+      "0 imagens rotuladas"
+    ],
+    "riscos": [
+      "Começar sem padrão de foto"
+    ],
+    "proximos_passos": [
+      "Criar padrão de fotos e coletar 1.000 imagens rotuladas"
+    ],
+    "oportunidades": [
+      "Checklist digital de instalação"
+    ]
+  },
+  "conversa": [
+    {
+      "papel": "cientista",
+      "texto": "Oi! Qual problema você quer resolver?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Queremos aceitar instalação de site sem mandar técnico."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Quanto isso atrasa hoje?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Até 10 dias por site, umas 180 aceitações por mês."
+    },
+    {
+      "papel": "cientista",
+      "texto": "O que seria sucesso?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Dispensar a visita na maioria dos casos."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Proponho 80% sem visita com falso aceite abaixo de 2%. Você tem fotos rotuladas?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Não, só fotos soltas no e-mail."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Sem fotos rotuladas não dá para testar. O primeiro passo é criar um padrão e coletar 1.000 imagens. Você precisa que eu execute ou você mesmo vai executar?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Vocês executam quando tiver as fotos."
+    }
+  ],
+  "lead_time_dias": 4,
+  "tags": [
+    "implantacao",
+    "fotos",
+    "aceitacao"
+  ]
+}

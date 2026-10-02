@@ -1,0 +1,140 @@
+{
+  "id": "SIN-SEED-04",
+  "origem": "sintetico",
+  "dominio": "digital",
+  "perfil_solicitante": "desenvolvedor",
+  "situacao_dados": "amostra_pequena",
+  "ficha": {
+    "id": "SIN-SEED-04",
+    "titulo": "Propensão a upgrade de plano pós-pago",
+    "dominio": "digital",
+    "problema": "As campanhas de upgrade no app têm conversão de 1,2% e incomodam clientes sem interesse.",
+    "publico_afetado": "Time de CRM digital e 2,1 milhões de clientes impactados por campanha",
+    "hipotese": "Se as campanhas forem direcionadas por um modelo de propensão, então a conversão dobra no decil mais alto mantendo AUC acima de 0,75.",
+    "tecnologia": "machine_learning",
+    "tecnica": "Classificação supervisionada com gradient boosting",
+    "justificativa_tecnica": "Há histórico de campanhas com o desfecho de conversão.",
+    "golden_path": "classificacao-supervisionada",
+    "metricas": [
+      {
+        "nome": "auc",
+        "descricao": "Área sob a curva ROC em validação temporal",
+        "meta": ">= 0.75",
+        "obrigatoria": true
+      },
+      {
+        "nome": "lift_decil_1",
+        "descricao": "Conversão do decil mais alto sobre a média",
+        "meta": ">= 2.0",
+        "obrigatoria": true
+      }
+    ],
+    "dados": "Histórico de 3 campanhas com 168 conversões rotuladas",
+    "amostra": "168 conversões, abaixo do mínimo de 385: resultado indicativo",
+    "skills": [
+      "Python",
+      "scikit-learn",
+      "Engenharia de atributos",
+      "Validação temporal"
+    ],
+    "execucao": "solicitante",
+    "riscos": [
+      "Poucas conversões para validação temporal"
+    ]
+  },
+  "descricao_amostra": "Base de 3 campanhas com 14 mil clientes contatados e 168 conversões.",
+  "resultados": {
+    "simulado": true,
+    "metricas": [
+      {
+        "metrica": "auc",
+        "meta": ">= 0.75",
+        "resultado": "0.71",
+        "atendida": false
+      },
+      {
+        "metrica": "lift_decil_1",
+        "meta": ">= 2.0",
+        "resultado": "1.6",
+        "atendida": false
+      }
+    ],
+    "observacoes": [
+      "Intervalo de confiança do AUC largo (0,62 a 0,80)"
+    ]
+  },
+  "parecer": {
+    "veredito": "inconclusiva",
+    "titulo": "Com 168 conversões não dá para afirmar que o modelo funciona",
+    "resumo": "Os resultados ficaram abaixo das metas, mas a amostra pequena não permite concluir.",
+    "evidencias": [
+      "AUC 0,71 com intervalo de 0,62 a 0,80"
+    ],
+    "riscos": [
+      "Decidir campanha com base em amostra pequena"
+    ],
+    "proximos_passos": [
+      "Acumular mais duas campanhas antes de um novo ciclo"
+    ],
+    "oportunidades": [
+      "Usar dados de navegação no app"
+    ]
+  },
+  "conversa": [
+    {
+      "papel": "cientista",
+      "texto": "Olá! Qual problema você quer resolver?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Quero treinar um XGBoost de propensão a upgrade."
+    },
+    {
+      "papel": "cientista",
+      "texto": "O que acontece hoje que você quer mudar?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Conversão de 1,2% nas campanhas do app."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Qual meta faria você considerar um sucesso?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "AUC acima de 0,75 e dobrar a conversão no decil 1."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Quantas conversões rotuladas existem?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "168, de três campanhas."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Recomendo pelo menos 385 para concluir; com 168 o resultado será indicativo. Segue assim?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Segue, é o que tenho."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Você precisa que eu execute ou você mesmo vai executar?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Eu mesmo, quero só a ficha."
+    }
+  ],
+  "lead_time_dias": 9,
+  "tags": [
+    "propensao",
+    "crm",
+    "upgrade",
+    "app"
+  ]
+}

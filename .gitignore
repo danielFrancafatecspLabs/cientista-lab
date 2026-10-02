@@ -1,0 +1,17 @@
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.venv/
+
+# Documentos e registros reais do laboratório nunca vão para o repositório
+data/real/*
+!data/real/README.md
+data/corpus/real/*
+!data/corpus/real/.gitkeep
+
+# Estado de execução
+data/sessions/*
+!data/sessions/.gitkeep
+data/evals/

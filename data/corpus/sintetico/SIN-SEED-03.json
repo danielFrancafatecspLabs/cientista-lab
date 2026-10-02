@@ -1,0 +1,131 @@
+{
+  "id": "SIN-SEED-03",
+  "origem": "sintetico",
+  "dominio": "suprimentos",
+  "perfil_solicitante": "desenvolvedor",
+  "situacao_dados": "amostra_suficiente",
+  "ficha": {
+    "id": "SIN-SEED-03",
+    "titulo": "Extração de cláusulas de editais",
+    "dominio": "suprimentos",
+    "problema": "A análise manual de editais leva em média 41 minutos por documento e atrasa a decisão de participar.",
+    "publico_afetado": "Time de licitações, cerca de 300 editais por trimestre",
+    "hipotese": "Se as cláusulas forem extraídas por um LLM com esquema fixo, então 90% dos campos saem corretos e o tempo por edital cai para menos de 10 minutos.",
+    "tecnologia": "ia_generativa",
+    "tecnica": "Extração estruturada com LLM",
+    "justificativa_tecnica": "Os campos são conhecidos e o texto é longo e variado.",
+    "golden_path": "automacao-documental",
+    "metricas": [
+      {
+        "nome": "extracao_correta",
+        "descricao": "Campos extraídos corretamente",
+        "meta": ">= 0.90",
+        "obrigatoria": true
+      },
+      {
+        "nome": "tempo_por_documento",
+        "descricao": "Tempo médio por edital, em minutos",
+        "meta": "<= 10",
+        "obrigatoria": true
+      }
+    ],
+    "dados": "312 editais em PDF com gabarito de 14 campos",
+    "amostra": "312 documentos com gabarito, acima do mínimo de 100",
+    "skills": [
+      "Python",
+      "Engenharia de prompt",
+      "Esquemas de extração"
+    ],
+    "execucao": "solicitante",
+    "riscos": [
+      "Anexos escaneados"
+    ]
+  },
+  "descricao_amostra": "312 editais em PDF nativo digital com planilha-gabarito de 14 campos por edital.",
+  "resultados": {
+    "simulado": true,
+    "metricas": [
+      {
+        "metrica": "extracao_correta",
+        "meta": ">= 0.90",
+        "resultado": "0.94",
+        "atendida": true
+      },
+      {
+        "metrica": "tempo_por_documento",
+        "meta": "<= 10",
+        "resultado": "6",
+        "atendida": true
+      }
+    ],
+    "observacoes": [
+      "Falhas concentradas em anexos escaneados"
+    ]
+  },
+  "parecer": {
+    "veredito": "validada",
+    "titulo": "Extração automática acerta 94% dos campos e reduz a análise para 6 minutos",
+    "resumo": "Os dois critérios foram atendidos.",
+    "evidencias": [
+      "94% de acerto em 312 editais"
+    ],
+    "riscos": [
+      "Anexos escaneados ficam de fora"
+    ],
+    "proximos_passos": [
+      "Piloto em Suprimentos com revisão amostral de 10%"
+    ],
+    "oportunidades": [
+      "Contratos de fornecedores"
+    ]
+  },
+  "conversa": [
+    {
+      "papel": "cientista",
+      "texto": "Oi! Qual problema você quer resolver?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Quero extrair cláusulas de edital com LLM e saída em JSON schema."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Antes da solução: quanto tempo o time gasta hoje por edital?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Uns 41 minutos, medimos no trimestre passado."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Que acerto você precisa para confiar?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "90% dos campos, com gabarito de 14 campos."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Isso é IA generativa com extração estruturada. Você tem os documentos?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "312 PDFs com gabarito."
+    },
+    {
+      "papel": "cientista",
+      "texto": "Você precisa que eu execute ou você mesmo vai executar?"
+    },
+    {
+      "papel": "solicitante",
+      "texto": "Eu executo, só preciso da ficha e do template."
+    }
+  ],
+  "lead_time_dias": 12,
+  "tags": [
+    "editais",
+    "licitacao",
+    "extracao",
+    "pdf"
+  ]
+}

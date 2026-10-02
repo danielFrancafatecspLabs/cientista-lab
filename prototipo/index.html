@@ -60,6 +60,12 @@ svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-widt
 .logo-mark svg { width: 19px; height: 19px; stroke-width: 2; }
 .logo b { font-family: var(--f-display); font-weight: 800; font-size: 17px; letter-spacing: -0.02em; display: block; line-height: 1.1; }
 .logo small { font-size: 11.5px; color: var(--muted); display: block; line-height: 1.2; }
+.mode { font-family: var(--f-mono); font-size: 10px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; padding: 2px 6px; border-radius: 5px; background: var(--surface-2); color: var(--muted); vertical-align: 3px; margin-left: 4px; }
+.mode.live { background: var(--ok-soft); color: var(--ok); }
+.live-input { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+.live-input input { flex: 1; min-width: 200px; border: 1px solid var(--line-strong); border-radius: 10px; padding: 9px 12px; background: var(--surface); }
+.sim-note { font-size: 12.5px; color: var(--warn); background: var(--warn-soft); padding: 6px 10px; border-radius: 8px; width: max-content; max-width: 100%; }
+.err-note { font-size: 13px; color: var(--accent); }
 .tabs { display: flex; gap: 2px; background: var(--surface-2); padding: 3px; border-radius: 11px; margin-left: 8px; }
 .tab { border: 0; background: none; padding: 7px 14px; border-radius: 8px; font-weight: 600; font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
 .tab:hover:not([disabled]) { color: var(--fg); }
@@ -415,7 +421,7 @@ svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-widt
   <header class="top">
     <div class="logo">
       <div class="logo-mark"><svg class="i" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3M7.5 15h9"/></svg></div>
-      <div><b>METAEXP</b><small>beOn Labs · laboratório de experimentos</small></div>
+      <div><b>METAEXP <span class="mode" id="mode">demonstração</span></b><small>beOn Labs · laboratório de experimentos</small></div>
     </div>
     <nav class="tabs" id="tabs"></nav>
     <div class="top-r">
@@ -509,7 +515,7 @@ function setTab(t) {
   S.tab = t; renderTabs();
   const v = document.getElementById('view');
   if (t === 'conversa') { v.innerHTML = convShell(); restoreThread(); renderPanel(); renderComposer(); }
-  if (t === 'bancada') { v.innerHTML = benchShell(); restoreBench(); renderRail(); if (S.path === 'negocio' && !S.bench.started) runBench(); }
+  if (t === 'bancada') { v.innerHTML = benchShell(); restoreBench(); renderRail(); if (S.path === 'negocio' && !S.bench.started) { if (API.live) liveBench(); else runBench(); } }
   if (t === 'experimentos') v.innerHTML = vExps();
 }
 function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.getElementById('toasts').appendChild(e); setTimeout(() => e.remove(), 3000); }
@@ -954,6 +960,7 @@ function vExps() {
     { id: 'EXP-REDE-CORR-02', t: 'Correlação de alarmes da infraestrutura de vídeo', st: ['ok', 'Resultado pronto'], stages: 5, tech: 'ML · agrupamento', dono: 'Marcos Teixeira' },
     { id: 'EXP-DOC-EDIT-03', t: 'Extração de cláusulas de editais', st: ['ok', 'Piloto aprovado'], stages: 5, tech: 'IA generativa · extração', dono: 'Felipe Rocha' },
   ];
+  if (API.live && API.corpus) others.splice(0, others.length, ...API.corpus.map(c => ({ id: c.id, t: c.titulo, st: c.veredito ? ['ok', c.veredito.replace(/_/g, ' ')] : ['idle', 'sem parecer'], stages: c.veredito ? 5 : 1, tech: `${TEC_LABEL[c.tecnologia] || ''} · ${c.tecnica || ''}`, dono: c.origem === 'real' ? 'histórico real' : 'sintético' })));
   const card = e => `<button class="exp-card" ${e.me ? `data-tab="${S.path === 'negocio' ? 'bancada' : 'conversa'}"` : 'data-a="other"'}><div class="top-l"><span class="mono" style="font-size:11.5px;color:var(--muted)">${e.id}</span><span class="pill ${e.st[0]}">${e.st[1]}</span></div><h3>${esc(e.t)}</h3><div class="mini-stages">${STAGES.map((s, i) => `<i class="${i < e.stages ? 'd' : i === e.stages && e.st[0] === 'run' ? 'c' : ''}"></i>`).join('')}</div><div class="exp-meta"><span>${e.tech}</span><span>${e.me ? 'Você' : e.dono}</span></div></button>`;
   return `<div class="exps"><div class="exps-in">
     <div class="exps-h"><div><h1>Experimentos</h1><p>Tudo o que está no laboratório, do problema ao resultado.</p></div><button class="btn red" data-a="restart">${ic('spark')}Novo experimento</button></div>
@@ -980,10 +987,10 @@ async function copy(text, msg) {
 const ACTIONS = {
   sheet: openSheet, openFicha: openSheet, closeLayer,
   closeOverlay(e, el) { if (e.target === el) closeLayer(); },
-  report() { document.getElementById('layer').innerHTML = reportHtml(); },
+  report() { document.getElementById('layer').innerHTML = API.live && S.parecer ? liveReportHtml() : reportHtml(); },
   goBench() { setTab('bancada'); },
   fast() { S.fast = !S.fast; renderTabs(); toast(S.fast ? 'Demonstração rápida ligada' : 'Velocidade normal'); },
-  restart() { const fast = S.fast; S = fresh(); S.fast = fast; pending = null; bSeq = 0; closeLayer(); setTab('conversa'); conversation(); },
+  restart() { const fast = S.fast; S = fresh(); S.fast = fast; pending = null; bSeq = 0; closeLayer(); setTab('conversa'); API.live ? liveConversation() : conversation(); },
   share() { copy('https://metaexp.beonlabs/r/' + S.F.id.toLowerCase(), 'Link do resultado copiado'); },
   copyYaml() { copy(yaml(), 'Ficha copiada em YAML'); },
   switchBiz() { if (S.path !== 'dev') return; S.who.signals.push('Mudou de ideia: prefere que o laboratório execute'); setTab('conversa'); bizPath().catch(() => {}); },
@@ -1006,7 +1013,7 @@ document.addEventListener('click', e => {
   if (d.dec) {
     S.bench.decision = d.dec;
     const ov = document.querySelector('.overlay'), top = ov ? ov.scrollTop : 0;
-    document.getElementById('layer').innerHTML = reportHtml(true);
+    document.getElementById('layer').innerHTML = API.live && S.parecer ? liveReportHtml(true) : reportHtml(true);
     document.querySelector('.overlay').scrollTop = top;
     toast('Decisão registrada'); return;
   }
@@ -1022,17 +1029,292 @@ document.addEventListener('input', e => { if (e.target.id === 'input') { e.targe
 function fileMeta(f) { const kb = Math.max(1, Math.round(f.size / 1024)); return (f.name.split('.').pop() || 'arquivo').toUpperCase() + ' · ' + (kb > 1024 ? (kb / 1024).toFixed(1).replace('.', ',') + ' MB' : kb + ' KB'); }
 document.getElementById('fileIn').addEventListener('change', e => {
   const f = e.target.files[0]; e.target.value = '';
-  if (f && pending && pending.upload) answer({ file: { name: f.name, meta: fileMeta(f) }, text: f.name });
+  if (f && pending && pending.upload) answer({ file: { name: f.name, meta: fileMeta(f), blob: f }, text: f.name });
 });
 document.addEventListener('dragover', e => { if (pending && pending.upload) e.preventDefault(); });
 document.addEventListener('drop', e => {
   if (!pending || !pending.upload) return; e.preventDefault();
-  const f = e.dataTransfer.files[0]; if (f) answer({ file: { name: f.name, meta: fileMeta(f) }, text: f.name });
+  const f = e.dataTransfer.files[0]; if (f) answer({ file: { name: f.name, meta: fileMeta(f), blob: f }, text: f.name });
 });
 
-/* início */
-setTab('conversa');
-conversation();
+/* =====================================================================
+   MODO AO VIVO: quando o backend (python -m metaexp servir) responde em
+   /api/health, a conversa e a bancada usam o modelo de verdade. Sem backend
+   (por exemplo, no link publicado), roda o roteiro de demonstração acima.
+   ===================================================================== */
+const API = { live: false, sid: null, info: null, corpus: null };
+const TEC_LABEL = { ia_generativa: 'IA generativa', machine_learning: 'Machine learning', estatistica: 'Estatística', visao_computacional: 'Visão computacional', automacao: 'Automação', otimizacao: 'Otimização', outro: 'Outra' };
+const ETAPA_FRONT = { ficha: 'ficha', amostra: 'amostra', construcao: 'dev', qualidade: 'qa', resultado: 'resultado' };
+const CARD_AGENTE = { ficha: 'cientista', amostra: 'dados', plano: 'dev', rodada: 'qa', parecer: 'analista' };
+const txt = s => fmt(esc(s || ''));
+
+async function sseRead(url, body, onEvent) {
+  const t = S.token;
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+  if (!r.ok) {
+    let msg = r.status + '';
+    try { msg = (await r.json()).detail || msg; } catch (e) { /* corpo não-JSON */ }
+    throw new Error(msg);
+  }
+  const reader = r.body.getReader(), dec = new TextDecoder();
+  let buf = '';
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (t !== S.token) { reader.cancel(); throw new Abort(); }
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    let i;
+    while ((i = buf.indexOf('\n\n')) >= 0) {
+      const chunk = buf.slice(0, i); buf = buf.slice(i + 2);
+      const line = chunk.split('\n').find(l => l.startsWith('data: '));
+      if (line) onEvent(JSON.parse(line.slice(6)));
+    }
+  }
+}
+
+function mapFicha(f) {
+  return {
+    id: f.id || S.F.id, v: (S.F.v || 0) + 1, titulo: f.titulo,
+    problema: f.problema, publico: f.publico_afetado, hipotese: f.hipotese,
+    tecnologia: f.tecnologia ? [TEC_LABEL[f.tecnologia] || f.tecnologia, f.tecnica || ''] : undefined,
+    metricas: (f.metricas || []).map(m => `${m.descricao} ${m.meta}${m.obrigatoria ? '' : ' (opcional)'}`),
+    dados: f.dados, amostra: f.amostra, skills: f.skills && f.skills.length ? f.skills : undefined,
+    execucao: f.execucao === 'laboratorio' ? 'Laboratório · workflow de agentes' : f.execucao === 'solicitante' ? 'Solicitante' : undefined,
+  };
+}
+const CAMPO_FRONT = { publico_afetado: 'publico', tecnica: 'tecnologia', justificativa_tecnica: 'tecnologia' };
+
+function applyFichaEvent(ev) {
+  S.F = mapFicha(ev.ficha);
+  (ev.changed || []).forEach(k => S.changed.add(CAMPO_FRONT[k] || k));
+  renderPanel();
+}
+
+/* ---------- cartões do modo ao vivo ---------- */
+function liveTechCard(d) {
+  return `<div class="card"><div class="card-label"><span>Classificação do experimento</span><span>${esc(d.golden_path ? 'golden path · ' + d.golden_path : 'fora do catálogo')}</span></div>
+    <div class="tech-row"><div class="tech"><small>Tecnologia</small><b>${esc(TEC_LABEL[d.tecnologia] || d.tecnologia)}</b></div><div class="tech key"><small>Técnica</small><b>${esc(d.tecnica)}</b></div><div class="tech"><small>Por quê</small><b style="font-size:14px;line-height:1.35">${esc(d.justificativa)}</b></div></div></div>`;
+}
+function liveDataCard(d) {
+  const ok = d.total_registros >= d.minimo, scale = Math.max(d.minimo, d.total_registros, 1) * 1.08;
+  const obs = (d.observacoes || []).map(o => `<li><span class="ck warn">${ic('x')}</span>${esc(o)}</li>`).join('');
+  return `<div class="card"><div class="card-label"><span>Amostra · ${esc(d.nome)}</span><span>${ok ? 'acima da referência' : 'abaixo da referência'}</span></div>
+    <div class="stats"><div class="stat"><small>Registros</small><b>${d.registros}</b></div><div class="stat"><small>Colunas</small><b>${(d.colunas || []).length}</b></div><div class="stat"><small>Completude</small><b>${Math.round(d.completude * 100)}%</b></div><div class="stat"><small>Duplicadas</small><b class="${d.duplicadas ? 'warn' : ''}">${d.duplicadas}</b></div></div>
+    <div class="meter"><div class="meter-h"><span>Total acumulado frente à referência do golden path</span><b class="tnum">${d.total_registros} de ${d.minimo}</b></div>
+      <div class="meter-bar"><div class="fill" style="width:${(d.total_registros / scale) * 100}%"></div><div class="goal" style="left:${(d.minimo / scale) * 100}%"></div></div></div>
+    <ul class="checks"><li><span class="ck ok">${ic('check')}</span>Colunas: ${esc((d.colunas || []).join(', ') || 'nenhuma')}</li>${obs}</ul></div>`;
+}
+function liveSkillsCard(d) {
+  return `<div class="card"><div class="card-label"><span>Skills para executar</span><span>nível exigido</span></div>
+    <div class="skills">${d.skills.map(s => `<div class="skill"><div><b>${esc(s.nome)}</b><small>${esc(s.para_que)}</small></div><div class="lv">${[1, 2, 3].map(n => `<i class="${n <= s.nivel ? 'on' : ''}"></i>`).join('')}</div></div>`).join('')}</div>
+    <div class="time-est"><span>Se você executar<br><b>${esc(d.estimativa_solicitante)}</b></span><span>Se o laboratório executar<br><b>${esc(d.estimativa_laboratorio)}</b></span></div></div>`;
+}
+function liveSimilaresCard(d) {
+  return `<div class="card"><div class="card-label"><span>Experimentos semelhantes no histórico</span><span>${d.length}</span></div>
+    <ul class="checks">${d.map(c => `<li><span class="ck ok">${ic('flask')}</span><span><span class="mono" style="font-size:12px;color:var(--muted)">${esc(c.id)}</span> ${esc(c.titulo || '')}${c.veredito ? ` · <b>${esc(c.veredito.replace('_', ' '))}</b>` : ''}</span></li>`).join('')}</ul></div>`;
+}
+function liveDevCard(f) {
+  return `<div class="card"><div class="card-label"><span>Ficha final · pronta para executar</span><span>${esc(f.id || '')}</span></div>
+    <h3>${esc(f.titulo)}</h3><p style="color:var(--muted);font-size:14px;margin-top:4px">${esc(f.hipotese)}</p>
+    <div class="actions" style="margin-top:14px"><button class="btn primary" data-a="copyYaml">${ic('copy')}Copiar ficha</button><button class="btn" data-a="openFicha">Ver ficha</button></div></div>`;
+}
+function liveSampleCard(a) {
+  return `<div class="card"><div class="card-label"><span>Análise da amostra · gate G1</span><span>${esc(a.decisao_g1.replace(/_/g, ' '))}</span></div>
+    <div class="stats"><div class="stat"><small>Registros válidos</small><b>${a.registros_validos}</b></div><div class="stat"><small>Mínimo</small><b>${a.tamanho_minimo}</b></div><div class="stat"><small>Qualidade</small><b class="${a.qualidade === 'ruim' ? 'warn' : 'ok'}">${esc(a.qualidade)}</b></div><div class="stat"><small>Suficiente</small><b class="${a.suficiente ? 'ok' : 'warn'}">${a.suficiente ? 'Sim' : 'Não'}</b></div></div>
+    <ul class="checks">${a.achados.map(x => `<li><span class="ck ok">${ic('check')}</span>${esc(x)}</li>`).join('')}${a.alertas.map(x => `<li><span class="ck warn">${ic('x')}</span>${esc(x)}</li>`).join('')}</ul></div>`;
+}
+function livePlanCard(p) {
+  return `<div class="card"><div class="card-label"><span>Plano da solução</span><span>${p.componentes.length} componentes</span></div>
+    <div class="build-list analyzing" style="margin-top:10px">${p.etapas.map(e => `<div class="an-step done"><span class="st">${ic('check')}</span>${esc(e)}</div>`).join('')}</div>
+    <div class="rag-flow">${p.componentes.map(c => `<span class="mono" style="font-size:12px">${esc(c)}</span>`).join('')}</div></div>`;
+}
+function liveRoundsCard(rs) {
+  return `<div class="card"><div class="card-label"><span>Ralph Loop · Qk = e · o · d · S</span><span>meta 85% · máx. 5 rodadas</span></div>
+    <div class="rounds" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${rs.map(r => { const q = Math.round(r.q * 100); return `<div class="round ${q >= 85 ? 'pass' : ''}"><small>Rodada ${r.k}</small><b>${q}%</b><div class="gauge"><i style="width:${q}%"></i><s></s></div><p>${esc((r.feedback || [])[0] || (q >= 85 ? 'Meta de qualidade atingida.' : ''))}</p></div>`; }).join('')}</div></div>`;
+}
+function liveTeaser(p) {
+  const m = (p.resultados.metricas || [])[0];
+  return `<div class="card teaser"><div class="n" style="font-size:${m && m.resultado.length > 6 ? 30 : 46}px">${esc(m ? m.resultado : '—')}</div><div><b>${esc(p.titulo)}</b><p>${esc(m ? m.metrica + ' · meta ' + m.meta : '')}${p.resultados.simulado ? ' · resultados simulados' : ''}</p></div><button class="btn" data-a="report">Abrir resultado ${ic('arrow')}</button></div>`;
+}
+
+/* ---------- conversa ao vivo ---------- */
+function exampleCsv() {
+  const temas = [['Faturas e cobrança', ['Como pago a fatura pelo app?', 'Pelo app, em Faturas > Pagar, com Pix ou cartão.'], ['Posso parcelar uma fatura atrasada?', 'Sim, em até 6 vezes pela central ou pelo app.']], ['Planos e ofertas', ['Troco de plano no meio do ciclo?', 'Sim, a cobrança é proporcional e aparece na fatura seguinte.']], ['Portabilidade', ['Quanto tempo leva a portabilidade?', 'Até 3 dias úteis após a solicitação.']], ['Suporte técnico', ['Internet lenta, o que verificar?', 'Reinicie o modem e teste pelo app de diagnóstico.']]];
+  const linhas = ['pergunta,resposta,categoria,atualizado_em'];
+  for (let i = 0; i < 230; i++) {
+    const t = temas[i % temas.length], par = t[1 + (i % (t.length - 1))];
+    linhas.push(`"${par[0]} (variação ${i + 1})","${par[1]}","${t[0]}","2026-0${1 + (i % 9)}-15"`);
+  }
+  return new Blob([linhas.join('\n')], { type: 'text/csv' });
+}
+function toB64(blob) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
+}
+
+async function liveTurn(url, body) {
+  const t = S.token, out = { chips: [], upload: false, ended: false };
+  const parts = [];
+  const html = () => parts.map(p => p.t === 'text' ? `<div class="msg-text">${txt(p.s)}</div>` : p.html).join('');
+  pushHtml(`<div class="msg"><div class="av cientista">${ic('flask')}</div><div class="msg-body"><div class="typing"><i></i><i></i><i></i></div></div></div>`);
+  const draw = () => updateLast(msgHtml('cientista', '', html() || '<div class="typing"><i></i><i></i><i></i></div>'));
+  const card = h => { parts.push({ t: 'card', html: h }); draw(); };
+  await sseRead(url, body, ev => {
+    if (t !== S.token) return;
+    if (ev.type === 'text') { const last = parts[parts.length - 1]; if (last && last.t === 'text') last.s += ev.delta; else parts.push({ t: 'text', s: ev.delta }); draw(); }
+    else if (ev.type === 'retry') { for (let i = parts.length - 1; i >= 0; i--) if (parts[i].t === 'text') parts.splice(i, 1); draw(); }
+    else if (ev.type === 'ficha') applyFichaEvent(ev);
+    else if (ev.type === 'perfil') { S.who = { score: ev.score, guess: ev.guess, signals: ev.sinais || [] }; renderPanel(); }
+    else if (ev.type === 'chips') out.chips = ev.options;
+    else if (ev.type === 'upload') out.upload = true;
+    else if (ev.type === 'card') {
+      if (ev.kind === 'tecnologia') card(liveTechCard(ev.data));
+      else if (ev.kind === 'amostra') card(liveDataCard(ev.data));
+      else if (ev.kind === 'skills') card(liveSkillsCard(ev.data));
+      else if (ev.kind === 'similares') card(liveSimilaresCard(ev.data));
+    }
+    else if (ev.type === 'handoff') {
+      out.ended = true;
+      S.path = ev.destino === 'workflow' ? 'negocio' : 'dev';
+      card(ev.destino === 'workflow' ? handoffCard() : liveDevCard(ev.ficha));
+      renderTabs();
+    }
+    else if (ev.type === 'error') card(`<div class="err-note">${esc(ev.message)}</div>`);
+  });
+  if (!parts.length) draw();
+  return out;
+}
+
+async function liveConversation() {
+  const t = S.token;
+  try {
+    const r = await fetch('/api/sessoes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome: 'Ana' }) });
+    const st = await r.json(); guard(t);
+    API.sid = st.id; S.F.id = st.ficha.id; renderPanel();
+    let next = await liveTurn(`/api/sessoes/${API.sid}/iniciar`, {});
+    for (;;) {
+      guard(t);
+      if (next.ended) { pending = null; renderComposer(); return; }
+      const chips = next.chips.map(l => ({ label: l }));
+      const opts = { chips };
+      if (next.upload) {
+        opts.upload = true;
+        opts.chips = [{ label: 'Anexar arquivo', icon: 'clip', primary: true, act: 'upload' },
+          { label: 'Usar FAQ de exemplo', icon: 'file', file: { name: 'FAQ_atendimento.csv', meta: 'CSV · exemplo com 230 perguntas' } }, ...chips];
+      }
+      const a = await ask(opts); guard(t);
+      if (a.file) {
+        const b64 = await toB64(a.file.blob || exampleCsv());
+        next = await liveTurn(`/api/sessoes/${API.sid}/arquivos`, { nome: a.file.name, conteudo_base64: b64 });
+      } else {
+        next = await liveTurn(`/api/sessoes/${API.sid}/mensagens`, { texto: a.text });
+      }
+    }
+  } catch (e) {
+    if (e instanceof Abort) return;
+    console.error(e);
+    pushHtml(msgHtml('cientista', `<span class="err-note">Não consegui falar com o backend: ${esc(e.message)}</span>`));
+    pending = { chips: [{ label: 'Tentar de novo', retry: true }], res: () => ACTIONS.restart(), token: S.token };
+    renderComposer();
+  }
+}
+
+/* ---------- bancada ao vivo ---------- */
+let roundsMsg = null;
+async function liveBench(decisao, comentario) {
+  const t = S.token;
+  S.bench.started = true;
+  S.liveDivs = S.liveDivs || new Set();
+  S.liveRounds = S.liveRounds || [];
+  try {
+    await sseRead(`/api/sessoes/${API.sid}/bancada`, { decisao, comentario }, ev => { if (t === S.token) onBenchEvent(ev); });
+  } catch (e) {
+    if (!(e instanceof Abort)) bPush(bMsg('b' + (++bSeq), 'cientista', '', `<div class="err-note">Falha na bancada: ${esc(e.message)}</div>`));
+  }
+}
+function onBenchEvent(ev) {
+  if (ev.type === 'etapa') {
+    const idx = Object.keys(ETAPA_FRONT).indexOf(ev.etapa);
+    if (!S.liveDivs.has(idx)) { S.liveDivs.add(idx); stageDivider(idx); }
+    stage(ETAPA_FRONT[ev.etapa], ev.status === 'bloqueada' ? 'wait' : ev.status);
+    if (ev.etapa === 'resultado' && ev.status === 'ok') toast('Resultado do experimento pronto');
+  } else if (ev.type === 'mensagem') {
+    bPush(bMsg('b' + (++bSeq), AG[ev.agente] ? ev.agente : 'cientista', esc(ev.texto)));
+  } else if (ev.type === 'card') {
+    const ag = CARD_AGENTE[ev.kind] || 'cientista';
+    if (ev.kind === 'ficha') { S.F = mapFicha(ev.data); bPush(bMsg('b' + (++bSeq), ag, '', fichaFullCard())); }
+    else if (ev.kind === 'amostra') bPush(bMsg('b' + (++bSeq), ag, '', liveSampleCard(ev.data)));
+    else if (ev.kind === 'plano') bPush(bMsg('b' + (++bSeq), ag, '', livePlanCard(ev.data)));
+    else if (ev.kind === 'rodada') {
+      S.liveRounds.push(ev.data);
+      if (!roundsMsg || !document.getElementById(roundsMsg)) { roundsMsg = 'b' + (++bSeq); bPush(bMsg(roundsMsg, 'qa', '', liveRoundsCard(S.liveRounds)), roundsMsg); }
+      else bUpdate(roundsMsg, bMsg(roundsMsg, 'qa', '', liveRoundsCard(S.liveRounds)));
+    }
+    else if (ev.kind === 'parecer') { S.parecer = ev.data; bPush(bMsg('b' + (++bSeq), ag, '', liveTeaser(ev.data))); }
+  } else if (ev.type === 'aprovacao') {
+    const id = 'b' + (++bSeq);
+    const precisaTexto = o => o.id === 'ajustar' || o.id === 'orientar';
+    const btns = ev.opcoes.map(o => `<button class="btn ${precisaTexto(o) ? '' : 'red'}" data-lb="${esc(o.id)}" data-msg="${id}">${esc(o.rotulo)}</button>`).join('');
+    bPush(`<div class="msg" id="${id}"><div class="av cientista">${ic('flask')}</div><div class="msg-body"><div class="actions">${btns}</div></div></div>`, id);
+  } else if (ev.type === 'error') {
+    bPush(bMsg('b' + (++bSeq), 'cientista', '', `<div class="err-note">${esc(ev.message)}</div>`));
+  }
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-lb]');
+  if (!b) return;
+  const id = b.dataset.msg, op = b.dataset.lb, rotulo = b.textContent;
+  if ((op === 'ajustar' || op === 'orientar') && !document.getElementById('lbText')) {
+    const box = `<div class="live-input"><input id="lbText" type="text" placeholder="${op === 'ajustar' ? 'O que você quer mudar na ficha?' : 'Orientação para o Desenvolvedor'}" aria-label="Comentário"><button class="btn red" data-lb="${op}" data-msg="${id}">Enviar</button></div>`;
+    document.querySelector(`#${id} .msg-body`).insertAdjacentHTML('beforeend', box);
+    document.getElementById('lbText').focus();
+    return;
+  }
+  const input = document.getElementById('lbText');
+  const comentario = input ? input.value.trim() : null;
+  if ((op === 'ajustar' || op === 'orientar') && !comentario) { toast('Escreva o comentário antes de enviar'); return; }
+  bUpdate(id, `<div class="msg" id="${id}"><div class="av cientista">${ic('flask')}</div><div class="msg-body"><span class="chosen">${ic('check')}${esc(comentario || rotulo)}</span></div></div>`);
+  liveBench(op, comentario);
+});
+
+/* ---------- relatório ao vivo ---------- */
+const VEREDITO = { validada: ['Hipótese validada', 'ok'], parcialmente_comprovada: ['Hipótese parcialmente comprovada', 'warn'], invalidada: ['Hipótese invalidada', 'bad'], inconclusiva: ['Resultado inconclusivo', 'warn'] };
+function liveReportHtml(still) {
+  const p = S.parecer, D = S.bench.decision, v = VEREDITO[p.veredito] || [p.veredito, 'warn'];
+  const ms = p.resultados.metricas || [], m0 = ms[0];
+  const tagStyle = v[1] === 'ok' ? '' : 'background:var(--warn-soft);color:var(--warn)';
+  const lista = xs => `<ul>${(xs || []).map(x => `<li>${esc(x)}</li>`).join('') || '<li>—</li>'}</ul>`;
+  return `<div class="overlay ${still ? 'still' : ''}" data-a="closeOverlay"><article class="report" role="dialog" aria-label="Resultado do experimento">
+    <div class="rep-top">${ic('flask')}<span class="mono">${esc(S.F.id)} · resultado do experimento</span><span class="sp"></span><button class="icon-btn" data-a="closeLayer" aria-label="Fechar">${ic('x')}</button></div>
+    <section class="rep-hero"><div><span class="verdict-tag" style="${tagStyle}">${ic(v[1] === 'ok' ? 'check' : 'x')}${esc(v[0])}</span>
+      <h1>${esc(p.titulo)}</h1><p class="sub">${esc(p.resumo)}</p>
+      ${p.resultados.simulado ? '<p class="sim-note" style="margin-top:12px">Resultados gerados pelo executor simulado, não medidos.</p>' : ''}</div>
+      <div class="hero-num"><div class="n" style="font-size:${m0 && m0.resultado.length > 6 ? 56 : 96}px">${esc(m0 ? m0.resultado : '—')}</div><p>${esc(m0 ? m0.metrica : '')}</p>${m0 ? `<span class="goal">meta: ${esc(m0.meta)}</span>` : ''}</div></section>
+    <div class="rep-body">
+      <section class="rep-sec"><h3>Metas da ficha × resultados</h3><div class="tiles">${ms.map(m => `<div class="tile"><small>${esc(m.metrica)}</small><b>${esc(m.resultado)}</b><span style="color:var(--${m.atendida ? 'ok' : 'warn'})">${m.atendida ? 'atendida' : 'não atendida'} · meta ${esc(m.meta)}</span></div>`).join('')}</div></section>
+      <section class="two"><div class="rep-sec"><h3>Evidências</h3>${lista(p.evidencias)}</div><div class="rep-sec"><h3>Pontos de atenção</h3>${lista(p.riscos)}</div></section>
+      <section class="two"><div class="rep-sec"><h3>Próximos passos</h3>${lista(p.proximos_passos)}</div><div class="rep-sec"><h3>Oportunidades</h3>${lista(p.oportunidades)}</div></section>
+      <section class="decide"><div><h3 style="font-size:18px">O que você quer fazer agora?</h3><p style="color:var(--muted);font-size:14px;margin-top:2px">Sua decisão vai para o sponsor e fica registrada no histórico do laboratório.</p></div>
+        <div class="decide-opts">${[['piloto', 'Quero um piloto', 'Encaminha ao sponsor'], ['ciclo', 'Rodar nova versão', 'Mais dados ou ajustes'], ['encerrar', 'Encerrar e registrar', 'O aprendizado fica no histórico']].map(o => `<button class="opt ${D === o[0] ? 'on' : ''}" data-dec="${o[0]}"><b>${D === o[0] ? '✓ ' : ''}${o[1]}</b><span>${o[2]}</span></button>`).join('')}</div></section>
+    </div></article></div>`;
+}
+
+/* início: detecta o backend e escolhe o modo */
+(async () => {
+  if (/^https?:$/.test(location.protocol)) try {
+    const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 1500);
+    const r = await fetch('/api/health', { signal: ctrl.signal, cache: 'no-store' });
+    const j = r.ok ? await r.json() : null;
+    if (j && j.ok === true && j.modelo) { API.live = true; API.info = j; }
+  } catch (e) { /* sem backend: modo demonstração */ }
+  const m = document.getElementById('mode');
+  if (API.live) {
+    m.textContent = 'LLM ao vivo'; m.classList.add('live'); m.title = `${API.info.modelo} · corpus com ${API.info.corpus.total} experimentos`;
+    try { API.corpus = (await (await fetch('/api/experimentos')).json()).corpus; } catch (e) { /* lista opcional */ }
+  }
+  setTab('conversa');
+  if (API.live) liveConversation(); else conversation();
+})();
+
 </script>
 
 </body>
