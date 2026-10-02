@@ -16,6 +16,8 @@ from pydantic import BaseModel, Field, ValidationError
 
 from ..context.golden_paths import BY_ID as GOLDEN
 from ..corpus.store import Corpus, resumo_para_contexto
+from ..ficha_doc import markdown as ficha_markdown
+from ..metodo import hipotese_valida, metricas_validas, titulo_valido
 from ..schemas import Ficha, Metrica
 from .stats import margem_para_n, tamanho_amostra_proporcao
 
@@ -27,11 +29,19 @@ class AtualizarFicha(BaseModel):
     dominio: Optional[str] = None
     problema: Optional[str] = None
     publico_afetado: Optional[str] = None
+    objetivo: Optional[str] = None
     hipotese: Optional[str] = None
+    metodologia: Optional[str] = None
     metricas: Optional[list[Metrica]] = None
     dados: Optional[str] = None
     amostra: Optional[str] = None
+    bo: Optional[str] = None
+    sponsor: Optional[str] = None
     riscos: Optional[list[str]] = None
+
+
+class GerarFicha(BaseModel):
+    pass
 
 
 class ClassificarExperimento(BaseModel):
@@ -91,20 +101,34 @@ def _obj(props: dict, required: list[str]) -> dict:
 
 
 S = {"type": "string"}
-METRICA = _obj({"nome": S, "descricao": S, "meta": S, "obrigatoria": {"type": "boolean"}},
-               ["nome", "descricao", "meta", "obrigatoria"])
+METRICA = _obj({"nome": S, "descricao": S,
+                "criterio_aceite": {"type": "string", "description": "Valor numérico com condição de sucesso, ex.: 'Acurácia ≥ 85%'"},
+                "obrigatoria": {"type": "boolean"}},
+               ["nome", "descricao", "criterio_aceite", "obrigatoria"])
 
 TOOL_SPECS: list[dict] = [
     {
         "name": "atualizar_ficha",
-        "description": "Atualiza campos da ficha do experimento assim que ficarem claros na conversa. Envie apenas os campos que mudaram. `metricas` substitui a lista inteira.",
+        "description": "Atualiza campos da ficha do experimento assim que ficarem claros na conversa. Envie apenas os campos que mudaram. `metricas` substitui a lista inteira. A resposta traz as pendências do checklist de qualidade mínima.",
         "input_schema": _obj({
-            "titulo": S, "dominio": {"type": "string", "enum": ["rede", "atendimento", "digital", "financeiro", "suprimentos", "juridico", "rh", "marketing", "operacoes", "outro"]},
-            "problema": S, "publico_afetado": S,
-            "hipotese": {"type": "string", "description": "Formato 'se X, então Y em Z%'"},
+            "titulo": {"type": "string", "description": "Nome do experimento: no máximo 3 palavras"},
+            "dominio": {"type": "string", "enum": ["rede", "atendimento", "digital", "financeiro", "suprimentos", "juridico", "rh", "marketing", "operacoes", "outro"]},
+            "problema": S,
+            "publico_afetado": {"type": "string", "description": "Impacto: quem sente o problema e quanto custa hoje"},
+            "objetivo": {"type": "string", "description": "O que será realizado"},
+            "hipotese": {"type": "string", "description": "Acreditamos que [ação] irá gerar [resultado mensurável] para [contexto]. Máximo 2 linhas"},
+            "metodologia": {"type": "string", "description": "Como o experimento será conduzido"},
             "metricas": {"type": "array", "items": METRICA},
-            "dados": S, "amostra": S, "riscos": {"type": "array", "items": S},
+            "dados": S, "amostra": S,
+            "bo": {"type": "string", "description": "Responsável pelo experimento (BO)"},
+            "sponsor": {"type": "string", "description": "Patrocinador (SPONSOR)"},
+            "riscos": {"type": "array", "items": S},
         }, []),
+    },
+    {
+        "name": "gerar_ficha",
+        "description": "Gerador de Ficha de Experimentação. Valida o checklist de qualidade mínima e, se estiver completo, gera a ficha final e mostra à pessoa. Se houver pendências, devolve a lista e não gera.",
+        "input_schema": _obj({}, []),
     },
     {
         "name": "classificar_experimento",
@@ -174,7 +198,7 @@ INPUT_MODELS: dict[str, type[BaseModel]] = {
     "buscar_experimentos_similares": BuscarSimilares, "registrar_sinal_perfil": RegistrarSinal,
     "sugerir_respostas": SugerirRespostas, "solicitar_dados": SolicitarDados,
     "calcular_tamanho_amostra": CalcularAmostra, "apresentar_skills": ApresentarSkills,
-    "encaminhar": Encaminhar,
+    "encaminhar": Encaminhar, "gerar_ficha": GerarFicha,
 }
 
 PESOS = {"fraco": 6, "medio": 12, "forte": 20, "decisivo": 40}
@@ -195,7 +219,7 @@ Result = tuple[str, list[dict]]
 
 def _ficha_event(session: Any, changed: list[str]) -> dict:
     return {"type": "ficha", "ficha": session.ficha.model_dump(exclude_none=True), "changed": changed,
-            "faltantes": session.ficha.faltantes()}
+            "pendencias": session.ficha.pendencias(), "gerada": session.ficha_gerada}
 
 
 def _atualizar(ctx: ToolContext, a: AtualizarFicha) -> Result:
@@ -204,7 +228,32 @@ def _atualizar(ctx: ToolContext, a: AtualizarFicha) -> Result:
     data = s.ficha.model_dump()
     data.update({k: getattr(a, k) for k in changed})
     s.ficha = Ficha.model_validate(data)
-    return (json.dumps({"ok": True, "faltantes": s.ficha.faltantes()}, ensure_ascii=False), [_ficha_event(s, changed)])
+    if s.ficha_gerada and changed:
+        s.ficha_gerada = False   # mudou depois de gerada: precisa gerar de novo
+    # Avisos imediatos sobre os campos recém-alterados, para corrigir já neste turno.
+    avisos: list[str] = []
+    if "hipotese" in changed:
+        avisos += hipotese_valida(s.ficha.hipotese)
+    if "titulo" in changed:
+        avisos += titulo_valido(s.ficha.titulo)
+    if "metricas" in changed:
+        avisos += metricas_validas(s.ficha.metricas)
+    out = {"ok": not avisos, "avisos": avisos, "pendencias": s.ficha.pendencias()}
+    return json.dumps(out, ensure_ascii=False), [_ficha_event(s, changed)]
+
+
+def _gerar(ctx: ToolContext, a: GerarFicha) -> Result:
+    s = ctx.session
+    pend = s.ficha.pendencias()
+    if pend:
+        return json.dumps({"ok": False, "erro": "ficha não gerada: o checklist de qualidade mínima tem pendências",
+                           "pendencias": pend}, ensure_ascii=False), []
+    s.ficha_gerada = True
+    s.ficha_versao += 1
+    doc = ficha_markdown(s.ficha, s.ficha_versao)
+    card = {"type": "card", "kind": "ficha_gerada", "data": {"ficha": s.ficha.model_dump(exclude_none=True),
+                                                            "versao": s.ficha_versao, "markdown": doc}}
+    return json.dumps({"ok": True, "versao": s.ficha_versao}), [_ficha_event(s, []), card]
 
 
 def _classificar(ctx: ToolContext, a: ClassificarExperimento) -> Result:
@@ -270,6 +319,9 @@ def _skills(ctx: ToolContext, a: ApresentarSkills) -> Result:
 
 def _encaminhar(ctx: ToolContext, a: Encaminhar) -> Result:
     s = ctx.session
+    if not s.ficha_gerada:
+        return json.dumps({"ok": False, "erro": "gere a ficha com gerar_ficha antes de encaminhar",
+                           "pendencias": s.ficha.pendencias()}, ensure_ascii=False), []
     faltam = [c for c in s.ficha.faltantes() if c != "execucao"]
     if faltam:
         return json.dumps({"ok": False, "erro": "a ficha ainda tem campos obrigatórios vazios", "faltantes": faltam}, ensure_ascii=False), []
@@ -278,7 +330,8 @@ def _encaminhar(ctx: ToolContext, a: Encaminhar) -> Result:
     if s.perfil is None:
         s.perfil = "negocio" if a.destino == "workflow" else "desenvolvedor"
     events = [_ficha_event(s, ["execucao"]), {"type": "handoff", "destino": a.destino, "resumo": a.resumo,
-                                              "ficha": s.ficha.model_dump(exclude_none=True)}]
+                                              "ficha": s.ficha.model_dump(exclude_none=True),
+                                              "markdown": ficha_markdown(s.ficha, s.ficha_versao)}]
     return "ok: encaminhado", events
 
 
@@ -287,6 +340,7 @@ HANDLERS: dict[str, Callable[[ToolContext, Any], Result]] = {
     "buscar_experimentos_similares": _buscar, "registrar_sinal_perfil": _sinal,
     "sugerir_respostas": _sugerir, "solicitar_dados": _solicitar,
     "calcular_tamanho_amostra": _calcular, "apresentar_skills": _skills, "encaminhar": _encaminhar,
+    "gerar_ficha": _gerar,
 }
 
 

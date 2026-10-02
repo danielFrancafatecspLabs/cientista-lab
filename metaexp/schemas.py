@@ -21,9 +21,9 @@ SituacaoDados = Literal["sem_dados", "amostra_pequena", "amostra_suficiente", "d
 # ---------------------------------------------------------------- ficha ----
 
 class Metrica(BaseModel):
-    nome: str = Field(description="Nome curto em snake_case, ex.: reducao_tempo_busca")
+    nome: str = Field(description="Nome curto em snake_case, ex.: acuracia")
     descricao: str
-    meta: str = Field(description="Meta numérica legível, ex.: '>= 0.20' ou '-20%'")
+    criterio_aceite: str = Field(description="Valor numérico com condição clara de sucesso, ex.: 'Acurácia ≥ 85%'")
     obrigatoria: bool
 
 
@@ -31,11 +31,13 @@ class Ficha(BaseModel):
     """Ficha de experimento no padrão beOn Labs (Apêndice A da proposta)."""
 
     id: Optional[str] = None
-    titulo: Optional[str] = None
+    titulo: Optional[str] = Field(None, description="Nome do experimento: no máximo 3 palavras, executivo")
     dominio: Optional[Dominio] = None
     problema: Optional[str] = None
-    publico_afetado: Optional[str] = Field(None, description="Quem sente o problema e qual o impacto atual")
-    hipotese: Optional[str] = Field(None, description="Formato 'se X, então Y em Z%'")
+    publico_afetado: Optional[str] = Field(None, description="Impacto: quem sente o problema e quanto custa hoje")
+    objetivo: Optional[str] = Field(None, description="O que será realizado (não o que se espera comprovar)")
+    hipotese: Optional[str] = Field(None, description="'Acreditamos que [ação] irá gerar [resultado mensurável] para [contexto].' Máximo 2 linhas")
+    metodologia: Optional[str] = Field(None, description="Como o experimento será conduzido")
     tecnologia: Optional[Tecnologia] = None
     tecnica: Optional[str] = Field(None, description="Ex.: RAG, classificação supervisionada, agrupamento")
     justificativa_tecnica: Optional[str] = None
@@ -43,20 +45,27 @@ class Ficha(BaseModel):
     metricas: list[Metrica] = Field(default_factory=list)
     dados: Optional[str] = Field(None, description="Fontes de dados e sensibilidade")
     amostra: Optional[str] = Field(None, description="Tamanho e qualidade da amostra validada")
+    bo: Optional[str] = Field(None, description="Responsável pelo experimento (BO)")
+    sponsor: Optional[str] = Field(None, description="Patrocinador (SPONSOR)")
     skills: list[str] = Field(default_factory=list)
     execucao: Optional[Literal["laboratorio", "solicitante"]] = None
     riscos: list[str] = Field(default_factory=list)
 
     CAMPOS_OBRIGATORIOS: ClassVar[tuple[str, ...]] = (
-        "titulo", "problema", "publico_afetado", "hipotese", "tecnologia",
-        "tecnica", "metricas", "dados", "amostra", "skills", "execucao",
+        "titulo", "problema", "publico_afetado", "objetivo", "hipotese", "metodologia", "tecnologia",
+        "tecnica", "metricas", "dados", "amostra", "bo", "sponsor", "skills", "execucao",
     )
 
     def faltantes(self) -> list[str]:
         return [c for c in self.CAMPOS_OBRIGATORIOS if not getattr(self, c)]
 
+    def pendencias(self) -> list[str]:
+        """Checklist de qualidade mínima do método (regras de formato incluídas)."""
+        from .metodo import pendencias
+        return pendencias(self)
+
     def completa(self) -> bool:
-        return not self.faltantes()
+        return not self.faltantes() and not self.pendencias()
 
 
 # --------------------------------------------------- artefatos da bancada ----
@@ -167,7 +176,7 @@ class Experimento(BaseModel):
 
     def texto_busca(self) -> str:
         f = self.ficha
-        partes = [f.titulo, f.problema, f.publico_afetado, f.hipotese, f.tecnica, f.justificativa_tecnica,
+        partes = [f.titulo, f.problema, f.publico_afetado, f.objetivo, f.hipotese, f.metodologia, f.tecnica, f.justificativa_tecnica,
                   f.golden_path, f.dados, self.descricao_amostra, " ".join(self.tags)]
         partes += [m.descricao for m in f.metricas]
         if self.parecer:

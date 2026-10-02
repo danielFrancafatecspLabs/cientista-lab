@@ -6,11 +6,11 @@
   "situacao_dados": "amostra_suficiente",
   "ficha": {
     "id": "SIN-SEED-03",
-    "titulo": "Extração de cláusulas de editais",
+    "titulo": "Extração de Editais",
     "dominio": "suprimentos",
     "problema": "A análise manual de editais leva em média 41 minutos por documento e atrasa a decisão de participar.",
     "publico_afetado": "Time de licitações, cerca de 300 editais por trimestre",
-    "hipotese": "Se as cláusulas forem extraídas por um LLM com esquema fixo, então 90% dos campos saem corretos e o tempo por edital cai para menos de 10 minutos.",
+    "hipotese": "Acreditamos que a extração estruturada com LLM irá acertar 90% dos campos e reduzir a análise para até 10 minutos por edital para o time de licitações.",
     "tecnologia": "ia_generativa",
     "tecnica": "Extração estruturada com LLM",
     "justificativa_tecnica": "Os campos são conhecidos e o texto é longo e variado.",
@@ -19,14 +19,14 @@
       {
         "nome": "extracao_correta",
         "descricao": "Campos extraídos corretamente",
-        "meta": ">= 0.90",
-        "obrigatoria": true
+        "obrigatoria": true,
+        "criterio_aceite": "Campos corretos ≥ 90%"
       },
       {
         "nome": "tempo_por_documento",
         "descricao": "Tempo médio por edital, em minutos",
-        "meta": "<= 10",
-        "obrigatoria": true
+        "obrigatoria": true,
+        "criterio_aceite": "Tempo por edital ≤ 10 min"
       }
     ],
     "dados": "312 editais em PDF com gabarito de 14 campos",
@@ -39,7 +39,11 @@
     "execucao": "solicitante",
     "riscos": [
       "Anexos escaneados"
-    ]
+    ],
+    "objetivo": "Extrair automaticamente os 14 campos de análise dos editais de licitação.",
+    "metodologia": "Extração orientada a esquema sobre 312 editais em PDF, comparada campo a campo com o gabarito.",
+    "bo": "Desenvolvedor do time de automação de suprimentos",
+    "sponsor": "Gerente de licitações"
   },
   "descricao_amostra": "312 editais em PDF nativo digital com planilha-gabarito de 14 campos por edital.",
   "resultados": {

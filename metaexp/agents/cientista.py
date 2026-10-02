@@ -20,6 +20,7 @@ from ..context.builder import system_cientista
 from ..context.golden_paths import BY_ID as GOLDEN
 from ..corpus.store import Corpus
 from ..llm.client import LLM, TextDelta, TurnResult
+from ..metodo import precisa_auto_ingestao
 from ..sessions import Sessao
 from ..tools.cientista_tools import TOOL_SPECS, ToolContext, run_tool
 from ..tools.profiling import PerfilArquivo
@@ -57,7 +58,14 @@ class Cientista:
         yield from self._turno(sessao, ABERTURA.format(nome=sessao.nome))
 
     def responder(self, sessao: Sessao, texto: str) -> Iterator[dict]:
-        yield from self._turno(sessao, texto)
+        aviso = None
+        if precisa_auto_ingestao(texto):
+            pend = sessao.ficha.pendencias()
+            aviso = ("AUTO-INGESTÃO ativada: a mensagem anterior é um texto longo ou estruturado. Extraia de uma vez "
+                     "todos os elementos que ela traz e registre com atualizar_ficha. Depois valide o checklist e, se "
+                     "faltar algo, pergunte somente pelo primeiro item ausente. Não gere a ficha com pendências. "
+                     f"Pendências antes desta mensagem: {'; '.join(pend) if pend else 'nenhuma'}.")
+        yield from self._turno(sessao, texto, aviso_sistema=aviso)
 
     def receber_arquivo(self, sessao: Sessao, perfil: PerfilArquivo) -> Iterator[dict]:
         sessao.arquivos.append(perfil.to_dict())
@@ -75,8 +83,13 @@ class Cientista:
 
     # --------------------------------------------------------------- laço ----
 
-    def _turno(self, sessao: Sessao, conteudo: str | list) -> Iterator[dict]:
+    def _turno(self, sessao: Sessao, conteudo: str | list, aviso_sistema: str | None = None) -> Iterator[dict]:
         sessao.messages.append({"role": "user", "content": conteudo})
+        if aviso_sistema:
+            # Mensagem de sistema no meio da conversa: instrução do operador, sem
+            # invalidar o prefixo cacheado e sem misturar com a fala da pessoa.
+            sessao.messages.append({"role": "system", "content": aviso_sistema})
+            yield {"type": "auto_ingestao"}
         ctx = ToolContext(sessao, self.corpus)
         json_retries = 0
         iteracao = 0

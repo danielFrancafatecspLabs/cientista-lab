@@ -6,11 +6,11 @@
   "situacao_dados": "amostra_suficiente",
   "ficha": {
     "id": "SIN-SEED-06",
-    "titulo": "Previsão de volume de chamadas da central técnica",
+    "titulo": "Previsão de Chamadas",
     "dominio": "operacoes",
     "problema": "O dimensionamento da central técnica erra o volume semanal em até 25% e gera filas ou ociosidade.",
     "publico_afetado": "Planejamento de força de trabalho e 600 técnicos da central",
-    "hipotese": "Se o volume for previsto com um modelo sazonal com feriados e eventos de rede, então o MAPE semanal fica abaixo de 10%.",
+    "hipotese": "Acreditamos que um modelo sazonal com feriados e eventos de rede irá manter o MAPE semanal abaixo de 10% para o planejamento da central técnica.",
     "tecnologia": "estatistica",
     "tecnica": "Modelo de séries temporais com sazonalidade e regressores",
     "justificativa_tecnica": "Há 30 meses de histórico com sazonalidade clara.",
@@ -19,14 +19,14 @@
       {
         "nome": "mape_semanal",
         "descricao": "Erro percentual absoluto médio semanal",
-        "meta": "< 10%",
-        "obrigatoria": true
+        "obrigatoria": true,
+        "criterio_aceite": "MAPE semanal < 10%"
       },
       {
         "nome": "vies",
         "descricao": "Viés médio da previsão",
-        "meta": "entre -3% e 3%",
-        "obrigatoria": false
+        "obrigatoria": false,
+        "criterio_aceite": "Viés entre -3% e 3%"
       }
     ],
     "dados": "30 meses de volume diário e calendário de eventos de rede",
@@ -38,7 +38,11 @@
     "execucao": "solicitante",
     "riscos": [
       "Eventos de rede imprevisíveis"
-    ]
+    ],
+    "objetivo": "Prever o volume semanal de chamadas da central técnica para o dimensionamento.",
+    "metodologia": "Modelo de séries temporais com regressores, treinado em 30 meses e testado em 12 semanas.",
+    "bo": "Analista de planejamento de força de trabalho",
+    "sponsor": "Gerente da central técnica"
   },
   "descricao_amostra": "Série diária de 30 meses de chamadas com calendário de feriados e incidentes massivos.",
   "resultados": {

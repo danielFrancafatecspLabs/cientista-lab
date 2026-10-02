@@ -6,11 +6,11 @@
   "situacao_dados": "amostra_pequena",
   "ficha": {
     "id": "SIN-SEED-04",
-    "titulo": "Propensão a upgrade de plano pós-pago",
+    "titulo": "Propensão Upgrade",
     "dominio": "digital",
     "problema": "As campanhas de upgrade no app têm conversão de 1,2% e incomodam clientes sem interesse.",
     "publico_afetado": "Time de CRM digital e 2,1 milhões de clientes impactados por campanha",
-    "hipotese": "Se as campanhas forem direcionadas por um modelo de propensão, então a conversão dobra no decil mais alto mantendo AUC acima de 0,75.",
+    "hipotese": "Acreditamos que direcionar campanhas por propensão irá dobrar a conversão no decil mais alto, com AUC ≥ 0,75, para os clientes pós-pago do app.",
     "tecnologia": "machine_learning",
     "tecnica": "Classificação supervisionada com gradient boosting",
     "justificativa_tecnica": "Há histórico de campanhas com o desfecho de conversão.",
@@ -19,14 +19,14 @@
       {
         "nome": "auc",
         "descricao": "Área sob a curva ROC em validação temporal",
-        "meta": ">= 0.75",
-        "obrigatoria": true
+        "obrigatoria": true,
+        "criterio_aceite": "AUC ≥ 0,75"
       },
       {
         "nome": "lift_decil_1",
         "descricao": "Conversão do decil mais alto sobre a média",
-        "meta": ">= 2.0",
-        "obrigatoria": true
+        "obrigatoria": true,
+        "criterio_aceite": "Lift no decil 1 ≥ 2,0"
       }
     ],
     "dados": "Histórico de 3 campanhas com 168 conversões rotuladas",
@@ -40,7 +40,11 @@
     "execucao": "solicitante",
     "riscos": [
       "Poucas conversões para validação temporal"
-    ]
+    ],
+    "objetivo": "Treinar e validar um modelo de propensão a upgrade de plano para direcionar campanhas no app.",
+    "metodologia": "Gradient boosting com validação temporal sobre o histórico de 3 campanhas.",
+    "bo": "Cientista de dados do CRM digital",
+    "sponsor": "Gerente de CRM digital"
   },
   "descricao_amostra": "Base de 3 campanhas com 14 mil clientes contatados e 168 conversões.",
   "resultados": {

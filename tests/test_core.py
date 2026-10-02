@@ -33,6 +33,26 @@ def test_qualidade_ralph_loop_multiplicativa():
 def test_ficha_faltantes():
     f = Ficha(titulo="x", problema="y")
     assert "hipotese" in f.faltantes() and "titulo" not in f.faltantes()
+    assert "bo" in f.faltantes() and "sponsor" in f.faltantes() and "objetivo" in f.faltantes()
+
+
+def test_regras_do_metodo():
+    from metaexp.metodo import criterio_valido, hipotese_valida, precisa_auto_ingestao, titulo_valido
+    assert criterio_valido("Acurácia ≥ 85%") and criterio_valido("MAPE < 10%") and criterio_valido("Viés entre -3% e 3%")
+    assert not criterio_valido("Alta acurácia") and not criterio_valido("85%") and not criterio_valido("")
+    assert hipotese_valida("Acreditamos que X irá gerar 20% de redução para Y.") == []
+    assert any("Acreditamos" in p for p in hipotese_valida("Se X, então Y em 20%."))
+    assert any("mensurável" in p for p in hipotese_valida("Acreditamos que X irá ajudar Y."))
+    assert any("2 linhas" in p for p in hipotese_valida("Acreditamos que " + "x " * 150 + "20%"))
+    assert titulo_valido("Busca Semântica FAQ") == [] and titulo_valido("Busca semântica na FAQ")
+    assert precisa_auto_ingestao("a" * 401)
+    assert precisa_auto_ingestao("Problema: x\nObjetivo: y\nMétricas: z")
+    assert not precisa_auto_ingestao("Problema: só uma linha curta")
+
+
+def test_objetivo_igual_hipotese_e_pendencia():
+    f = Ficha(objetivo="Acreditamos que X irá gerar 20%.", hipotese="Acreditamos que X irá gerar 20%.")
+    assert any("objetivo e hipótese" in p for p in f.pendencias())
 
 
 def test_tokenize_remove_acentos_e_stopwords():

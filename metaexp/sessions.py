@@ -33,6 +33,8 @@ class Sessao:
     # para manter o cache e os blocos de raciocínio válidos.
     messages: list[dict] = field(default_factory=list)
     ficha: Ficha = field(default_factory=Ficha)
+    ficha_gerada: bool = False                      # passou pelo Gerador de Ficha com checklist completo
+    ficha_versao: int = 0
     perfil_score: int = 50                          # 0 = negócio, 100 = desenvolvedor
     perfil: Optional[str] = None
     perfil_sinais: list[str] = field(default_factory=list)
@@ -49,6 +51,8 @@ class Sessao:
             "id": self.id,
             "ficha": self.ficha.model_dump(exclude_none=True),
             "faltantes": self.ficha.faltantes(),
+            "pendencias": self.ficha.pendencias(),
+            "ficha_gerada": self.ficha_gerada,
             "perfil": {"score": self.perfil_score, "perfil": self.perfil, "sinais": self.perfil_sinais[-4:]},
             "encaminhamento": self.encaminhamento,
             "bancada": asdict(self.bancada),

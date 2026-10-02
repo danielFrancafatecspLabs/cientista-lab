@@ -6,11 +6,11 @@
   "situacao_dados": "amostra_suficiente",
   "ficha": {
     "id": "SIN-SEED-01",
-    "titulo": "Busca semântica na FAQ do atendimento",
+    "titulo": "Busca Semântica FAQ",
     "dominio": "atendimento",
     "problema": "Analistas de atendimento demoram para encontrar a resposta certa na FAQ e nos procedimentos durante a ligação.",
     "publico_afetado": "40 analistas da central de pós-pago, cerca de 2 horas por dia cada em buscas",
-    "hipotese": "Se os analistas usarem busca semântica com respostas citando a fonte, então o tempo de busca por atendimento cai pelo menos 20%.",
+    "hipotese": "Acreditamos que a busca semântica com respostas citando a fonte irá reduzir em 20% o tempo de busca por atendimento para os analistas do pós-pago.",
     "tecnologia": "ia_generativa",
     "tecnica": "RAG",
     "justificativa_tecnica": "O analista pergunta com as próprias palavras e a busca semântica encontra o trecho certo da FAQ.",
@@ -19,20 +19,20 @@
       {
         "nome": "reducao_tempo_busca",
         "descricao": "Redução do tempo médio de busca por atendimento",
-        "meta": "-20%",
-        "obrigatoria": true
+        "obrigatoria": true,
+        "criterio_aceite": "Redução do tempo de busca ≥ 20%"
       },
       {
         "nome": "respostas_corretas",
         "descricao": "Respostas corretas avaliadas por especialista",
-        "meta": ">= 0.85",
-        "obrigatoria": true
+        "obrigatoria": true,
+        "criterio_aceite": "Respostas corretas ≥ 85%"
       },
       {
         "nome": "respostas_com_fonte",
         "descricao": "Respostas que citam a fonte",
-        "meta": ">= 0.90",
-        "obrigatoria": false
+        "obrigatoria": false,
+        "criterio_aceite": "Respostas com fonte ≥ 90%"
       }
     ],
     "dados": "FAQ interna e procedimentos de 2026, classificação interna",
@@ -46,7 +46,11 @@
     "execucao": "laboratorio",
     "riscos": [
       "18% da FAQ cita planos descontinuados"
-    ]
+    ],
+    "objetivo": "Construir e testar um assistente de busca semântica sobre a FAQ e os procedimentos do atendimento.",
+    "metodologia": "RAG sobre a FAQ, avaliado com 120 perguntas reais dos analistas e medição de tempo com 6 analistas antes e depois.",
+    "bo": "Coordenadora de atendimento pós-pago",
+    "sponsor": "Diretor de atendimento"
   },
   "descricao_amostra": "Planilha da FAQ com 230 pares pergunta-resposta, complementada por 238 itens de procedimentos.",
   "plano": {

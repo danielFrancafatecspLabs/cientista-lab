@@ -21,9 +21,10 @@ def _spec_de(exp, id_="SIN-T-0001") -> Especificacao:
 def test_gerador_aceita_coerente_e_rejeita_duplicata(tmp_path: Path):
     base = SEEDS[0]
     novo = base.model_copy(deep=True)
-    novo.ficha.titulo = "Assistente de normas internas de RH"
+    novo.ficha.titulo = "Normas de RH"
     novo.ficha.problema = "Gestores não encontram regras de férias e benefícios na intranet."
-    novo.ficha.hipotese = "Se gestores consultarem normas por linguagem natural, então chamados ao RH caem 30%."
+    novo.ficha.hipotese = "Acreditamos que consultar normas em linguagem natural irá reduzir em 30% os chamados ao RH para os gestores."
+    novo.ficha.objetivo = "Testar um assistente de perguntas sobre normas internas de RH."
     novo.ficha.tecnica = "Perguntas e respostas sobre normas"
     respostas = iter([novo, base.model_copy(deep=True)])
     llm = FakeLLM(estruturados={"Experimento": lambda _: next(respostas)})

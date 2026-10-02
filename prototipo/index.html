@@ -107,7 +107,7 @@ svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-widt
 .msg-text .hl { background: var(--accent-soft); color: var(--fg); padding: 0 4px; border-radius: 4px; font-weight: 600; }
 .msg.user { flex-direction: row-reverse; }
 .msg.user .msg-body { align-items: flex-end; }
-.bubble-user { background: var(--fg); color: var(--bg); padding: 10px 15px; border-radius: 18px 18px 4px 18px; max-width: 78%; font-size: 15px; }
+.bubble-user { background: var(--fg); color: var(--bg); padding: 10px 15px; border-radius: 18px 18px 4px 18px; max-width: 78%; font-size: 15px; white-space: pre-wrap; max-height: 260px; overflow-y: auto; }
 .file-bubble { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); padding: 10px 14px; border-radius: 14px 14px 4px 14px; box-shadow: var(--shadow-sm); }
 .file-ic { width: 38px; height: 38px; border-radius: 10px; background: var(--ok-soft); color: var(--ok); display: grid; place-items: center; }
 .file-bubble b { display: block; font-size: 14px; } .file-bubble small { color: var(--muted); font-size: 12px; }
@@ -227,6 +227,22 @@ svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-widt
 .f-v .pillx { display: inline-block; font-size: 12.5px; font-weight: 600; padding: 2px 9px; border-radius: 99px; background: var(--surface-2); margin: 2px 4px 2px 0; }
 .f-v .pillx.red { background: var(--accent-soft); color: var(--accent); }
 .f-v .hyp { font-family: var(--f-display); font-size: 16px; font-weight: 650; line-height: 1.3; letter-spacing: -0.01em; }
+.checklist { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.checklist ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 10px; font-size: 12.5px; color: var(--muted); }
+.checklist li { display: flex; gap: 6px; align-items: center; }
+.checklist li.ok { color: var(--fg); }
+.checklist .ck { width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid var(--line-strong); display: grid; place-items: center; flex: none; }
+.checklist li.ok .ck { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.checklist .ck svg { width: 9px; height: 9px; stroke-width: 3.2; }
+.checklist .avisos { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--warn); }
+.gerada { display: flex; gap: 8px; align-items: center; font-size: 12.5px; font-weight: 600; color: var(--ok); background: var(--ok-soft); padding: 7px 10px; border-radius: 9px; }
+.gerada svg { width: 14px; height: 14px; stroke-width: 2.6; }
+.crit { display: flex; flex-direction: column; gap: 4px; }
+.crit span { font-size: 13px; font-family: var(--f-mono); background: var(--surface-2); padding: 3px 8px; border-radius: 6px; width: max-content; max-width: 100%; }
+.ficha-gerada { border-color: var(--ok); }
+.ficha-gerada .hyp-line { font-family: var(--f-display); font-size: 16px; font-weight: 650; line-height: 1.35; margin: 8px 0 12px; letter-spacing: -0.01em; }
+.fg-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; font-size: 13.5px; }
+.fg-grid small { display: block; font-family: var(--f-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); }
 .who { border-top: 1px solid var(--line); padding-top: 16px; display: flex; flex-direction: column; gap: 10px; }
 .who-scale { position: relative; height: 8px; border-radius: 99px; background: linear-gradient(90deg, var(--a-analista), var(--a-dev)); }
 .who-scale i { position: absolute; top: 50%; width: 18px; height: 18px; border-radius: 50%; background: var(--surface); border: 3px solid var(--fg); transform: translate(-50%, -50%); transition: left .8s cubic-bezier(.2,.8,.2,1); }
@@ -606,23 +622,36 @@ function whoSignal(delta, txt, guess) {
   renderPanel();
 }
 const FICHA_FIELDS = [
-  ['problema', 'Problema'], ['publico', 'Quem sente o problema'], ['hipotese', 'Hipótese'], ['tecnologia', 'Tecnologia'],
-  ['metricas', 'Como vamos medir'], ['dados', 'Dados'], ['amostra', 'Amostra'], ['skills', 'Skills necessárias'], ['execucao', 'Quem executa'],
+  ['problema', 'Problema'], ['publico', 'Impacto'], ['objetivo', 'Objetivo'], ['hipotese', 'Hipótese'],
+  ['metodologia', 'Metodologia'], ['tecnologia', 'Tecnologia'], ['amostra', 'Amostra'],
+  ['metricas', 'Métricas e critérios de aceite'], ['responsaveis', 'BO · Sponsor'], ['skills', 'Skills necessárias'], ['execucao', 'Quem executa'],
 ];
+// Checklist de qualidade mínima do método oficial, na ordem do fluxo obrigatório.
+const CHECKLIST = [['problema', 'Problema'], ['publico', 'Impacto'], ['objetivo', 'Objetivo'], ['hipotese', 'Hipótese mensurável'],
+  ['metodologia', 'Metodologia'], ['amostra', 'Amostra'], ['metricas', 'Métricas com critérios numéricos'], ['responsaveis', 'BO e Sponsor']];
 function fichaFieldsHtml(F, flash) {
   return FICHA_FIELDS.map(([k, l]) => {
     let v = F[k];
     if (k === 'tecnologia' && v) v = `<span class="pillx">${esc(v[0])}</span><span class="pillx red">${esc(v[1])}</span>`;
     else if (k === 'hipotese' && v) v = `<div class="hyp">${esc(v)}</div>`;
+    else if (k === 'metricas' && v) v = `<div class="crit">${v.map(x => `<span>${esc(x)}</span>`).join('')}</div>`;
     else if (Array.isArray(v)) v = v.map(x => `<span class="pillx">${esc(x)}</span>`).join('');
     else if (v) v = esc(v);
     return `<div class="f-sec ${flash && flash.has(k) ? 'flash' : ''}"><span class="f-k">${l}</span><div class="f-v ${v ? '' : 'empty'}">${v || 'a definir na conversa'}</div></div>`;
   }).join('');
 }
+function checklistHtml(F) {
+  const ok = CHECKLIST.filter(([k]) => F[k]).length;
+  const avisos = (S.pendencias || []).filter(p => !/: ausente$/.test(p));
+  return `<div class="checklist"><div class="progress-h"><span class="f-k">Qualidade mínima</span><span class="tnum">${ok}/${CHECKLIST.length}</span></div>
+    <ul>${CHECKLIST.map(([k, l]) => `<li class="${F[k] ? 'ok' : ''}"><span class="ck">${F[k] ? ic('check') : ''}</span>${l}</li>`).join('')}</ul>
+    ${avisos.length ? `<div class="avisos">${avisos.map(a => `<span>${esc(a)}</span>`).join('')}</div>` : ''}</div>`;
+}
 function panelHtml() {
-  const F = S.F, filled = FICHA_FIELDS.filter(([k]) => F[k]).length, W = S.who;
+  const F = S.F, W = S.who;
   return `<div class="panel-h"><div><div class="f-k">Ficha do experimento</div><h2>${esc(F.titulo || 'Novo experimento')}</h2></div><span class="ver">${F.id} · v${Math.max(1, F.v)}</span></div>
-    <div class="progress"><div class="progress-h"><span>${filled === FICHA_FIELDS.length ? 'Ficha completa' : 'Montando com você'}</span><span class="tnum">${filled}/${FICHA_FIELDS.length}</span></div><div class="progress-bar"><i style="width:${(filled / FICHA_FIELDS.length) * 100}%"></i></div></div>
+    ${F.gerada ? `<div class="gerada">${ic('check')}Ficha gerada pelo Gerador de Ficha de Experimentação</div>` : ''}
+    ${checklistHtml(F)}
     <div>${fichaFieldsHtml(F, S.changed)}</div>
     <div class="who"><div class="f-k">Quem está do outro lado</div>
       <div class="who-guess">${W.guess}</div>
@@ -685,65 +714,126 @@ function devKitCard() {
 
 /* ---------- roteiro da conversa ---------- */
 const isNo = t => /\bn[aã]o\b|nenhum|ainda n/i.test(t);
+const DOC_IDEIA = `Ideia: assistente de busca para o atendimento
+
+Problema: os analistas do pós-pago demoram para encontrar a resposta certa na FAQ e nos procedimentos durante a ligação, o que aumenta o tempo de atendimento.
+
+Impacto: cerca de 40 analistas, perto de 2 horas por dia cada um procurando informação.
+
+Objetivo: testar uma busca semântica sobre a FAQ e os procedimentos do atendimento.
+
+Hipótese: a busca vai deixar os analistas mais rápidos.
+
+Metodologia: montar um assistente com RAG e comparar o tempo de busca antes e depois com um grupo de analistas.`;
+const hipoteseDemo = () => `Acreditamos que a busca semântica na FAQ irá reduzir em ${S.meta}% o tempo de busca para os analistas do pós-pago.`;
+function checklistCard(titulo) {
+  return `<div class="card"><div class="card-label"><span>${titulo}</span><span>${CHECKLIST.filter(([k]) => S.F[k]).length}/${CHECKLIST.length}</span></div>
+    <ul class="checks">${CHECKLIST.map(([k, l]) => `<li><span class="ck ${S.F[k] ? 'ok' : 'warn'}">${ic(S.F[k] ? 'check' : 'x')}</span>${l}${S.F[k] ? '' : ' <span style="color:var(--muted)">· pendente</span>'}</li>`).join('')}</ul></div>`;
+}
+function fichaGeradaCard() {
+  const F = S.F;
+  return `<div class="card ficha-gerada"><div class="card-label"><span>Gerador de Ficha de Experimentação</span><span>${F.id} · v${F.v}</span></div>
+    <h3>${esc(F.titulo)}</h3>
+    <p class="hyp-line">${esc(F.hipotese)}</p>
+    <div class="fg-grid"><div><small>Objetivo</small><span>${esc(F.objetivo)}</span></div><div><small>BO · Sponsor</small><span>${esc(F.responsaveis)}</span></div></div>
+    <div class="crit">${(F.metricas || []).map(m => `<span>${esc(m)}</span>`).join('')}</div>
+    <span class="link" data-a="openFicha" role="button" tabindex="0">Abrir ficha completa ${ic('arrow')}</span></div>`;
+}
+async function autoIngest() {
+  const t = S.token;
+  S.meta = 20;
+  setF({ titulo: 'Busca Semântica FAQ', problema: 'Analistas do pós-pago demoram para encontrar a resposta certa na FAQ e nos procedimentos durante a ligação.',
+    publico: '≈ 40 analistas · ~2 h/dia cada em buscas', objetivo: 'Testar uma busca semântica sobre a FAQ e os procedimentos do atendimento.',
+    metodologia: 'Assistente com RAG; tempo de busca comparado antes e depois com um grupo de analistas.', tecnologia: ['IA generativa', 'RAG · busca semântica'] });
+  whoSignal(-10, 'Escreveu a ideia pelo impacto na operação');
+  await say('Recebi um texto estruturado: **auto-ingestão ativada**. Extraí os elementos e validei o checklist de qualidade mínima.', checklistCard('Auto-ingestão · checklist'));
+  guard(t);
+  await say(`A hipótese do documento não segue o método: não começa com "Acreditamos que" e não é mensurável. Proposta: ==${hipoteseDemo()}== **Confirma?**`);
+  const a = await ask({ chips: [{ label: 'Confirmo' }, { label: 'Prefiro 30% de redução' }] });
+  guard(t);
+  if (/30/.test(a.text)) S.meta = 30;
+  setF({ hipotese: hipoteseDemo() });
+  await say('Hipótese registrada. Pela metodologia, é **IA generativa com RAG**, porque o caso pede uma pesquisa semântica nos seus dados. Faltam **amostra**, **critérios numéricos** e **BO e Sponsor**. Vamos pela amostra.', techCard());
+}
 async function conversation() {
   const t = S.token;
   try {
     await sleep(300);
-    await say('Oi, Ana! Sou o **Cientista** do beOn Labs. Para começar: **qual é o problema que você quer resolver?**');
-    const a1 = await ask({ chips: [{ label: 'Meus analistas perdem muito tempo procurando respostas na FAQ e nos procedimentos' }, { label: 'Quero usar IA para ajudar o atendimento' }] });
+    await say('Olá, Ana. Sou o **Cientista do beOn Labs**, do time de P&D em Tecnologias Emergentes. Vou estruturar o experimento com você no método oficial. **Qual é o problema que você quer resolver?**');
+    const a1 = await ask({ chips: [{ label: 'Meus analistas perdem muito tempo procurando respostas na FAQ' }, { label: 'Quero usar IA para ajudar o atendimento' },
+      { label: 'Colar o documento da minha ideia', icon: 'file', text: DOC_IDEIA }] });
     guard(t);
-    if (a1.text.length < 45 || /quero usar ia/i.test(a1.text)) {
-      await say('Gosto da ideia, mas IA é o meio, não o problema. **O que acontece hoje que você gostaria que fosse diferente?**');
-      await ask({ chips: [{ label: 'Os analistas demoram para achar a resposta certa na FAQ durante a ligação' }] });
+    const ingest = a1.text.length > 400 || (a1.text.match(/^[A-ZÁÉÍÓÚ][^:\n]{1,40}:/gm) || []).length >= 3;
+    if (ingest) {
+      await autoIngest();
+    } else {
+      if (/quero usar ia/i.test(a1.text) || a1.text.length < 30) {
+        await say('IA é o meio, não o problema. **O que acontece hoje no atendimento que você gostaria que fosse diferente?**');
+        await ask({ chips: [{ label: 'Os analistas demoram para achar a resposta certa na FAQ durante a ligação' }] });
+        guard(t);
+      }
+      setF({ problema: 'Analistas do pós-pago demoram para encontrar a resposta certa na FAQ e nos procedimentos durante a ligação.' });
+      whoSignal(-8, 'Descreveu o problema pelo impacto na operação');
+
+      await say('Entendido. **Qual é o impacto hoje: quem sente o problema e quanto tempo se perde?** Uma estimativa basta.');
+      const a2 = await ask({ chips: [{ label: 'Uns 40 analistas, cerca de 2 horas por dia cada um buscando' }, { label: 'Não sei medir com precisão' }] });
       guard(t);
+      if (/n[aã]o sei/i.test(a2.text)) {
+        await say('Sem problema. Em casos semelhantes, analistas gastam **perto de 25% do tempo de ligação buscando informação**. Uso essa referência e medimos no teste.');
+        setF({ publico: '≈ 40 analistas · ~25% do tempo de ligação em busca' });
+      } else setF({ publico: '40 analistas · ~2 h/dia cada em buscas' });
+      whoSignal(-6, 'Pensa em pessoas e tempo, não em sistema');
+
+      await say('Agora o **objetivo**: o que será realizado neste experimento? O objetivo descreve a ação; o resultado esperado fica para a hipótese.');
+      const a3 = await ask({ chips: [{ label: 'Testar uma busca inteligente na FAQ para os analistas' }, { label: 'Reduzir em 20% o tempo de busca' }] });
+      guard(t);
+      const m3 = a3.text.match(/(\d+)\s*%/);
+      if (m3) {
+        S.meta = +m3[1];
+        await say(`"Reduzir ${S.meta}%" é o que se espera comprovar, então vai para a **hipótese**. O objetivo é a ação: **"testar uma busca semântica na FAQ para os analistas". Pode ser assim?**`);
+        await ask({ chips: [{ label: 'Pode ser assim' }] });
+        guard(t);
+      }
+      setF({ objetivo: 'Testar uma busca semântica sobre a FAQ e os procedimentos do atendimento.' });
+
+      if (!m3) {
+        await say('Para a **hipótese** preciso de um resultado mensurável. **Quanto do tempo de busca você espera reduzir?**');
+        let a4 = await ask({ chips: [{ label: '20%' }, { label: 'O máximo possível' }] });
+        guard(t);
+        if (!/\d/.test(a4.text)) {
+          await say('"O máximo possível" não permite um veredito. Em casos semelhantes, **20%** é ambicioso e realista. **Fechamos em 20%?**');
+          a4 = await ask({ chips: [{ label: 'Fechado, 20%' }, { label: 'Prefiro 30%' }] });
+          guard(t);
+        }
+        const m4 = a4.text.match(/(\d+)/); S.meta = m4 ? +m4[1] : 20;
+      }
+      await say(`Hipótese no formato do método: ==${hipoteseDemo()}== **Confirma?**`);
+      const a5 = await ask({ chips: [{ label: 'Confirmo' }, { label: 'Quero ajustar para 30%' }] });
+      guard(t);
+      if (/30/.test(a5.text)) S.meta = 30;
+      setF({ hipotese: hipoteseDemo() });
+
+      await say('**Metodologia.** Eu entendi que esse experimento é de **IA generativa** e você vai usar **RAG**, porque o caso pede uma **pesquisa semântica nos seus dados**. Vamos testar com perguntas reais dos analistas e medir o tempo antes e depois.', techCard());
+      setF({ tecnologia: ['IA generativa', 'RAG · busca semântica'], metodologia: 'RAG sobre a FAQ, avaliado com 120 perguntas reais e tempo medido antes e depois com 6 analistas.' });
     }
-    setF({ titulo: 'Busca semântica na FAQ do atendimento', problema: 'Analistas gastam tempo demais procurando respostas na FAQ e nos procedimentos durante o atendimento.' });
-    whoSignal(-8, 'Descreveu o problema pelo impacto na operação');
 
-    await say('Entendi. **Quem sente isso no dia a dia e quanto tempo se perde?** Uma estimativa já ajuda.');
-    const a2 = await ask({ chips: [{ label: 'Uns 40 analistas, cerca de 2 horas por dia cada um buscando' }, { label: 'Não sei medir com precisão' }] });
+    await say('**Amostra.** Para montar um RAG você vai precisar de uma amostra de dados, o conteúdo onde a busca vai acontecer. **Você tem dados disponíveis?**');
+    const a6 = await ask({ chips: [{ label: 'Sim, tenho uma FAQ' }, { label: 'Ainda não tenho dados' }] });
     guard(t);
-    if (/n[aã]o sei/i.test(a2.text)) {
-      await say('Sem problema. Em casos parecidos, analistas gastam **perto de 25% do tempo de ligação buscando informação**. Uso isso como ponto de partida e medimos no teste.');
-      setF({ publico: '≈ 40 analistas de atendimento · ~25% do tempo de ligação em busca' });
-    } else setF({ publico: '40 analistas de atendimento · ~2 h/dia cada em buscas' });
-    whoSignal(-6, 'Pensa em pessoas e tempo, não em sistema');
-
-    await say('E **como você saberia que o experimento deu certo?**');
-    let a3 = await ask({ chips: [{ label: 'Se eles encontrassem as respostas mais rápido' }, { label: 'Reduzir em 20% o trabalho de busca dos analistas' }] });
-    guard(t);
-    const m = a3.text.match(/(\d+)\s*%/);
-    if (!m) {
-      await say('"Mais rápido" é o caminho, mas preciso de um número para dar um veredito no final. Em casos assim, **20% de redução** é ambicioso e realista. Fechamos em 20%?');
-      a3 = await ask({ chips: [{ label: 'Fechado, 20%' }, { label: 'Quero ser mais ambiciosa: 30%' }] });
-      guard(t);
-      const m2 = a3.text.match(/(\d+)\s*%/); if (m2) S.meta = +m2[1];
-    } else S.meta = +m[1];
-
-    await say('Agora tenho clareza. Eu entendi que esse experimento é de **IA generativa**. Você vai usar **RAG**, porque o que resolve o seu problema é uma **pesquisa semântica nos seus dados**: o analista pergunta com as palavras dele e recebe a resposta certa, com a fonte.', techCard());
-    setF({ tecnologia: ['IA generativa', 'RAG · busca semântica'], hipotese: `Com busca semântica sobre a FAQ, os analistas reduzem em ${S.meta}% o tempo gasto procurando respostas.`, metricas: [`Tempo de busca −${S.meta}%`, 'Respostas corretas ≥ 85%', 'Resposta com fonte citada'] });
-    await sleep(300); guard(t);
-    await say(`De acordo com a sua hipótese, você vai ==reduzir o trabalho do seu analista em ${S.meta}%== com essas buscas semânticas. Coloquei tudo na ficha.`, fichaPreview('Ficha do experimento · versão de trabalho', 'Problema, hipótese, tecnologia e métricas. Faltam os dados.'));
-
-    await say('Para montar um RAG, você vai precisar de uma **amostra de dados**: o conteúdo onde a busca vai acontecer. **Você tem dados disponíveis?**');
-    const a4 = await ask({ chips: [{ label: 'Sim, tenho uma FAQ' }, { label: 'Ainda não tenho dados' }] });
-    guard(t);
-    if (isNo(a4.text)) {
-      await say('Tudo bem. Sem dados não dá para testar, mas não precisa ser nada sofisticado. **A FAQ que o time já consulta serve**, mesmo que esteja numa planilha ou num documento. Consegue exportar?');
+    if (isNo(a6.text)) {
+      await say('Sem dados não é possível testar, mas a **FAQ que o time já consulta serve**, mesmo em planilha ou documento. **Consegue exportar?**');
       await ask({ chips: [{ label: 'Consigo, tenho a FAQ numa planilha' }] });
       guard(t);
     }
-    setF({ dados: 'FAQ interna do atendimento' });
-    await say('Ótimo. **Então coloque a FAQ aqui que eu vou analisar os dados.** Pode arrastar o arquivo para cá ou usar o clipe.');
+    await say('Então **coloque a FAQ aqui que eu vou analisar os dados.** Pode arrastar o arquivo ou usar o clipe.');
     await ask({ upload: true, noText: true, chips: [{ label: 'Anexar arquivo', icon: 'clip', primary: true, act: 'upload' }, { label: 'Usar FAQ de exemplo', icon: 'file', file: { name: 'FAQ_atendimento.xlsx', meta: 'Planilha · 84 KB' } }] });
     guard(t);
     await analyze('Analisando amostra', ['Lendo o arquivo', 'Identificando colunas e estrutura', 'Checando duplicadas e respostas vazias', 'Calculando o tamanho mínimo da amostra']);
     S.rows = 230;
-    setF({ amostra: '230 pares pergunta-resposta · bem estruturados' });
-    await say('Os dados estão **bem estruturados**. Encontrei **230 registros** com pergunta, resposta e categoria. Para medir com confiança, preciso de **pelo menos mais 200**. **Você consegue?**', dataCard(230, 430));
-    const a5 = await ask({ chips: [{ label: 'Consigo, tenho mais registros' }, { label: 'Não consigo agora' }] });
+    await say('Os dados estão **bem estruturados**: **230 registros** com pergunta, resposta e categoria. Para medir com confiança, preciso de **pelo menos mais 200. Você consegue?**', dataCard(230, 430));
+    const a7 = await ask({ chips: [{ label: 'Consigo, tenho mais registros' }, { label: 'Não consigo agora' }] });
     guard(t);
-    if (!isNo(a5.text)) {
+    if (!isNo(a7.text)) {
       await say('Perfeito. **Então mande aqui o restante dos dados.** Preciso de pelo menos mais 200.');
       await ask({ upload: true, noText: true, chips: [{ label: 'Anexar arquivo', icon: 'clip', primary: true, act: 'upload' }, { label: 'Usar complemento de exemplo', icon: 'file', file: { name: 'FAQ_procedimentos_2026.xlsx', meta: 'Planilha · 112 KB' } }] });
       guard(t);
@@ -752,19 +842,39 @@ async function conversation() {
       setF({ amostra: '468 pares pergunta-resposta · margem ±4 p.p.' });
       await say('Agora sim: **468 registros**, acima do mínimo. Dá para chegar a um resultado confiável.', dataCard(468, 430));
     } else {
-      await say('Sem problema. **Então vamos seguir com essa mesma amostra e chegar a um resultado plausível.** Ajustei a ficha: o resultado será tratado como **indicativo**, com margem de ±6,5 p.p. Se der certo, um próximo ciclo confirma com mais dados.');
+      await say('Sem problema. **Seguimos com essa amostra para chegar a um resultado plausível.** Registrei na ficha que o resultado será **indicativo** (margem de ±6,5 p.p.).');
       setF({ amostra: '230 pares pergunta-resposta · resultado indicativo (±6,5 p.p.)' });
     }
 
+    await say(`**Métricas.** A principal é o tempo de busca, com critério **redução ≥ ${S.meta}%**. **Como vamos medir a qualidade das respostas?**`);
+    let a8 = await ask({ chips: [{ label: 'Respostas corretas ≥ 85%' }, { label: 'Alta qualidade nas respostas' }] });
+    guard(t);
+    if (!/\d/.test(a8.text)) {
+      await say('"Alta qualidade" não é critério de aceite. Todo critério precisa de **valor numérico e condição clara de sucesso**, por exemplo **Respostas corretas ≥ 85%**. **Pode ser?**');
+      a8 = await ask({ chips: [{ label: 'Pode ser: respostas corretas ≥ 85%' }] });
+      guard(t);
+    }
+    setF({ metricas: [`Tempo de busca: redução ≥ ${S.meta}%`, 'Respostas corretas: ≥ 85%', 'Respostas com fonte citada: ≥ 90%'] });
+
+    await say('Critérios registrados, todos com valor numérico. **Quem é a responsável pelo experimento (BO) e quem é o patrocinador (SPONSOR)?**');
+    await ask({ chips: [{ label: 'Eu sou a BO; o sponsor é o Ricardo Alves, diretor de atendimento' }] });
+    guard(t);
+    setF({ responsaveis: 'BO: Ana Ribeiro · Sponsor: Ricardo Alves (Dir. Atendimento)', titulo: 'Busca Semântica FAQ' });
+
+    await say('Checklist de qualidade completo. Nome do experimento: **Busca Semântica FAQ**. Acionei o **Gerador de Ficha de Experimentação**:', fichaGeradaCard());
+    S.F.gerada = true; renderPanel();
+
     await say('Para esse experimento, com essa amostra, **você vai precisar destas skills** para executar:', skillsCard());
     setF({ skills: ['Python', 'Embeddings', 'Prompt', 'Avaliação de LLM'] });
-    await say('Me conta: **você precisa que eu execute ou você mesma vai executar?**');
-    const a6 = await ask({ chips: [{ label: 'Quero que vocês executem' }, { label: 'Eu mesma vou executar' }] });
+    S.F.gerada = true; renderPanel();
+    await say('**Você precisa que eu execute ou você mesma irá executar?**');
+    const a9 = await ask({ chips: [{ label: 'Quero que vocês executem' }, { label: 'Eu mesma vou executar' }] });
     guard(t);
-    const dev = /\beu\b|mesm|consigo execut|vou execut/i.test(a6.text) && !/voc[eê]s/i.test(a6.text);
+    const dev = /\beu\b|mesm|consigo execut|vou execut/i.test(a9.text) && !/voc[eê]s/i.test(a9.text);
     if (dev) await devPath(); else await bizPath();
   } catch (e) { if (!(e instanceof Abort)) console.error(e); }
 }
+
 async function analyze(label, steps) {
   const t = S.token;
   pushHtml(msgHtml('cientista', '', stepsCard(label, steps, 0)));
@@ -848,7 +958,7 @@ async function runBench() {
     if (f === 1) {
       const m = await bAsk('cientista', 'Claro. **Qual meta de redução faz mais sentido para você?**', '', [{ label: '15%' }, { label: '20%' }, { label: '25%' }]);
       guard(t); S.meta = [15, 20, 25][m];
-      setF({ hipotese: `Com busca semântica sobre a FAQ, os analistas reduzem em ${S.meta}% o tempo gasto procurando respostas.`, metricas: [`Tempo de busca −${S.meta}%`, 'Respostas corretas ≥ 85%', 'Resposta com fonte citada'] });
+      setF({ hipotese: hipoteseDemo(), metricas: [`Tempo de busca: redução ≥ ${S.meta}%`, 'Respostas corretas: ≥ 85%', 'Respostas com fonte citada: ≥ 90%'] });
       await bSay('cientista', `Ficha atualizada para **−${S.meta}%** e aprovada. Seguindo.`);
     }
     stage('ficha', 'ok');
@@ -978,7 +1088,8 @@ function openSheet() {
 function closeLayer() { document.getElementById('layer').innerHTML = ''; }
 function yaml() {
   const F = S.F;
-  return `id: ${F.id}\ntitulo: ${F.titulo}\nproblema: ${F.problema}\npublico: ${F.publico}\nhipotese: ${F.hipotese}\ntecnologia: ${(F.tecnologia || []).join(' / ')}\nmetricas:\n${(F.metricas || []).map(m => '  - ' + m).join('\n')}\ndados: ${F.dados}\namostra: ${F.amostra}\nskills: [${(F.skills || []).join(', ')}]\nexecucao: ${F.execucao}\ngolden_path: rag-busca-semantica\nralph_loop: { q_min: 0.85, k_max: 5 }\n`;
+  if (API.live && S.fichaDoc) return S.fichaDoc;
+  return `id: ${F.id}\nnome: ${F.titulo}\nresponsaveis: ${F.responsaveis}\nproblema: ${F.problema}\nimpacto: ${F.publico}\nobjetivo: ${F.objetivo}\nhipotese: ${F.hipotese}\nmetodologia: ${F.metodologia}\ntecnologia: ${(F.tecnologia || []).join(' / ')}\namostra: ${F.amostra}\nmetricas_e_criterios:\n${(F.metricas || []).map(m => '  - ' + m).join('\n')}\nskills: [${(F.skills || []).join(', ')}]\nexecucao: ${F.execucao}\ngolden_path: rag-busca-semantica\n`;
 }
 async function copy(text, msg) {
   try { await navigator.clipboard.writeText(text); toast(msg); }
@@ -1007,7 +1118,7 @@ document.addEventListener('click', e => {
     const c = pending && pending.chips[+d.chip]; if (!c) return;
     if (c.act === 'upload') return document.getElementById('fileIn').click();
     if (c.file) return answer({ file: c.file, text: c.file.name });
-    return answer({ text: c.label });
+    return answer({ text: c.text || c.label });
   }
   if (d.bans) { const [id, i] = d.bans.split('|'); return bAnswer(id, +i); }
   if (d.dec) {
@@ -1074,18 +1185,21 @@ async function sseRead(url, body, onEvent) {
 
 function mapFicha(f) {
   return {
-    id: f.id || S.F.id, v: (S.F.v || 0) + 1, titulo: f.titulo,
-    problema: f.problema, publico: f.publico_afetado, hipotese: f.hipotese,
+    id: f.id || S.F.id, v: (S.F.v || 0) + 1, titulo: f.titulo, gerada: S.F.gerada,
+    problema: f.problema, publico: f.publico_afetado, objetivo: f.objetivo, hipotese: f.hipotese, metodologia: f.metodologia,
     tecnologia: f.tecnologia ? [TEC_LABEL[f.tecnologia] || f.tecnologia, f.tecnica || ''] : undefined,
-    metricas: (f.metricas || []).map(m => `${m.descricao} ${m.meta}${m.obrigatoria ? '' : ' (opcional)'}`),
-    dados: f.dados, amostra: f.amostra, skills: f.skills && f.skills.length ? f.skills : undefined,
+    metricas: f.metricas && f.metricas.length ? f.metricas.map(m => `${m.descricao}: ${m.criterio_aceite}${m.obrigatoria ? '' : ' (opcional)'}`) : undefined,
+    amostra: f.amostra || f.dados, skills: f.skills && f.skills.length ? f.skills : undefined,
+    responsaveis: f.bo || f.sponsor ? `BO: ${f.bo || '—'} · Sponsor: ${f.sponsor || '—'}` : undefined,
     execucao: f.execucao === 'laboratorio' ? 'Laboratório · workflow de agentes' : f.execucao === 'solicitante' ? 'Solicitante' : undefined,
   };
 }
-const CAMPO_FRONT = { publico_afetado: 'publico', tecnica: 'tecnologia', justificativa_tecnica: 'tecnologia' };
+const CAMPO_FRONT = { publico_afetado: 'publico', tecnica: 'tecnologia', justificativa_tecnica: 'tecnologia', bo: 'responsaveis', sponsor: 'responsaveis', dados: 'amostra' };
 
 function applyFichaEvent(ev) {
   S.F = mapFicha(ev.ficha);
+  S.F.gerada = !!ev.gerada;
+  S.pendencias = ev.pendencias || [];
   (ev.changed || []).forEach(k => S.changed.add(CAMPO_FRONT[k] || k));
   renderPanel();
 }
@@ -1171,10 +1285,13 @@ async function liveTurn(url, body) {
       else if (ev.kind === 'amostra') card(liveDataCard(ev.data));
       else if (ev.kind === 'skills') card(liveSkillsCard(ev.data));
       else if (ev.kind === 'similares') card(liveSimilaresCard(ev.data));
+      else if (ev.kind === 'ficha_gerada') { S.F = mapFicha(ev.data.ficha); S.F.v = ev.data.versao; S.F.gerada = true; S.fichaDoc = ev.data.markdown; renderPanel(); card(fichaGeradaCard()); }
     }
+    else if (ev.type === 'auto_ingestao') card(`<div class="sim-note" style="color:var(--info);background:var(--info-soft)">Auto-ingestão ativada: texto longo ou estruturado</div>`);
     else if (ev.type === 'handoff') {
       out.ended = true;
       S.path = ev.destino === 'workflow' ? 'negocio' : 'dev';
+      if (ev.markdown) S.fichaDoc = ev.markdown;
       card(ev.destino === 'workflow' ? handoffCard() : liveDevCard(ev.ficha));
       renderTabs();
     }

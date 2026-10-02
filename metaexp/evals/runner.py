@@ -24,6 +24,7 @@ from pydantic import BaseModel, Field
 from ..agents.cientista import Cientista
 from ..corpus.store import Corpus
 from ..llm.client import LLM
+from ..metodo import criterio_valido
 from ..schemas import Experimento
 from ..sessions import Sessao
 from ..tools.profiling import PerfilArquivo
@@ -38,8 +39,10 @@ dados, marque `anexar_arquivo` como true. Quando ele perguntar quem executa, res
 
 SYSTEM_JUIZ = """Você avalia a condução de uma conversa do Cientista do METAEXP, um agente que transforma o problema de
 uma pessoa em uma ficha de experimento. Dê nota de 1 a 5 para cada critério, com uma justificativa curta.
-Critérios: (1) faz uma pergunta por vez; (2) traz soluções vagas de volta para o problema; (3) insiste em metas
-numéricas; (4) trata a falta ou insuficiência de dados de forma honesta; (5) adapta a linguagem ao perfil da pessoa."""
+Critérios: (1) faz uma pergunta por vez, em no máximo 5 linhas; (2) traz soluções vagas de volta para o problema;
+(3) exige critério de aceite numérico para cada métrica; (4) trata a falta ou insuficiência de dados de forma honesta;
+(5) adapta a linguagem ao perfil da pessoa; (6) segue o fluxo Problema → Impacto → Objetivo → Hipótese → Metodologia →
+Amostra → Métricas → Critérios e não confunde objetivo com hipótese."""
 
 
 class RespostaSimulada(BaseModel):
@@ -48,7 +51,7 @@ class RespostaSimulada(BaseModel):
 
 
 class NotaCriterio(BaseModel):
-    criterio: Literal["uma_pergunta_por_vez", "problema_antes_da_solucao", "metas_numericas", "honestidade_dados", "adaptacao_perfil"]
+    criterio: Literal["uma_pergunta_por_vez", "problema_antes_da_solucao", "criterios_numericos", "honestidade_dados", "adaptacao_perfil", "fluxo_do_metodo"]
     nota: int = Field(description="1 a 5")
     justificativa: str
 
@@ -68,6 +71,7 @@ class ResultadoCaso:
     ficha_completa: bool
     metas_numericas: bool
     turnos: int
+    regras_metodo: bool = False
     notas_juiz: dict[str, int] = field(default_factory=dict)
     erro: str | None = None
 
@@ -80,6 +84,7 @@ class ResultadoCaso:
             "tecnologia": self.tecnologia_obtida == self.tecnologia_esperada,
             "ficha_completa": self.ficha_completa,
             "metas_numericas": self.metas_numericas,
+            "regras_metodo": self.regras_metodo,
         }
 
 
@@ -147,7 +152,8 @@ def rodar_caso(exp: Experimento, cientista: Cientista, llm_solicitante: LLM, jui
         caso=exp.id, perfil_esperado=exp.perfil_solicitante, perfil_detectado=s.perfil,
         encaminhamento=s.encaminhamento, tecnologia_esperada=exp.ficha.tecnologia, tecnologia_obtida=s.ficha.tecnologia,
         ficha_completa=s.ficha.completa(),
-        metas_numericas=bool(s.ficha.metricas) and all(any(ch.isdigit() for ch in m.meta) for m in s.ficha.metricas),
+        metas_numericas=bool(s.ficha.metricas) and all(criterio_valido(m.criterio_aceite) for m in s.ficha.metricas),
+        regras_metodo=not s.ficha.pendencias(),
         turnos=turnos, erro=erro)
     if juiz and transcript:
         av = juiz.structured(system=SYSTEM_JUIZ, messages=[{"role": "user", "content":
@@ -167,7 +173,7 @@ def rodar(corpus: Corpus, llm: LLM, n: int = 5, saida: Path | None = None, usar_
         cientista.corpus = Corpus([e for e in corpus.experiments if e.id != exp.id])
         resultados.append(rodar_caso(exp, cientista, llm, llm if usar_juiz else None))
     agregado: dict[str, float] = {}
-    for chave in ("perfil", "encaminhamento", "tecnologia", "ficha_completa", "metas_numericas"):
+    for chave in ("perfil", "encaminhamento", "tecnologia", "ficha_completa", "metas_numericas", "regras_metodo"):
         agregado[chave] = sum(r.acertos[chave] for r in resultados) / len(resultados) if resultados else 0.0
     notas = [v for r in resultados for v in r.notas_juiz.values()]
     agregado["nota_juiz_media"] = sum(notas) / len(notas) if notas else 0.0

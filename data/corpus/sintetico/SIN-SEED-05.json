@@ -6,11 +6,11 @@
   "situacao_dados": "dados_sensiveis",
   "ficha": {
     "id": "SIN-SEED-05",
-    "titulo": "Classificação automática de manifestações de clientes",
+    "titulo": "Classificação de Manifestações",
     "dominio": "atendimento",
     "problema": "Manifestações da ouvidoria são classificadas manualmente e chegam às áreas responsáveis com até 3 dias de atraso.",
     "publico_afetado": "Ouvidoria (12 pessoas) e áreas que recebem as manifestações",
-    "hipotese": "Se um LLM classificar as manifestações na taxonomia de nível 1, então o F1 macro fica acima de 0,80 e o roteamento passa a ser no mesmo dia.",
+    "hipotese": "Acreditamos que a classificação com LLM irá atingir F1 macro ≥ 0,80 e rotear no mesmo dia para as manifestações da ouvidoria.",
     "tecnologia": "ia_generativa",
     "tecnica": "Classificação com LLM e taxonomia",
     "justificativa_tecnica": "Texto livre com taxonomia definida e poucos exemplos por classe.",
@@ -19,14 +19,14 @@
       {
         "nome": "f1_macro",
         "descricao": "F1 macro na taxonomia de nível 1",
-        "meta": ">= 0.80",
-        "obrigatoria": true
+        "obrigatoria": true,
+        "criterio_aceite": "F1 macro ≥ 0,80"
       },
       {
         "nome": "concordancia_especialista",
         "descricao": "Concordância com a ouvidoria",
-        "meta": ">= 0.85",
-        "obrigatoria": false
+        "obrigatoria": false,
+        "criterio_aceite": "Concordância com a ouvidoria ≥ 85%"
       }
     ],
     "dados": "Manifestações de 6 meses com CPF e telefone, que precisam de mascaramento",
@@ -40,7 +40,11 @@
     "execucao": "laboratorio",
     "riscos": [
       "Classe portabilidade com apenas 12 exemplos"
-    ]
+    ],
+    "objetivo": "Classificar automaticamente as manifestações da ouvidoria na taxonomia de nível 1.",
+    "metodologia": "Classificação com LLM e taxonomia sobre 2.400 manifestações mascaradas, comparada com a rotulagem da ouvidoria.",
+    "bo": "Coordenadora da ouvidoria",
+    "sponsor": "Diretora de experiência do cliente"
   },
   "descricao_amostra": "Exportação de 2.400 manifestações com dados pessoais, mascaradas antes do uso.",
   "resultados": {

@@ -15,7 +15,7 @@ python -m metaexp servir      # http://localhost:8000
 O front em `prototipo/` detecta o backend sozinho: com a API no ar, o selo no topo mostra **LLM ao vivo** e a conversa usa o modelo; sem backend (por exemplo, no link publicado), ele roda o roteiro de demonstração.
 
 ```bash
-python -m pytest              # 27 testes, sem rede e sem custo (cliente de modelo falso)
+python -m pytest              # 33 testes, sem rede e sem custo (cliente de modelo falso)
 ```
 
 ## Arquitetura
@@ -38,13 +38,29 @@ flowchart LR
 | `metaexp/llm/client.py` | Única porta para o modelo: `stream_turn` (chat com ferramentas, token a token) e `structured` (saída validada por Pydantic). Prompt de sistema cacheado, esforço por papel, fallback no servidor quando um classificador recusa. |
 | `metaexp/context/` | Montagem dos contextos: metodologia do laboratório, catálogo de golden paths e prompts de cada papel. Contexto estável vai no prompt de sistema (idêntico byte a byte, para o cache); contexto variável entra pelas mensagens ou por ferramentas. |
 | `metaexp/prompts/` | Prompts em Markdown: `cientista.md` (o roteiro da conversa), `bancada.md`, `sintetico.md`, `ingestao.md`. |
-| `metaexp/tools/` | Ferramentas do Cientista (`atualizar_ficha`, `classificar_experimento`, `buscar_experimentos_similares`, `registrar_sinal_perfil`, `sugerir_respostas`, `solicitar_dados`, `calcular_tamanho_amostra`, `apresentar_skills`, `encaminhar`), perfil determinístico de arquivos e estatística. |
+| `metaexp/tools/` | Ferramentas do Cientista (`atualizar_ficha`, `gerar_ficha`, `classificar_experimento`, `buscar_experimentos_similares`, `registrar_sinal_perfil`, `sugerir_respostas`, `solicitar_dados`, `calcular_tamanho_amostra`, `apresentar_skills`, `encaminhar`), perfil determinístico de arquivos e estatística. |
 | `metaexp/agents/` | `cientista.py` (laço de conversa), `bancada.py` (etapas e gates G0–G3, com o Ralph Loop real entre Desenvolvedor e QA) e `executor.py` (resultados simulados hoje; ponto de troca para execução em sandbox). |
 | `metaexp/corpus/` | Corpus de experimentos e busca BM25 em português, usada como memória do laboratório. |
 | `metaexp/synthetic/` | Ingestão de documentos reais, taxonomia de variação, gerador sintético e controle de qualidade. |
 | `metaexp/evals/` | Avaliação do Cientista com solicitantes simulados e juiz. |
+| `metaexp/metodo.py` | Regras do método oficial validadas em código e checklist de qualidade mínima. |
 | `metaexp/schemas.py` | Contratos de dados: `Ficha`, `AnaliseAmostra`, `PlanoTecnico`, `AvaliacaoQA`, `Resultados`, `Parecer`, `Experimento`. |
 | `data/corpus/sintetico/` | Corpus inicial com 7 experimentos variados (domínio, técnica, perfil, dados, veredito). |
+
+### Método oficial do beOn Labs
+
+O prompt do Cientista (`metaexp/prompts/cientista.md`) segue o método oficial: papel, regras críticas, fluxo obrigatório **Problema → Impacto → Objetivo → Hipótese → Metodologia → Amostra → Métricas → Critérios**, auto-ingestão e encerramento pelo Gerador de Ficha. As regras também são conferidas em código (`metaexp/metodo.py`), então o modelo não consegue gerar uma ficha fora do padrão:
+
+| Regra | Como é garantida |
+|---|---|
+| Hipótese começa com "Acreditamos que", no máximo 2 linhas, mensurável | `atualizar_ficha` devolve aviso na hora; `gerar_ficha` recusa |
+| Toda métrica tem critério de aceite com valor numérico e condição ("Acurácia ≥ 85%") | idem |
+| Nome do experimento com no máximo 3 palavras | idem |
+| Objetivo diferente da hipótese | pendência no checklist |
+| Qualidade mínima: problema, objetivo, hipótese, metodologia, amostra, métricas, critérios, BO e SPONSOR | `gerar_ficha` (o Gerador de Ficha de Experimentação) só gera com o checklist completo; `encaminhar` exige ficha gerada |
+| Auto-ingestão (texto com mais de 400 caracteres ou 3+ seções) | detectada no servidor, que envia ao modelo uma instrução de sistema com as pendências atuais |
+
+A ficha gerada sai em Markdown (`metaexp/ficha_doc.py`) e pode ser baixada em `GET /api/sessoes/{id}/ficha.md`. Se o laboratório já tem um template oficial da ficha, basta ajustar esse arquivo.
 
 ### Como o Cientista usa contexto
 
@@ -92,8 +108,8 @@ python -m metaexp avaliar --n 5 --sim
 
 Para cada experimento do corpus com conversa, um segundo modelo interpreta o solicitante (perfil, problema, dados e jeito de falar) sem ver a ficha final. O caso avaliado sai do corpus de busca para o Cientista não "colar" a resposta. Ao final, a avaliação mede:
 
-- **Determinísticas:** perfil detectado, encaminhamento coerente com o perfil, tecnologia, ficha completa, metas numéricas, turnos até o encaminhamento.
-- **Juiz:** notas de 1 a 5 para uma pergunta por vez, problema antes da solução, insistência em metas numéricas, honestidade sobre dados e adaptação ao perfil.
+- **Determinísticas:** perfil detectado, encaminhamento coerente com o perfil, tecnologia, ficha completa, critérios numéricos, regras do método (hipótese, nome, BO/Sponsor), turnos até o encaminhamento.
+- **Juiz:** notas de 1 a 5 para uma pergunta por vez (até 5 linhas), problema antes da solução, critérios numéricos, honestidade sobre dados, adaptação ao perfil e respeito ao fluxo do método.
 
 O resultado vai para `data/evals/`. Rode sempre que mudar `prompts/cientista.md` ou as ferramentas.
 

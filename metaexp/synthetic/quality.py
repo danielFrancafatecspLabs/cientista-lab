@@ -41,10 +41,8 @@ def validar(exp: Experimento, spec: Especificacao | None, existentes: list[Exper
     faltam = f.faltantes()
     if faltam:
         p.append(f"ficha incompleta: {', '.join(faltam)}")
-    if not any(m.obrigatoria for m in f.metricas):
-        p.append("nenhuma métrica obrigatória")
-    if f.metricas and not all(any(ch.isdigit() for ch in m.meta) for m in f.metricas):
-        p.append("métrica sem meta numérica")
+    # Regras do método oficial: hipótese, nome, critérios, BO/Sponsor.
+    p += [x for x in f.pendencias() if not x.endswith(": ausente")]
     if len(exp.conversa) < 6:
         p.append("conversa curta demais")
     if exp.conversa and exp.conversa[0].papel != "cientista":

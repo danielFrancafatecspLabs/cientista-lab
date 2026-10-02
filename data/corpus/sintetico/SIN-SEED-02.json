@@ -6,11 +6,11 @@
   "situacao_dados": "amostra_suficiente",
   "ficha": {
     "id": "SIN-SEED-02",
-    "titulo": "Correlação de alarmes da infraestrutura de vídeo",
+    "titulo": "Correlação Alarmes Vídeo",
     "dominio": "rede",
     "problema": "Excesso de alarmes redundantes eleva o tempo de triagem do NOC e mascara a causa raiz dos incidentes.",
     "publico_afetado": "Equipe de NOC de vídeo, cerca de 9 mil alarmes por semana",
-    "hipotese": "Se os alarmes forem agrupados por proximidade temporal e topológica, então o volume tratado cai pelo menos 40% preservando 90% dos incidentes reais.",
+    "hipotese": "Acreditamos que agrupar alarmes por proximidade temporal e topológica irá reduzir em 40% o volume tratado, preservando 90% dos incidentes, para o NOC de vídeo.",
     "tecnologia": "machine_learning",
     "tecnica": "Agrupamento temporal com grafo de topologia",
     "justificativa_tecnica": "Alarmes do mesmo incidente acontecem juntos e em equipamentos vizinhos.",
@@ -19,20 +19,20 @@
       {
         "nome": "reducao_volume_alertas",
         "descricao": "Redução do volume de alertas tratados",
-        "meta": ">= 0.40",
-        "obrigatoria": true
+        "obrigatoria": true,
+        "criterio_aceite": "Redução de volume ≥ 40%"
       },
       {
         "nome": "recall_incidentes",
         "descricao": "Incidentes reais preservados",
-        "meta": ">= 0.90",
-        "obrigatoria": true
+        "obrigatoria": true,
+        "criterio_aceite": "Recall de incidentes ≥ 90%"
       },
       {
         "nome": "precisao_causa_raiz",
         "descricao": "Acerto da causa raiz apontada",
-        "meta": ">= 0.70",
-        "obrigatoria": false
+        "obrigatoria": false,
+        "criterio_aceite": "Precisão de causa raiz ≥ 70%"
       }
     ],
     "dados": "Logs de alarmes de 90 dias e inventário de topologia",
@@ -45,7 +45,11 @@
     "execucao": "laboratorio",
     "riscos": [
       "Inventário de topologia desatualizado"
-    ]
+    ],
+    "objetivo": "Agrupar automaticamente alarmes da infraestrutura de vídeo e apontar a causa raiz provável.",
+    "metodologia": "Agrupamento temporal com grafo de topologia sobre 90 dias de logs, validado contra 412 incidentes rotulados pelo NOC.",
+    "bo": "Gerente do NOC de vídeo",
+    "sponsor": "Diretor de operações de rede"
   },
   "descricao_amostra": "Logs de alarmes de 90 dias (1,28 milhão de linhas) e 412 incidentes rotulados pelo NOC.",
   "resultados": {

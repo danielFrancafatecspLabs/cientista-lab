@@ -86,10 +86,12 @@ def resumo_para_contexto(exp: Experimento) -> dict:
         "titulo": f.titulo,
         "dominio": exp.dominio,
         "problema": f.problema,
+        "objetivo": f.objetivo,
         "hipotese": f.hipotese,
+        "metodologia": f.metodologia,
         "tecnologia": f.tecnologia,
         "tecnica": f.tecnica,
-        "metricas": [f"{m.nome} {m.meta}" for m in f.metricas],
+        "metricas": [f"{m.nome}: {m.criterio_aceite}" for m in f.metricas],
         "amostra": exp.descricao_amostra,
         "lead_time_dias": exp.lead_time_dias,
     }

@@ -6,11 +6,11 @@
   "situacao_dados": "sem_dados",
   "ficha": {
     "id": "SIN-SEED-07",
-    "titulo": "Aceitação remota de elementos de rede por imagem",
+    "titulo": "Aceitação Remota",
     "dominio": "rede",
     "problema": "A aceitação de instalações exige visita de um técnico sênior e atrasa a ativação de sites em até 10 dias.",
     "publico_afetado": "Engenharia de implantação, cerca de 180 aceitações por mês",
-    "hipotese": "Se fotos padronizadas forem avaliadas por visão computacional, então 80% das aceitações dispensam a visita com falso aceite abaixo de 2%.",
+    "hipotese": "Acreditamos que a análise de fotos por visão computacional irá dispensar 80% das visitas, com falso aceite < 2%, para a engenharia de implantação.",
     "tecnologia": "visao_computacional",
     "tecnica": "Classificação de imagens",
     "justificativa_tecnica": "A aceitação depende de itens visíveis em fotos.",
@@ -19,14 +19,14 @@
       {
         "nome": "dispensa_visita",
         "descricao": "Aceitações sem visita",
-        "meta": ">= 0.80",
-        "obrigatoria": true
+        "obrigatoria": true,
+        "criterio_aceite": "Aceitações sem visita ≥ 80%"
       },
       {
         "nome": "falso_aceite",
         "descricao": "Taxa de falso aceite",
-        "meta": "< 2%",
-        "obrigatoria": true
+        "obrigatoria": true,
+        "criterio_aceite": "Falso aceite < 2%"
       }
     ],
     "dados": "Não há fotos rotuladas; o padrão de fotos ainda será criado",
@@ -39,7 +39,11 @@
     "execucao": "laboratorio",
     "riscos": [
       "Sem dados rotulados"
-    ]
+    ],
+    "objetivo": "Avaliar a aceitação de instalações de sites por fotos padronizadas, sem visita técnica.",
+    "metodologia": "Classificação de imagens sobre fotos padronizadas e rotuladas, comparada com a aceitação presencial.",
+    "bo": "Coordenador de engenharia de implantação",
+    "sponsor": "Diretor de engenharia"
   },
   "descricao_amostra": "Nenhuma foto rotulada disponível; apenas fotos avulsas sem padrão no e-mail dos técnicos.",
   "parecer": {

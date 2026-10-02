@@ -142,6 +142,13 @@ def create_app(llm: LLM | None = None, cfg: Settings | None = None, corpus: Corp
         s = sessao(sid)
         return stream(s, lambda: Bancada(get_llm(), cfg=cfg).avancar(s, body.decisao, body.comentario))
 
+    @app.get("/api/sessoes/{sid}/ficha.md")
+    def ficha_md(sid: str):
+        from fastapi.responses import PlainTextResponse
+        from ..ficha_doc import markdown
+        s = sessao(sid)
+        return PlainTextResponse(markdown(s.ficha, max(1, s.ficha_versao)), media_type="text/markdown; charset=utf-8")
+
     @app.get("/api/experimentos")
     def experimentos():
         return {

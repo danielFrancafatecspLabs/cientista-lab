@@ -87,3 +87,16 @@ def test_stream_turn_texto_e_ferramenta():
     assert final.tool_calls[0].input == {"opcoes": ["A"]} and final.content[1]["type"] == "tool_use"
     b = vistos["body"]
     assert b["stream"] is True and b["cache_control"] == {"type": "ephemeral"} and b["tools"][0]["eager_input_streaming"] is True
+
+
+def test_mensagem_de_sistema_no_meio_da_conversa_vai_para_a_api():
+    vistos = {}
+
+    def handler(req):
+        vistos["body"] = json.loads(req.content)
+        return httpx2.Response(200, json=_msg([{"type": "text", "text": json.dumps(PLANO)}]))
+
+    llm = AnthropicLLM(Settings(), client=_client(handler))
+    llm.structured(system="s", schema=PlanoTecnico, messages=[
+        {"role": "user", "content": "texto longo"}, {"role": "system", "content": "AUTO-INGESTÃO ativada"}])
+    assert vistos["body"]["messages"][1] == {"role": "system", "content": "AUTO-INGESTÃO ativada"}

@@ -22,9 +22,12 @@ def sessao() -> Sessao:
 def ficha_completa(s: Sessao) -> None:
     f = s.ficha
     f.titulo, f.problema, f.publico_afetado = "Busca na FAQ", "Analistas demoram", "40 analistas"
-    f.hipotese, f.tecnologia, f.tecnica = "Se X, então Y em 20%", "ia_generativa", "RAG"
-    f.metricas = [Metrica(nome="tempo", descricao="tempo de busca", meta="-20%", obrigatoria=True)]
+    f.objetivo, f.metodologia = "Testar busca semântica na FAQ", "RAG avaliado com 120 perguntas"
+    f.hipotese = "Acreditamos que a busca semântica irá reduzir em 20% o tempo de busca para os analistas."
+    f.tecnologia, f.tecnica = "ia_generativa", "RAG"
+    f.metricas = [Metrica(nome="tempo", descricao="tempo de busca", criterio_aceite="Redução ≥ 20%", obrigatoria=True)]
     f.dados, f.amostra, f.skills = "FAQ", "468 registros", ["Python"]
+    f.bo, f.sponsor = "Coordenadora de atendimento", "Diretor de atendimento"
 
 
 def test_esquemas_das_ferramentas_sao_estritos():
@@ -40,12 +43,17 @@ def test_ferramenta_com_entrada_invalida_devolve_erro():
     assert block["is_error"] and events == []
 
 
-def test_encaminhar_exige_ficha_completa():
+def test_encaminhar_exige_ficha_gerada():
     s = sessao()
     ctx = ToolContext(s, CORPUS)
     block, _ = run_tool(ctx, "encaminhar", {"destino": "workflow", "resumo": "x"})
-    assert "faltantes" in block["content"] and s.encaminhamento is None
+    assert "gerar_ficha" in block["content"] and s.encaminhamento is None
+    block, events = run_tool(ctx, "gerar_ficha", {})
+    assert '"ok": false' in block["content"] and events == [] and not s.ficha_gerada
     ficha_completa(s)
+    block, events = run_tool(ctx, "gerar_ficha", {})
+    assert s.ficha_gerada and s.ficha_versao == 1 and events[-1]["kind"] == "ficha_gerada"
+    assert "| tempo | tempo de busca | Redução ≥ 20% | sim |" in events[-1]["data"]["markdown"]
     block, events = run_tool(ctx, "encaminhar", {"destino": "workflow", "resumo": "x"})
     assert s.encaminhamento == "workflow" and s.ficha.execucao == "laboratorio" and s.perfil == "negocio"
     assert events[-1]["type"] == "handoff"
@@ -72,6 +80,44 @@ def test_turno_do_cientista_executa_ferramentas_e_mantem_historico():
     assert len(s.messages[2]["content"]) == 4 and all(b["type"] == "tool_result" for b in s.messages[2]["content"])
     # A segunda chamada recebeu o histórico com o primeiro turno intacto (só acrescenta).
     assert llm.chamadas[1]["messages"][:2] == s.messages[:2]
+
+
+def test_atualizar_ficha_avisa_regras_do_metodo():
+    s = sessao()
+    ctx = ToolContext(s, CORPUS)
+    block, _ = run_tool(ctx, "atualizar_ficha", {
+        "titulo": "Assistente de busca semântica na FAQ",
+        "hipotese": "A busca vai ajudar os analistas.",
+        "metricas": [{"nome": "acuracia", "descricao": "acerto", "criterio_aceite": "alta acurácia", "obrigatoria": True}]})
+    out = __import__("json").loads(block["content"])
+    assert out["ok"] is False
+    avisos = " ".join(out["avisos"])
+    assert "Acreditamos que" in avisos and "3 palavras" in avisos and "acuracia" in avisos
+
+
+def test_alterar_ficha_depois_de_gerada_exige_nova_geracao():
+    s = sessao()
+    ficha_completa(s)
+    ctx = ToolContext(s, CORPUS)
+    run_tool(ctx, "gerar_ficha", {})
+    run_tool(ctx, "atualizar_ficha", {"amostra": "230 registros"})
+    assert not s.ficha_gerada
+    run_tool(ctx, "gerar_ficha", {})
+    assert s.ficha_gerada and s.ficha_versao == 2
+
+
+def test_auto_ingestao_insere_instrucao_de_sistema():
+    llm = FakeLLM([turno("Li o seu documento. **Quem é o patrocinador (SPONSOR)?**")])
+    s = sessao()
+    texto = ("Problema: analistas demoram na FAQ.\nObjetivo: testar busca semântica.\n"
+             "Hipótese: Acreditamos que a busca irá reduzir 20% do tempo.\nMétricas: tempo de busca.")
+    eventos = list(Cientista(llm, CORPUS).responder(s, texto))
+    assert eventos[0]["type"] == "auto_ingestao"
+    assert [m["role"] for m in s.messages[:2]] == ["user", "system"]
+    assert "AUTO-INGESTÃO" in s.messages[1]["content"] and "SPONSOR" in s.messages[1]["content"]
+    # mensagem curta e sem seções: sem auto-ingestão
+    list(Cientista(FakeLLM([turno("ok")]), CORPUS).responder(s, "Uns 40 analistas."))
+    assert s.messages[-2]["role"] == "user"
 
 
 def test_arquivo_vira_cartao_e_contexto():
