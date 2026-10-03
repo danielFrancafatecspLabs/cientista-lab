@@ -390,6 +390,93 @@ svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-widt
 .toast { background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; box-shadow: var(--shadow); animation: rise .25s ease-out; }
 .ficha-btn { display: none; }
 
+/* Escolha de papel */
+.picker { height: 100%; overflow-y: auto; padding: 28px 20px 48px; background-color: var(--bg);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 24px 24px; }
+.picker-in { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; align-items: center; }
+.roles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; width: 100%; }
+.role-card { text-align: left; background: var(--surface); border: 1.5px solid var(--line); border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm); transition: border-color .15s, transform .15s, box-shadow .15s; min-width: 0; }
+.role-card:hover { border-color: var(--line-strong); transform: translateY(-2px); box-shadow: var(--shadow); }
+.role-card.on { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow); }
+.role-top { display: flex; align-items: center; gap: 10px; }
+.role-ic { width: 42px; height: 42px; border-radius: 13px; background: var(--surface-2); color: var(--fg); display: grid; place-items: center; flex: none; }
+.role-ic svg { width: 21px; height: 21px; }
+.role-ic.sm { width: 34px; height: 34px; border-radius: 11px; }
+.role-ic.sm svg { width: 17px; height: 17px; }
+.role-card.on .role-ic { background: var(--accent); color: var(--accent-ink); }
+.role-k { font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.role-check { margin-left: auto; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line-strong); display: grid; place-items: center; color: transparent; }
+.role-check svg { width: 13px; height: 13px; stroke-width: 3; }
+.role-card.on .role-check { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.role-card h2 { font-size: 23px; font-weight: 800; line-height: 1.15; }
+.role-card p { color: var(--muted); font-size: 14.5px; }
+.role-card ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.role-card li { display: flex; gap: 8px; align-items: flex-start; }
+.role-card li svg { width: 15px; height: 15px; color: var(--ok); margin-top: 3px; stroke-width: 2.6; }
+.role-meta { margin-top: auto; padding-top: 10px; border-top: 1px dashed var(--line-strong); font-size: 12.5px; color: var(--muted); }
+.personalize { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; animation: rise .35s ease-out; }
+.eyebrow { font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.personalize h3 { font-size: 19px; font-weight: 650; margin-top: 2px; }
+.prefs { display: flex; flex-direction: column; gap: 14px; }
+.pref { display: flex; flex-direction: column; gap: 8px; }
+.pref-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.pref-opt { border: 1px solid var(--line-strong); background: var(--surface); padding: 7px 13px; border-radius: 99px; font-size: 13.5px; font-weight: 500; }
+.pref-opt:hover { border-color: var(--fg); }
+.pref-opt.on { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.picker-hint { color: var(--muted); font-size: 14px; }
+.link-btn { border: 0; background: none; color: var(--muted); font-size: 13px; font-weight: 600; display: inline-flex; gap: 6px; align-items: center; padding: 4px 6px; border-radius: 8px; }
+.link-btn:hover { color: var(--fg); background: var(--surface-2); }
+.link-btn svg { width: 15px; height: 15px; }
+/* Painel: sua jornada */
+.journey-box { border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--surface); }
+.jb-h { display: flex; gap: 10px; align-items: center; }
+.jb-h b { display: block; font-family: var(--f-display); font-size: 16px; font-weight: 650; }
+.jb-h .link-btn { margin-left: auto; }
+.pref-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.pref-tags span { font-size: 11.5px; font-weight: 600; background: var(--surface-2); padding: 2px 9px; border-radius: 99px; color: var(--muted); }
+.jsteps { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.js-step { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--faint); }
+.js-step i { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--line-strong); }
+.js-step.ok { color: var(--fg); }
+.js-step.ok i { background: var(--ok); border-color: var(--ok); }
+.js-step.cur { color: var(--accent); font-weight: 700; }
+.js-step.cur i { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px var(--accent-soft); }
+/* Cartões técnicos */
+.abords { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 12px; }
+.abord { border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.abord.rec { border-color: var(--ok); background: color-mix(in srgb, var(--ok-soft) 55%, var(--surface)); }
+.ab-h { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ab-h b { font-size: 14.5px; }
+.abord p { font-size: 13px; color: var(--muted); }
+.ab-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; font-family: var(--f-mono); color: var(--muted); }
+.ab-meta span { display: inline-flex; gap: 4px; align-items: center; }
+.ab-meta svg { width: 12px; height: 12px; }
+.pc { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; }
+.pc li::before { font-weight: 700; margin-right: 6px; }
+.pc .p::before { content: "+"; color: var(--ok); }
+.pc .c::before { content: "−"; color: var(--accent); }
+.ab-why { font-size: 13.5px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line-strong); }
+.arch { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; font-size: 12.5px; }
+.arch span { border: 1px solid var(--line-strong); padding: 4px 10px; border-radius: 8px; font-family: var(--f-mono); font-size: 12px; background: var(--surface-2); }
+.arch i { font-style: normal; color: var(--faint); }
+.skill.gap { background: var(--warn-soft); }
+.skill.gap small { color: var(--warn); font-weight: 600; }
+/* Matriz RACI */
+.raci-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.raci { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 640px; }
+.raci th { text-align: center; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 10px 8px; border-bottom: 1px solid var(--line); font-weight: 500; }
+.raci th:first-child, .raci td:first-child { text-align: left; }
+.raci td { padding: 9px 8px; border-bottom: 1px solid var(--line); text-align: center; vertical-align: middle; }
+.raci tr:last-child td { border-bottom: 0; }
+.raci td small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.ag-tag { font-family: var(--f-mono); font-size: 10px; background: var(--info-soft); color: var(--info); padding: 1px 6px; border-radius: 5px; }
+.rc { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; font-weight: 700; font-size: 12.5px; }
+.rc.r { background: var(--accent); color: var(--accent-ink); }
+.rc.a { background: var(--fg); color: var(--bg); }
+.rc.c { background: var(--info-soft); color: var(--info); }
+.rc.i { background: var(--surface-2); color: var(--faint); }
+@media (max-width: 860px) { .roles { grid-template-columns: minmax(0, 1fr); } .picker { padding: 16px 16px 40px; } .role-card h2 { font-size: 20px; } }
+
 @media (max-width: 1080px) { .conv { grid-template-columns: minmax(0, 1fr) 320px; } .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 860px) {
   .conv { grid-template-columns: minmax(0, 1fr); }
@@ -473,6 +560,7 @@ const IC = {
   copy: 'M9 9h11v11H9zM5 15H4V4h11v1', x: 'M6 6l12 12M18 6L6 18', arrow: 'M5 12h14M13 6l6 6-6 6',
   spark: 'M12 3l2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2z',
   link: 'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',
+  briefcase: 'M3 8h18v12H3zM8 8V5h8v3M3 13h18',
 };
 const ic = (n, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24"><path d="${IC[n]}"/></svg>`;
 const AG = {
@@ -485,7 +573,7 @@ const AG = {
 const STAGES = [
   { k: 'ficha', n: 'Ficha', ag: 'cientista', d: 'Você revisa e aprova a ficha' },
   { k: 'amostra', n: 'Amostra', ag: 'dados', d: 'Análises primárias dos dados' },
-  { k: 'dev', n: 'Construção', ag: 'dev', d: 'O RAG é montado no laboratório' },
+  { k: 'dev', n: 'Construção', ag: 'dev', d: 'A solução é montada no laboratório' },
   { k: 'qa', n: 'Qualidade', ag: 'qa', d: 'Testes com perguntas reais' },
   { k: 'resultado', n: 'Resultado', ag: 'analista', d: 'Veredito e próximos passos' },
 ];
@@ -496,9 +584,9 @@ const fmt = s => s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/==(.+?)==/g, 
 function fresh() {
   return {
     tab: 'conversa', token: Math.random(), fast: false,
-    F: { id: 'EXP-ATD-RAG-01', v: 0 }, changed: new Set(),
-    who: { score: 50, guess: 'Ainda conhecendo você', signals: [] },
+    F: { id: 'EXP-ATD-BUSCA-01', v: 0 }, changed: new Set(),
     path: null, rows: 230, extra: false, meta: 20,
+    papel: null, prefs: {}, escolha: null, escolhaPrefs: {},
     bench: { started: false, status: {}, decision: null },
     thread: [], benchLog: [],
   };
@@ -530,7 +618,10 @@ function renderTabs() {
 function setTab(t) {
   S.tab = t; renderTabs();
   const v = document.getElementById('view');
-  if (t === 'conversa') { v.innerHTML = convShell(); restoreThread(); renderPanel(); renderComposer(); }
+  if (t === 'conversa') {
+    if (!S.papel) { v.innerHTML = rolePicker(); return; }
+    v.innerHTML = convShell(); restoreThread(); renderPanel(); renderComposer();
+  }
   if (t === 'bancada') { v.innerHTML = benchShell(); restoreBench(); renderRail(); if (S.path === 'negocio' && !S.bench.started) { if (API.live) liveBench(); else runBench(); } }
   if (t === 'experimentos') v.innerHTML = vExps();
 }
@@ -545,8 +636,8 @@ function convShell() {
       <div class="thread" id="thread"><div class="thread-in" id="threadIn">
         <div class="intro"><div class="big-av">${ic('flask')}</div>
           <span class="lab-tag">Cientista online · beOn Labs</span>
-          <h1>Vamos transformar seu problema em um experimento</h1>
-          <p>Eu faço as perguntas, monto a ficha com você e cuido do resto. Responda com as sugestões ou escreva do seu jeito.</p></div>
+          <h1>${S.papel === 'desenvolvedor' ? 'Vamos desenhar o seu experimento' : 'Vamos transformar seu desafio em um experimento'}</h1>
+          <p>${S.papel === 'desenvolvedor' ? 'Conversa técnica desde a primeira pergunta: contexto, baseline, abordagens e avaliação. Responda com as sugestões ou escreva do seu jeito.' : 'Você fala do seu negócio; eu monto a ficha e o laboratório cuida da tecnologia. Responda com as sugestões ou escreva do seu jeito.'}</p></div>
       </div></div>
       <div class="composer-wrap"><div class="composer-in">
         <div class="chips" id="chips"></div>
@@ -609,32 +700,135 @@ function sendTyped() {
   const text = input.value.trim();
   if (!text || !pending || pending.noText) return;
   input.value = ''; input.style.height = '';
-  if (/(python|api|embedding|vetor|vector|langchain|llm|prompt|deploy|docker|sql|notebook|pipeline|fine.?tun|token|git)/i.test(text)) whoSignal(+18, 'Usou termos técnicos ao escrever');
   answer({ text, typed: true });
 }
 
 /* ---------- ficha + perfil ---------- */
 function setF(obj) { Object.entries(obj).forEach(([k, v]) => { S.F[k] = v; S.changed.add(k); }); S.F.v++; renderPanel(); }
-function whoSignal(delta, txt, guess) {
-  S.who.score = Math.max(4, Math.min(96, S.who.score + delta));
-  if (txt) S.who.signals.push(txt);
-  S.who.guess = guess || (S.who.score < 38 ? 'Provavelmente área de negócio' : S.who.score > 62 ? 'Provavelmente desenvolvedor' : 'Ainda conhecendo você');
-  renderPanel();
-}
-const FICHA_FIELDS = [
-  ['problema', 'Problema'], ['publico', 'Impacto'], ['objetivo', 'Objetivo'], ['hipotese', 'Hipótese'],
-  ['metodologia', 'Metodologia'], ['tecnologia', 'Tecnologia'], ['amostra', 'Amostra'],
-  ['metricas', 'Métricas e critérios de aceite'], ['responsaveis', 'BO · Sponsor'], ['skills', 'Skills necessárias'], ['execucao', 'Quem executa'],
+/* =====================================================================
+   PAPÉIS E JORNADAS (espelha metaexp/papeis.py)
+   ===================================================================== */
+const AREAS = [['rede', 'Rede'], ['atendimento', 'Atendimento'], ['digital', 'Digital'], ['financeiro', 'Financeiro'], ['suprimentos', 'Suprimentos'], ['juridico', 'Jurídico'], ['rh', 'RH'], ['marketing', 'Marketing'], ['operacoes', 'Operações'], ['outro', 'Outra']];
+const PAPEIS = {
+  solicitante: {
+    nome: 'Solicitante', icon: 'briefcase', titulo: 'Tenho um desafio de negócio',
+    descricao: 'Procurou o beOn Labs para executar um desafio tecnológico.',
+    bullets: ['Conversa sobre o seu negócio, sem termos técnicos', 'O laboratório escolhe a tecnologia e executa', 'Você aprova só nos pontos de decisão'],
+    meta: 'Conversa de ~10 min · o laboratório executa',
+    prefs: [
+      { id: 'area', pergunta: 'Sua área', opcoes: AREAS, padrao: 'atendimento' },
+      { id: 'ritmo', pergunta: 'Ritmo da conversa', opcoes: [['direto', 'Direto ao ponto'], ['guiado', 'Guiado, com exemplos']], padrao: 'guiado' },
+    ],
+    etapas: [['Desafio', 'problema'], ['Impacto', 'publico'], ['Objetivo', 'objetivo'], ['Hipótese', 'hipotese'], ['Amostra', 'amostra'], ['Métricas', 'metricas'], ['Responsáveis', 'responsaveis'], ['Ficha', 'gerada'], ['Bancada', '_entregue']],
+    campos: [['problema', 'Desafio'], ['publico', 'Impacto'], ['objetivo', 'Objetivo'], ['hipotese', 'Hipótese'], ['metodologia', 'Como vamos testar'], ['amostra', 'Amostra'],
+      ['metricas', 'Métricas e critérios de aceite'], ['responsaveis', 'BO · Sponsor'], ['execucao', 'Quem executa']],
+  },
+  desenvolvedor: {
+    nome: 'Desenvolvedor', icon: 'code', titulo: 'Quero construir algo',
+    descricao: 'Desenvolvedor de qualquer área querendo construir algo.',
+    bullets: ['Desenho técnico desde a primeira pergunta', 'Baseline, abordagens com trade-offs e protocolo de avaliação', 'Ficha, desenho e kit para construir; bancada opcional'],
+    meta: 'Revisão técnica guiada · você constrói',
+    prefs: [
+      { id: 'stack', pergunta: 'Stack principal', opcoes: [['python', 'Python'], ['typescript', 'TypeScript / Node'], ['java', 'Java / Kotlin'], ['sql', 'SQL e dados']], padrao: 'python' },
+      { id: 'ia', pergunta: 'Experiência com IA', opcoes: [['iniciante', 'Começando em IA'], ['intermediario', 'Já usei LLMs e APIs'], ['avancado', 'Especialista em ML']], padrao: 'intermediario' },
+      { id: 'ambiente', pergunta: 'Onde vai rodar', opcoes: [['sandbox', 'Sandbox do laboratório'], ['propria', 'Minha infraestrutura']], padrao: 'sandbox' },
+    ],
+    etapas: [['Problema', 'problema'], ['Contexto técnico', 'stack'], ['Objetivo', 'objetivo'], ['Baseline', 'baseline'], ['Hipótese', 'hipotese'], ['Abordagens', 'abordagem'],
+      ['Amostra', 'amostra'], ['Avaliação', 'protocolo'], ['Critérios', 'metricas'], ['Responsáveis', 'responsaveis'], ['Ficha', 'gerada'], ['Kit', '_entregue']],
+    campos: [['problema', 'Problema'], ['publico', 'Impacto'], ['stack', 'Contexto técnico'], ['objetivo', 'Objetivo'], ['baseline', 'Baseline'], ['hipotese', 'Hipótese'],
+      ['tecnologia', 'Abordagem'], ['metodologia', 'Metodologia'], ['amostra', 'Amostra'], ['protocolo', 'Protocolo de avaliação'], ['metricas', 'Métricas e critérios de aceite'],
+      ['arquitetura', 'Arquitetura'], ['responsaveis', 'BO · Sponsor'], ['skills', 'Skills necessárias'], ['execucao', 'Quem executa']],
+  },
+};
+const ETAPAS_CICLO = ['Ficha (G0)', 'Amostra (G1)', 'Construção', 'Qualidade (G2)', 'Resultado (G3)', 'Piloto e escala'];
+const RESPONSABILIDADES = [
+  ['Solicitante', 'pessoa', 'Traz o desafio de negócio e decide com base no resultado.', ['A', 'C', 'I', 'I', 'A', 'C']],
+  ['Desenvolvedor', 'pessoa', 'Constrói a solução com apoio do método e dos agentes.', ['A', 'R', 'R', 'R', 'C', 'C']],
+  ['BO (responsável)', 'pessoa', 'Responde pelo experimento do início ao fim.', ['R', 'A', 'I', 'I', 'R', 'R']],
+  ['Sponsor', 'pessoa', 'Patrocina e decide sobre piloto e escala.', ['I', 'I', 'I', 'I', 'I', 'A']],
+  ['Agente Cientista', 'agente', 'Conduz a conversa no método oficial e gera a ficha.', ['R', 'C', 'I', 'I', 'I', 'I']],
+  ['Agentes da bancada', 'agente', 'Dados, Desenvolvedor, QA e Analista executam o experimento.', ['I', 'R', 'R', 'R', 'R', 'I']],
+  ['Curador de governança', 'pessoa', 'Mantém o método, os golden paths e os indicadores.', ['C', 'I', 'I', 'C', 'C', 'I']],
+  ['Especialista revisor', 'pessoa', 'Destrava casos difíceis e faz revisão cega.', ['I', 'C', 'C', 'A', 'C', 'I']],
 ];
+const papel = () => PAPEIS[S.papel] || PAPEIS.solicitante;
+const prefLabel = (id) => { const p = papel().prefs.find(x => x.id === id); return p ? (p.opcoes.find(o => o[0] === S.prefs[id]) || [])[1] : ''; };
+function prefsPadrao(k) { const o = {}; PAPEIS[k].prefs.forEach(p => { o[p.id] = p.padrao; }); return o; }
+function lembrar(k, v) { try { localStorage.setItem('metaexp.' + k, JSON.stringify(v)); } catch (e) { /* armazenamento indisponível */ } }
+function lembrado(k) { try { return JSON.parse(localStorage.getItem('metaexp.' + k)); } catch (e) { return null; } }
+
+function rolePicker() {
+  const esc_ = S.escolha;
+  const card = k => { const r = PAPEIS[k]; return `<button class="role-card ${esc_ === k ? 'on' : ''}" data-role="${k}" aria-pressed="${esc_ === k}">
+      <span class="role-top"><span class="role-ic">${ic(r.icon)}</span><span class="role-k">${r.nome}</span><span class="role-check">${ic('check')}</span></span>
+      <h2>${r.titulo}</h2><p>${r.descricao}</p>
+      <ul>${r.bullets.map(b => `<li>${ic('check')}${b}</li>`).join('')}</ul>
+      <span class="role-meta">${r.meta}</span></button>`; };
+  const prefs = esc_ ? PAPEIS[esc_].prefs.map(p => `<div class="pref"><span class="f-k">${p.pergunta}</span>
+      <div class="pref-opts">${p.opcoes.map(([v, l]) => `<button class="pref-opt ${S.escolhaPrefs[p.id] === v ? 'on' : ''}" data-pref="${p.id}" data-val="${v}">${l}</button>`).join('')}</div></div>`).join('') : '';
+  return `<div class="picker"><div class="picker-in">
+    <div class="intro"><div class="big-av">${ic('flask')}</div>
+      <span class="lab-tag">beOn Labs · P&D em Tecnologias Emergentes</span>
+      <h1>Como você chega ao laboratório hoje?</h1>
+      <p>Escolha seu papel. A conversa, a profundidade e o que você recebe no final mudam com ele.</p></div>
+    <div class="roles">${card('solicitante')}${card('desenvolvedor')}</div>
+    ${esc_ ? `<section class="personalize"><div class="pz-h"><div><span class="eyebrow">Personalize sua jornada</span><h3>${PAPEIS[esc_].nome}: ajuste ao seu jeito</h3></div></div>
+      <div class="prefs">${prefs}</div>
+      <div class="actions"><button class="btn red lg" data-a="startJourney">Começar como ${PAPEIS[esc_].nome} ${ic('arrow')}</button></div></section>`
+      : '<p class="picker-hint">Selecione um papel para personalizar a jornada.</p>'}
+    <button class="link-btn" data-a="raci">${ic('list')}Ver papéis e responsabilidades da plataforma</button>
+  </div></div>`;
+}
+function renderPicker(focoPersonalizacao) {
+  const antes = document.querySelector('.picker'), top = antes ? antes.scrollTop : 0;
+  document.getElementById('view').innerHTML = rolePicker();
+  const pk = document.querySelector('.picker');
+  pk.scrollTop = top;
+  const pz = pk.querySelector('.personalize');
+  if (pz) {
+    if (focoPersonalizacao) pz.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    else pz.style.animation = 'none';
+  }
+}
+function raciHtml() {
+  const cls = v => ({ R: 'r', A: 'a', C: 'c', I: 'i' }[v]);
+  return `<div class="overlay" data-a="closeOverlay"><article class="report" role="dialog" aria-label="Papéis e responsabilidades">
+    <div class="rep-top">${ic('list')}<span class="mono">Papéis e responsabilidades · METAEXP</span><span class="sp"></span><button class="icon-btn" data-a="closeLayer" aria-label="Fechar">${ic('x')}</button></div>
+    <div class="rep-body">
+      <section class="rep-sec"><h3>Quem entra pela plataforma</h3><div class="two">${['solicitante', 'desenvolvedor'].map(k => { const r = PAPEIS[k]; return `<div class="tile"><small>${r.nome}</small><b style="font-size:19px">${r.titulo}</b><p style="font-size:13.5px;color:var(--muted);margin-top:6px">${r.descricao}</p><p style="font-size:12.5px;margin-top:8px">${r.etapas.map(e => e[0]).join(' → ')}</p></div>`; }).join('')}</div></section>
+      <section class="rep-sec"><h3>Matriz por etapa do ciclo</h3><p style="font-size:13px;color:var(--muted);margin-bottom:10px">R executa · A aprova ou decide · C é consultado · I é informado</p>
+        <div class="raci-wrap"><table class="raci"><thead><tr><th>Papel</th>${ETAPAS_CICLO.map(e => `<th>${e}</th>`).join('')}</tr></thead><tbody>
+        ${RESPONSABILIDADES.map(([n, t, m, r]) => `<tr><td><b>${n}</b>${t === 'agente' ? ' <span class="ag-tag">agente</span>' : ''}<small>${m}</small></td>${r.map(v => `<td><span class="rc ${cls(v)}">${v}</span></td>`).join('')}</tr>`).join('')}
+        </tbody></table></div></section>
+    </div></article></div>`;
+}
+
+/* ---------- painel por papel ---------- */
+function etapasEstado() {
+  const F = S.F;
+  const feito = k => k === '_entregue' ? !!S.path : k === 'gerada' ? !!F.gerada : !!F[k];
+  const et = papel().etapas.map(([n, k]) => ({ n, ok: feito(k) }));
+  const cur = et.findIndex(e => !e.ok);
+  return et.map((e, i) => ({ ...e, cur: i === cur }));
+}
+function journeyBox() {
+  const r = papel(), et = etapasEstado(), ok = et.filter(e => e.ok).length;
+  return `<div class="journey-box"><div class="jb-h"><span class="role-ic sm">${ic(r.icon)}</span><div><span class="f-k">Sua jornada</span><b>${r.nome}</b></div><button class="link-btn" data-a="trocarPapel">Trocar papel</button></div>
+    <div class="pref-tags">${r.prefs.map(p => `<span>${prefLabel(p.id)}</span>`).join('')}</div>
+    <div class="jsteps" aria-label="Etapas da jornada">${et.map(e => `<span class="js-step ${e.ok ? 'ok' : ''} ${e.cur ? 'cur' : ''}" title="${e.n}"><i></i>${e.n}</span>`).join('')}</div>
+    <div class="progress-h"><span>${et[et.length - 1].ok ? 'Jornada concluída' : 'Próximo: ' + (et.find(e => e.cur) || {}).n}</span><span class="tnum">${ok}/${et.length}</span></div></div>`;
+}
+
 // Checklist de qualidade mínima do método oficial, na ordem do fluxo obrigatório.
-const CHECKLIST = [['problema', 'Problema'], ['publico', 'Impacto'], ['objetivo', 'Objetivo'], ['hipotese', 'Hipótese mensurável'],
+const CHECKLIST_BASE = [['problema', 'Problema'], ['publico', 'Impacto'], ['objetivo', 'Objetivo'], ['hipotese', 'Hipótese mensurável'],
   ['metodologia', 'Metodologia'], ['amostra', 'Amostra'], ['metricas', 'Métricas com critérios numéricos'], ['responsaveis', 'BO e Sponsor']];
+let CHECKLIST = CHECKLIST_BASE;
 function fichaFieldsHtml(F, flash) {
-  return FICHA_FIELDS.map(([k, l]) => {
+  return papel().campos.map(([k, l]) => {
     let v = F[k];
-    if (k === 'tecnologia' && v) v = `<span class="pillx">${esc(v[0])}</span><span class="pillx red">${esc(v[1])}</span>`;
+    if (k === 'tecnologia' && v) v = S.papel === 'desenvolvedor' ? `<span class="pillx">${esc(v[0])}</span><span class="pillx red">${esc(v[1])}</span>` : '';
     else if (k === 'hipotese' && v) v = `<div class="hyp">${esc(v)}</div>`;
-    else if (k === 'metricas' && v) v = `<div class="crit">${v.map(x => `<span>${esc(x)}</span>`).join('')}</div>`;
+    else if ((k === 'metricas' || k === 'arquitetura') && v) v = `<div class="crit">${v.map(x => `<span>${esc(x)}</span>`).join('')}</div>`;
     else if (Array.isArray(v)) v = v.map(x => `<span class="pillx">${esc(x)}</span>`).join('');
     else if (v) v = esc(v);
     return `<div class="f-sec ${flash && flash.has(k) ? 'flash' : ''}"><span class="f-k">${l}</span><div class="f-v ${v ? '' : 'empty'}">${v || 'a definir na conversa'}</div></div>`;
@@ -648,19 +842,15 @@ function checklistHtml(F) {
     ${avisos.length ? `<div class="avisos">${avisos.map(a => `<span>${esc(a)}</span>`).join('')}</div>` : ''}</div>`;
 }
 function panelHtml() {
-  const F = S.F, W = S.who;
+  const F = S.F;
   return `<div class="panel-h"><div><div class="f-k">Ficha do experimento</div><h2>${esc(F.titulo || 'Novo experimento')}</h2></div><span class="ver">${F.id} · v${Math.max(1, F.v)}</span></div>
+    ${journeyBox()}
     ${F.gerada ? `<div class="gerada">${ic('check')}Ficha gerada pelo Gerador de Ficha de Experimentação</div>` : ''}
     ${checklistHtml(F)}
-    <div>${fichaFieldsHtml(F, S.changed)}</div>
-    <div class="who"><div class="f-k">Quem está do outro lado</div>
-      <div class="who-guess">${W.guess}</div>
-      <div class="who-scale"><i style="left:${W.score}%"></i></div>
-      <div class="who-l"><span>Área de negócio</span><span>Desenvolvedor</span></div>
-      ${W.signals.length ? `<ul class="signals">${W.signals.slice(-4).map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : '<p class="signals">O Cientista ajusta a conversa conforme entende seu perfil.</p>'}
-    </div>`;
+    <div>${fichaFieldsHtml(F, S.changed)}</div>`;
 }
 function renderPanel() {
+  CHECKLIST = CHECKLIST_BASE.map(([k, l]) => [k, k === 'metodologia' && S.papel === 'solicitante' ? 'Como vamos testar' : l]);
   const p = document.getElementById('panel'); if (p) p.innerHTML = panelHtml();
   const sh = document.getElementById('sheetBody'); if (sh) sh.innerHTML = panelHtml();
   if (S.changed.size) setTimeout(() => { S.changed.clear(); document.querySelectorAll('.f-sec.flash').forEach(e => e.classList.remove('flash')); }, 900);
@@ -701,31 +891,40 @@ function handoffCard() {
     <button class="btn red" data-a="goBench">Ir para a bancada ${ic('arrow')}</button></div>`;
 }
 function devKitCard() {
-  return `<div class="card"><div class="card-label"><span>Ficha final · pronta para executar</span><span>${S.F.id} · v${S.F.v}</span></div>
+  const arquivos = {
+    python: [['ingest.py', 'ingestão e deduplicação'], ['indice_hibrido.py', 'BM25 + vetorial com RRF'], ['reranker.py', 'cross-encoder nos 20 primeiros'], ['avaliar.py', 'Recall@5, MRR, latência']],
+    typescript: [['ingest.ts', 'ingestão e deduplicação'], ['hybridIndex.ts', 'BM25 + vetorial com RRF'], ['reranker.ts', 'cross-encoder nos 20 primeiros'], ['evaluate.ts', 'Recall@5, MRR, latência']],
+    java: [['Ingest.java', 'ingestão e deduplicação'], ['HybridIndex.java', 'BM25 + vetorial com RRF'], ['Reranker.java', 'cross-encoder nos 20 primeiros'], ['Evaluate.java', 'Recall@5, MRR, latência']],
+    sql: [['01_ingestao.ipynb', 'ingestão e deduplicação'], ['02_indice.ipynb', 'BM25 + vetorial com RRF'], ['03_reranking.ipynb', 'cross-encoder'], ['04_avaliacao.ipynb', 'Recall@5, MRR, latência']],
+  }[S.prefs.stack] || [];
+  const extra = [['ficha.md', 'ficha com desenho técnico'], ['golden_set_120.csv', 'gabarito anotado'], ...(S.prefs.ambiente === 'propria' ? [['docker-compose.yml', 'índice e API locais']] : [['sandbox exp-sup-01', 'ambiente já provisionado']])];
+  return `<div class="card"><div class="card-label"><span>Kit do experimento · ${STACK[S.prefs.stack] || ''}</span><span>${S.F.id} · v${S.F.v}</span></div>
     <h3>${esc(S.F.titulo)}</h3><p style="color:var(--muted);font-size:14px;margin-top:4px">${esc(S.F.hipotese)}</p>
-    <div class="kit">
-      <div class="kit-item">${ic('file')}<div style="min-width:0"><span class="mono">ficha.yaml</span><small>hipótese, métricas e critérios</small></div></div>
-      <div class="kit-item">${ic('db')}<div style="min-width:0"><span class="mono">faq_limpa.parquet</span><small>${S.rows} registros sem duplicadas</small></div></div>
-      <div class="kit-item">${ic('code')}<div style="min-width:0"><span class="mono">rag-busca-semantica/</span><small>golden path com template</small></div></div>
-      <div class="kit-item">${ic('shield')}<div style="min-width:0"><span class="mono">eval_perguntas.csv</span><small>120 perguntas para testar</small></div></div>
-    </div>
-    <div class="actions" style="margin-top:14px"><button class="btn primary" data-a="copyYaml">${ic('copy')}Copiar ficha</button><button class="btn" data-a="openFicha">Ver ficha</button><button class="btn" data-a="switchBiz">Prefiro que vocês executem</button></div></div>`;
+    <div class="kit">${[...arquivos, ...extra].map(([f, d]) => `<div class="kit-item">${ic(/\.(md|csv)$/.test(f) ? 'file' : /sandbox|docker/.test(f) ? 'bench' : 'code')}<div style="min-width:0"><span class="mono">${f}</span><small>${d}</small></div></div>`).join('')}</div>
+    <div class="actions" style="margin-top:14px"><button class="btn primary" data-a="copyYaml">${ic('copy')}Copiar ficha</button><button class="btn" data-a="openFicha">Ver ficha</button><button class="btn" data-a="switchBiz">Rodar na bancada</button></div></div>`;
 }
 
 /* ---------- roteiro da conversa ---------- */
 const isNo = t => /\bn[aã]o\b|nenhum|ainda n/i.test(t);
-const DOC_IDEIA = `Ideia: assistente de busca para o atendimento
+const area = () => prefLabel('area') || 'sua área';
+const guiado = () => S.prefs.ritmo !== 'direto';
+const nivel = () => S.prefs.ia || 'intermediario';
+const STACK = { python: 'Python', typescript: 'TypeScript', java: 'Java/Kotlin', sql: 'SQL e notebooks' };
+const DOC_IDEIA = `Ideia: assistente de busca para a equipe
 
-Problema: os analistas do pós-pago demoram para encontrar a resposta certa na FAQ e nos procedimentos durante a ligação, o que aumenta o tempo de atendimento.
+Problema: a equipe demora para encontrar a informação certa nos documentos e procedimentos internos, o que atrasa o atendimento.
 
-Impacto: cerca de 40 analistas, perto de 2 horas por dia cada um procurando informação.
+Impacto: cerca de 40 pessoas, perto de 2 horas por dia cada uma procurando informação.
 
-Objetivo: testar uma busca semântica sobre a FAQ e os procedimentos do atendimento.
+Objetivo: testar uma busca inteligente sobre os documentos e procedimentos da equipe.
 
-Hipótese: a busca vai deixar os analistas mais rápidos.
+Hipótese: a busca vai deixar a equipe mais rápida.
 
-Metodologia: montar um assistente com RAG e comparar o tempo de busca antes e depois com um grupo de analistas.`;
-const hipoteseDemo = () => `Acreditamos que a busca semântica na FAQ irá reduzir em ${S.meta}% o tempo de busca para os analistas do pós-pago.`;
+Metodologia: comparar o tempo de busca antes e depois com um grupo da equipe.`;
+const hipoteseSol = () => `Acreditamos que uma busca inteligente nos documentos irá reduzir em ${S.meta}% o tempo de busca para a equipe de ${area()}.`;
+const hipoteseDev = () => `Acreditamos que a busca híbrida com re-ranking irá elevar o Recall@5 de 0,52 para ≥ 0,85 e reduzir em ${S.meta}% o tempo de busca do suporte.`;
+const explica = txt => nivel() === 'iniciante' ? ` (${txt})` : '';
+
 function checklistCard(titulo) {
   return `<div class="card"><div class="card-label"><span>${titulo}</span><span>${CHECKLIST.filter(([k]) => S.F[k]).length}/${CHECKLIST.length}</span></div>
     <ul class="checks">${CHECKLIST.map(([k, l]) => `<li><span class="ck ${S.F[k] ? 'ok' : 'warn'}">${ic(S.F[k] ? 'check' : 'x')}</span>${l}${S.F[k] ? '' : ' <span style="color:var(--muted)">· pendente</span>'}</li>`).join('')}</ul></div>`;
@@ -739,139 +938,281 @@ function fichaGeradaCard() {
     <div class="crit">${(F.metricas || []).map(m => `<span>${esc(m)}</span>`).join('')}</div>
     <span class="link" data-a="openFicha" role="button" tabindex="0">Abrir ficha completa ${ic('arrow')}</span></div>`;
 }
-async function autoIngest() {
+function labCard() {
+  return `<div class="card"><div class="card-label"><span>Do lado técnico</span><span>responsabilidade do laboratório</span></div>
+    <ul class="checks"><li><span class="ck ok">${ic('check')}</span>A equipe técnica escolhe e constrói a solução</li>
+    <li><span class="ck ok">${ic('check')}</span>O teste compara o tempo de busca de um grupo da equipe antes e depois</li>
+    <li><span class="ck ok">${ic('check')}</span>Você valida se as respostas estão certas, com o seu conhecimento do negócio</li></ul></div>`;
+}
+function abordagensCard(d) {
+  const ab = d.abordagens || d;
+  return `<div class="card"><div class="card-label"><span>Abordagens avaliadas</span><span>${ab.length} opções</span></div>
+    <div class="abords">${ab.map(a => `<div class="abord ${a.recomendada ? 'rec' : ''}">
+      <div class="ab-h"><b>${esc(a.nome)}</b>${a.recomendada ? '<span class="pill ok">recomendada</span>' : ''}</div>
+      <p>${esc(a.descricao)}</p>
+      <div class="ab-meta"><span>${ic('spark')}${esc(a.custo)}</span><span>${ic('bench')}${esc(a.latencia)}</span><span>complexidade ${esc(a.complexidade)}</span></div>
+      <ul class="pc">${a.pros.map(x => `<li class="p">${esc(x)}</li>`).join('')}${a.contras.map(x => `<li class="c">${esc(x)}</li>`).join('')}</ul></div>`).join('')}</div>
+    ${d.justificativa_recomendacao ? `<p class="ab-why">${esc(d.justificativa_recomendacao)}</p>` : ''}</div>`;
+}
+function desenhoCard(d) {
+  return `<div class="card"><div class="card-label"><span>Desenho técnico</span><span>${esc(d.stack || '')}</span></div>
+    ${d.arquitetura && d.arquitetura.length ? `<div class="arch">${d.arquitetura.map((c, i) => `${i ? '<i>→</i>' : ''}<span>${esc(c)}</span>`).join('')}</div>` : ''}
+    <div class="fg-grid" style="margin-top:12px">
+      ${d.baseline ? `<div><small>Baseline</small><span>${esc(d.baseline)}</span></div>` : ''}
+      ${d.protocolo_avaliacao ? `<div><small>Protocolo de avaliação</small><span>${esc(d.protocolo_avaliacao)}</span></div>` : ''}</div>
+    ${d.metricas_tecnicas && d.metricas_tecnicas.length ? `<div class="crit">${d.metricas_tecnicas.map(m => `<span>${esc(m)}</span>`).join('')}</div>` : ''}
+    ${d.restricoes && d.restricoes.length ? `<ul class="checks">${d.restricoes.map(r => `<li><span class="ck warn">${ic('shield')}</span>${esc(r)}</li>`).join('')}</ul>` : ''}</div>`;
+}
+const ABORDAGENS_DEMO = () => ({
+  abordagens: [
+    { nome: 'BM25 ajustado', descricao: 'Busca por palavra-chave com sinônimos e boosting de títulos.', pros: ['Barata e rápida', 'Fácil de explicar'], contras: ['Falha com paráfrases', 'Teto baixo de recall'], custo: '≈ R$ 0', latencia: 'p95 ≈ 0,2 s', complexidade: 'baixa', recomendada: false },
+    { nome: 'Busca densa (embeddings)', descricao: 'Vetores semânticos sobre trechos de ~400 tokens.', pros: ['Entende paráfrases', 'Boa cobertura semântica'], contras: ['Erra códigos e siglas exatas', 'Custo de indexação'], custo: '≈ R$ 0,01/consulta', latencia: 'p95 ≈ 0,6 s', complexidade: 'media', recomendada: false },
+    { nome: 'Híbrida + re-ranking', descricao: 'BM25 e densa em paralelo, fusão por RRF e re-ranker nos 20 primeiros.', pros: ['Maior recall nos testes do lab', 'Robusta a siglas e paráfrases'], contras: ['Mais componentes', 'Re-ranker pesa na latência'], custo: '≈ R$ 0,03/consulta', latencia: 'p95 ≈ 1,4 s', complexidade: 'alta', recomendada: true },
+  ],
+  justificativa_recomendacao: 'Seu conteúdo mistura procedimentos em texto livre com códigos de planos e siglas: a parte lexical acerta os termos exatos e a densa cobre as paráfrases. Cabe no limite de 2 s.' + (nivel() === 'avancado' ? ' Se o re-ranker estourar a latência, vale testar late interaction (ColBERT) no lugar do cross-encoder.' : ''),
+});
+function devDataCard(rows, need) {
+  return `<div class="card"><div class="card-label"><span>Perfil técnico da amostra</span><span>${rows >= need ? 'suficiente para avaliar' : 'abaixo do ideal'}</span></div>
+    <div class="stats"><div class="stat"><small>Documentos</small><b>1.214</b></div><div class="stat"><small>Trechos estimados</small><b>4.860</b></div><div class="stat"><small>Tokens médios/trecho</small><b>380</b></div><div class="stat"><small>Pares de avaliação</small><b class="${rows >= need ? 'ok' : 'warn'}">${rows}</b></div></div>
+    <ul class="checks"><li><span class="ck ok">${ic('check')}</span>Idioma pt-BR em 98%; 2% com trechos em inglês (manuais de fornecedor)</li>
+      <li><span class="ck warn">${ic('x')}</span>3,1% de páginas quase duplicadas (versões antigas de procedimentos): deduplicar antes de indexar</li>
+      <li><span class="ck warn">${ic('x')}</span>Tabelas em HTML em 11% das páginas: precisam de parser próprio para não virar ruído</li>
+      <li><span class="ck ${rows >= need ? 'ok' : 'warn'}">${ic(rows >= need ? 'check' : 'x')}</span>${rows} pares pergunta-documento para avaliação; referência do golden path: ${need}</li></ul></div>`;
+}
+function devSkillsCard() {
+  const lacuna = { iniciante: ['Embeddings e banco vetorial', 'Avaliação de LLM'], intermediario: ['Avaliação de LLM'], avancado: [] }[nivel()];
+  const sk = [[STACK[S.prefs.stack] || 'Python', 'ingestão, índice e avaliação', 3], ['Embeddings e banco vetorial', 'índice denso e fusão híbrida', 3], ['Re-ranking', 'cross-encoder nos 20 primeiros', 2], ['Avaliação de LLM', 'Recall@k, MRR e fidelidade', 2]];
+  return `<div class="card"><div class="card-label"><span>Skills para construir</span><span>${lacuna.length ? lacuna.length + ' lacuna(s) prováveis' : 'sem lacunas prováveis'}</span></div>
+    <div class="skills">${sk.map(s => `<div class="skill ${lacuna.includes(s[0]) ? 'gap' : ''}"><div><b>${s[0]}</b><small>${lacuna.includes(s[0]) ? 'trilha recomendada antes de começar' : s[1]}</small></div><div class="lv">${[1, 2, 3].map(n => `<i class="${n <= s[2] ? 'on' : ''}"></i>`).join('')}</div></div>`).join('')}</div>
+    <div class="time-est"><span>Construindo você<br><b>${{ iniciante: '≈ 3 semanas', intermediario: '≈ 2 semanas', avancado: '≈ 1 semana' }[nivel()]}</b></span><span>Na bancada do laboratório<br><b>≈ 6 dias úteis</b></span><span>Ambiente<br><b>${S.prefs.ambiente === 'propria' ? 'Sua infraestrutura' : 'Sandbox do laboratório'}</b></span></div></div>`;
+}
+
+async function convSolicitante() {
+  const t = S.token;
+  await say(`Olá, Ana. Sou o **Cientista do beOn Labs**. Você traz o desafio de ${area()}; eu cuido do método e o laboratório cuida da tecnologia. **Qual é o desafio que você quer resolver?**`);
+  const a1 = await ask({ chips: [{ label: 'Minha equipe perde muito tempo procurando informação em documentos e procedimentos' }, { label: 'Quero usar IA na minha área' },
+    { label: 'Colar o documento da minha ideia', icon: 'file', text: DOC_IDEIA }] });
+  guard(t);
+  const ingest = a1.text.length > 400 || (a1.text.match(/^[A-ZÁÉÍÓÚ][^:\n]{1,40}:/gm) || []).length >= 3;
+  if (ingest) {
+    S.meta = 20;
+    setF({ titulo: 'Busca Inteligente Documentos', problema: `A equipe de ${area()} demora para encontrar a informação certa em documentos e procedimentos internos.`,
+      publico: '≈ 40 pessoas · ~2 h/dia cada procurando informação', objetivo: 'Testar uma busca inteligente sobre os documentos e procedimentos da equipe.',
+      metodologia: 'Comparar o tempo de busca de um grupo da equipe antes e depois.', tecnologia: ['IA generativa', 'RAG · busca semântica'] });
+    await say('Recebi um texto estruturado: **auto-ingestão ativada**. Li tudo e validei o checklist de qualidade mínima.', checklistCard('Auto-ingestão · checklist'));
+    await say(`A hipótese do documento ainda não é mensurável. Proposta: ==${hipoteseSol()}== **Confirma?**`);
+    const a = await ask({ chips: [{ label: 'Confirmo' }, { label: 'Prefiro 30% de redução' }] });
+    guard(t);
+    if (/30/.test(a.text)) S.meta = 30;
+    setF({ hipotese: hipoteseSol() });
+    await say('Registrado. Faltam **amostra**, **critérios numéricos** e **BO e Sponsor**. Vamos pela amostra.');
+  } else {
+    if (/usar ia/i.test(a1.text) || a1.text.length < 30) {
+      await say('IA é o meio; o que importa é o desafio. **O que acontece hoje na sua área que você gostaria que fosse diferente?**');
+      await ask({ chips: [{ label: 'A equipe demora para achar a informação certa nos documentos internos' }] });
+      guard(t);
+    }
+    setF({ problema: `A equipe de ${area()} demora para encontrar a informação certa em documentos e procedimentos internos.` });
+
+    await say('Entendi. **Quantas pessoas passam por isso e quanto tempo se perde?** Uma estimativa basta.');
+    const a2 = await ask({ chips: [{ label: 'Umas 40 pessoas, cerca de 2 horas por dia cada uma' }, { label: 'Não sei medir com precisão' }] });
+    guard(t);
+    if (/n[aã]o sei/i.test(a2.text)) {
+      await say('Sem problema. Em casos semelhantes, equipes gastam **perto de 25% do dia procurando informação**. Uso essa referência e medimos no teste.');
+      setF({ publico: '≈ 40 pessoas · ~25% do dia procurando informação' });
+    } else setF({ publico: '40 pessoas · ~2 h/dia cada procurando informação' });
+
+    if (guiado()) {
+      await say('E **o que acontece com o seu cliente enquanto alguém procura?** Isso mostra o peso real do problema.');
+      const a2b = await ask({ chips: [{ label: 'O cliente espera, o atendimento demora e a satisfação cai' }, { label: 'O impacto é mais interno, no retrabalho' }] });
+      guard(t);
+      setF({ publico: S.F.publico + (/cliente/i.test(a2b.text) ? ' · cliente espera mais e a satisfação cai' : ' · retrabalho interno') });
+    }
+
+    await say('Agora o **objetivo**: o que será realizado neste experimento?' + (guiado() ? ' Por exemplo: "testar uma busca inteligente nos nossos documentos".' : ''));
+    const a3 = await ask({ chips: [{ label: 'Testar uma busca inteligente nos documentos da equipe' }, { label: 'Reduzir em 20% o tempo de busca' }] });
+    guard(t);
+    const m3 = a3.text.match(/(\d+)\s*%/);
+    if (m3) {
+      S.meta = +m3[1];
+      await say(`"Reduzir ${S.meta}%" é o que esperamos comprovar: vai para a **hipótese**. O objetivo é a ação. **Fica "testar uma busca inteligente nos documentos da equipe"?**`);
+      await ask({ chips: [{ label: 'Fica assim' }] });
+      guard(t);
+    }
+    setF({ objetivo: 'Testar uma busca inteligente sobre os documentos e procedimentos da equipe.' });
+
+    if (!m3) {
+      await say('Para a **hipótese** preciso de um resultado mensurável. **Quanto do tempo de busca você espera reduzir?**');
+      let a4 = await ask({ chips: [{ label: '20%' }, { label: 'O máximo possível' }] });
+      guard(t);
+      if (!/\d/.test(a4.text)) {
+        await say('"O máximo possível" não permite um veredito. Em casos semelhantes, **20%** é ambicioso e realista. **Fechamos em 20%?**');
+        a4 = await ask({ chips: [{ label: 'Fechado, 20%' }, { label: 'Prefiro 30%' }] });
+        guard(t);
+      }
+      const m4 = a4.text.match(/(\d+)/); S.meta = m4 ? +m4[1] : 20;
+    }
+    await say(`Hipótese no formato do método: ==${hipoteseSol()}== **Confirma?**`);
+    const a5 = await ask({ chips: [{ label: 'Confirmo' }, { label: 'Quero ajustar para 30%' }] });
+    guard(t);
+    if (/30/.test(a5.text)) S.meta = 30;
+    setF({ hipotese: hipoteseSol() });
+
+    await say('A parte técnica fica com o laboratório. Para você, o importante é **como vamos testar**:', labCard());
+    setF({ metodologia: 'Comparar o tempo de busca de um grupo da equipe antes e depois; a equipe valida se as respostas estão certas.', tecnologia: ['IA generativa', 'RAG · busca semântica'] });
+  }
+
+  await say('**Onde essa informação existe hoje?** Pode ser planilha, sistema ou documentos soltos.');
+  const a6 = await ask({ chips: [{ label: 'Numa planilha de perguntas e respostas' }, { label: 'Ainda não está reunida em um lugar' }] });
+  guard(t);
+  if (isNo(a6.text) || /ainda/i.test(a6.text)) {
+    await say('Tudo bem. Para começar, **uma planilha com as perguntas mais comuns e as respostas certas já serve**. **Consegue montar uma?**');
+    await ask({ chips: [{ label: 'Consigo, tenho uma planilha' }] });
+    guard(t);
+  }
+  await say('Ótimo. **Anexe um exemplo aqui** e eu vejo se dá para testar com ele.');
+  await ask({ upload: true, noText: true, chips: [{ label: 'Anexar arquivo', icon: 'clip', primary: true, act: 'upload' }, { label: 'Usar planilha de exemplo', icon: 'file', file: { name: 'perguntas_frequentes.xlsx', meta: 'Planilha · 84 KB' } }] });
+  guard(t);
+  await analyze('Lendo a planilha', ['Abrindo o arquivo', 'Contando perguntas e respostas', 'Procurando repetições e respostas em branco']);
+  S.rows = 230;
+  await say('A planilha está **bem organizada**: **230 perguntas** com resposta. Para um resultado confiável, precisamos de **pelo menos mais 200. Você consegue?**', dataCard(230, 430));
+  const a7 = await ask({ chips: [{ label: 'Consigo mais perguntas' }, { label: 'Não consigo agora' }] });
+  guard(t);
+  if (!isNo(a7.text)) {
+    await say('Perfeito. **Então anexe aqui o restante.**');
+    await ask({ upload: true, noText: true, chips: [{ label: 'Anexar arquivo', icon: 'clip', primary: true, act: 'upload' }, { label: 'Usar complemento de exemplo', icon: 'file', file: { name: 'procedimentos_2026.xlsx', meta: 'Planilha · 112 KB' } }] });
+    guard(t);
+    await analyze('Juntando as planilhas', ['Lendo o complemento', 'Unindo às 230 perguntas', 'Removendo 9 repetidas']);
+    S.rows = 468; S.extra = true;
+    setF({ amostra: '468 perguntas com resposta · resultado confiável (±4 p.p.)' });
+    await say('Agora sim: **468 perguntas**. Dá para chegar a um resultado confiável.', dataCard(468, 430));
+  } else {
+    await say('Sem problema. **Seguimos com o que você tem** e registro na ficha que o resultado será **indicativo**.');
+    setF({ amostra: '230 perguntas com resposta · resultado indicativo (±6,5 p.p.)' });
+  }
+
+  await say(`**Como vamos saber que deu certo?** O principal é o tempo de busca, com critério **redução ≥ ${S.meta}%**. **E a qualidade das respostas, como medimos?**`);
+  let a8 = await ask({ chips: [{ label: 'Respostas corretas ≥ 85%' }, { label: 'Respostas de boa qualidade' }] });
+  guard(t);
+  if (!/\d/.test(a8.text)) {
+    await say('"Boa qualidade" ainda não é critério. Preciso de **número e condição**, por exemplo **respostas corretas ≥ 85%**, conferidas por alguém da sua equipe. **Pode ser?**');
+    a8 = await ask({ chips: [{ label: 'Pode ser: respostas corretas ≥ 85%' }] });
+    guard(t);
+  }
+  setF({ metricas: [`Tempo de busca: redução ≥ ${S.meta}%`, 'Respostas corretas: ≥ 85%', 'Satisfação da equipe com a ferramenta: ≥ 4 de 5'] });
+
+  await say('**Quem responde pelo experimento (BO) e quem patrocina (SPONSOR)?**');
+  await ask({ chips: [{ label: 'Eu sou a BO; o sponsor é o Ricardo Alves, diretor da área' }] });
+  guard(t);
+  setF({ responsaveis: 'BO: Ana Ribeiro · Sponsor: Ricardo Alves (Diretor)', titulo: S.F.titulo || 'Busca Inteligente Documentos' });
+
+  await say(`Checklist completo. Nome do experimento: **${S.F.titulo}**. Acionei o **Gerador de Ficha de Experimentação**:`, fichaGeradaCard());
+  S.F.gerada = true; renderPanel();
+  await bizPath();
+}
+
+async function convDev() {
   const t = S.token;
   S.meta = 20;
-  setF({ titulo: 'Busca Semântica FAQ', problema: 'Analistas do pós-pago demoram para encontrar a resposta certa na FAQ e nos procedimentos durante a ligação.',
-    publico: '≈ 40 analistas · ~2 h/dia cada em buscas', objetivo: 'Testar uma busca semântica sobre a FAQ e os procedimentos do atendimento.',
-    metodologia: 'Assistente com RAG; tempo de busca comparado antes e depois com um grupo de analistas.', tecnologia: ['IA generativa', 'RAG · busca semântica'] });
-  whoSignal(-10, 'Escreveu a ideia pelo impacto na operação');
-  await say('Recebi um texto estruturado: **auto-ingestão ativada**. Extraí os elementos e validei o checklist de qualidade mínima.', checklistCard('Auto-ingestão · checklist'));
+  await say(`Olá, Ana. Vamos desenhar isso como numa revisão técnica, no ecossistema **${STACK[S.prefs.stack]}**${S.prefs.ambiente === 'propria' ? ', rodando na sua infraestrutura' : ''}. **Qual problema você quer resolver?**`);
+  const a1 = await ask({ chips: [{ label: 'Quero um RAG para busca na base de conhecimento do suporte' }, { label: 'Os analistas do suporte levam minutos para achar o procedimento certo' }] });
   guard(t);
-  await say(`A hipótese do documento não segue o método: não começa com "Acreditamos que" e não é mensurável. Proposta: ==${hipoteseDemo()}== **Confirma?**`);
-  const a = await ask({ chips: [{ label: 'Confirmo' }, { label: 'Prefiro 30% de redução' }] });
+  if (/rag|llm|ia\b/i.test(a1.text)) {
+    await say('RAG é uma solução candidata; antes, o problema. **O que acontece hoje, com quem e quanto custa?**');
+    await ask({ chips: [{ label: '40 analistas levam ~4 min por busca de procedimento; ~2 h/dia cada' }] });
+    guard(t);
+  }
+  setF({ problema: 'Analistas do suporte levam minutos para encontrar o procedimento certo na base de conhecimento.', publico: '40 analistas · ~4 min por busca · ~2 h/dia cada' });
+
+  await say('**Contexto técnico:** onde estão os dados, em que formato, quanto volume e com que frequência mudam?');
+  await ask({ chips: [{ label: 'Confluence + planilha de FAQ, ~1.200 páginas, atualização semanal' }, { label: 'SharePoint com PDFs e uma API interna de procedimentos' }] });
   guard(t);
-  if (/30/.test(a.text)) S.meta = 30;
-  setF({ hipotese: hipoteseDemo() });
-  await say('Hipótese registrada. Pela metodologia, é **IA generativa com RAG**, porque o caso pede uma pesquisa semântica nos seus dados. Faltam **amostra**, **critérios numéricos** e **BO e Sponsor**. Vamos pela amostra.', techCard());
+  await say('**Restrições** que o desenho precisa respeitar? Latência, custo, segurança, dados pessoais.');
+  await ask({ chips: [{ label: 'Resposta em < 2 s, só dados internos, sem dado pessoal' }, { label: 'Sem restrição forte por enquanto' }] });
+  guard(t);
+  S.F.desenho = { stack: `${STACK[S.prefs.stack]} · Confluence + FAQ (~1.200 páginas, semanal)`, restricoes: ['Latência p95 < 2 s', 'Somente dados internos', 'Sem dado pessoal no índice'] };
+  setF({ stack: `${STACK[S.prefs.stack]} · Confluence + FAQ (~1.200 páginas, atualização semanal) · p95 < 2 s` });
+
+  await say('**Objetivo**, como ação: o que será construído e avaliado?');
+  await ask({ chips: [{ label: 'Construir e avaliar uma busca semântica sobre a base de conhecimento' }] });
+  guard(t);
+  setF({ objetivo: 'Construir e avaliar uma busca semântica sobre a base de conhecimento do suporte.' });
+
+  await say('**Baseline:** o que existe hoje e quanto rende? Sem baseline não há ganho comprovável.');
+  const a5 = await ask({ chips: [{ label: 'Busca do Confluence; acerta o documento certo no top 5 em ~50% das vezes' }, { label: 'Não medimos' }] });
+  guard(t);
+  if (/n[aã]o medimos/i.test(a5.text)) {
+    await say('Então o primeiro passo do protocolo é medir: rodamos a busca atual no mesmo conjunto de teste. Vou assumir **Recall@5 ≈ 0,52** como referência de casos semelhantes até medirmos.' + explica('Recall@5 é a fração de perguntas em que o documento certo aparece entre os 5 primeiros resultados'));
+  }
+  setF({ baseline: 'Busca nativa do Confluence · Recall@5 ≈ 0,52' + (/n[aã]o medimos/i.test(a5.text) ? ' (a medir no golden set)' : '') });
+
+  await say(`**Hipótese** no formato do método, com a métrica técnica e o efeito no negócio: ==${hipoteseDev()}== **Confirma?**` + explica('a métrica técnica mostra se a busca acha o documento certo; a de negócio, se o analista ganha tempo'));
+  const a6 = await ask({ chips: [{ label: 'Confirmo' }, { label: 'Meta de tempo 30%' }] });
+  guard(t);
+  if (/30/.test(a6.text)) S.meta = 30;
+  setF({ hipotese: hipoteseDev() });
+
+  const ab = ABORDAGENS_DEMO();
+  await say('**Metodologia.** Três abordagens para o seu caso, com os trade-offs:', abordagensCard(ab));
+  const a7 = await ask({ chips: [{ label: 'Vamos de híbrida com re-ranking' }, { label: 'Prefiro começar simples com a densa' }] });
+  guard(t);
+  const escolhida = /densa/i.test(a7.text) ? 'Busca densa (embeddings)' : 'Híbrida + re-ranking';
+  if (/densa/i.test(a7.text)) await say('Justo para um primeiro ciclo. Fica registrado o risco: **siglas e códigos de plano** tendem a cair; incluímos casos assim no conjunto de teste para medir.');
+  setF({ tecnologia: ['IA generativa', escolhida], abordagem: escolhida, metodologia: `${escolhida}: ingestão e deduplicação, índice, recuperação e avaliação offline contra o baseline.` });
+
+  await say('**Amostra.** Preciso de dois insumos: a base para indexar e pares pergunta-documento para avaliar. **Anexe a exportação da base.**');
+  await ask({ upload: true, noText: true, chips: [{ label: 'Anexar arquivo', icon: 'clip', primary: true, act: 'upload' }, { label: 'Usar exportação de exemplo', icon: 'file', file: { name: 'confluence_export.json', meta: 'JSON · 18 MB' } }] });
+  guard(t);
+  await analyze('Perfil técnico da amostra', ['Lendo 1.214 documentos', 'Estimando trechos e tokens', 'Detectando idioma e duplicatas', 'Cruzando com o histórico de perguntas']);
+  S.rows = 230;
+  await say('Base indexável, mas só **230 pares pergunta-documento** para avaliar; a referência do golden path é 400. **Consegue mais pares do histórico de tickets?**', devDataCard(230, 400));
+  const a8 = await ask({ chips: [{ label: 'Consigo exportar mais 250 do histórico' }, { label: 'Não consigo agora' }] });
+  guard(t);
+  if (!isNo(a8.text)) {
+    await ask({ upload: true, noText: true, chips: [{ label: 'Anexar arquivo', icon: 'clip', primary: true, act: 'upload' }, { label: 'Usar exportação de tickets', icon: 'file', file: { name: 'tickets_resolvidos.csv', meta: 'CSV · 2 MB' } }] });
+    guard(t);
+    await analyze('Unindo pares de avaliação', ['Lendo tickets', 'Vinculando ticket ao documento usado', 'Descartando 12 sem documento']);
+    S.rows = 468;
+    setF({ amostra: '1.214 documentos (4.860 trechos) · 468 pares de avaliação' });
+    await say('**468 pares**, acima da referência.', devDataCard(468, 400));
+  } else {
+    setF({ amostra: '1.214 documentos (4.860 trechos) · 230 pares de avaliação · resultado indicativo' });
+    await say('Seguimos com 230 pares e intervalo de confiança mais largo; registro como **indicativo**.');
+  }
+
+  await say('**Protocolo de avaliação.** Proposta: golden set com 120 perguntas reais anotadas por 2 analistas, avaliação offline contra o baseline, depois teste com 6 analistas medindo tempo. **Fecha?**' + explica('golden set é o conjunto de perguntas com a resposta certa conhecida, usado como gabarito'));
+  await ask({ chips: [{ label: 'Fecha' }, { label: 'Inclui um A/B com dois grupos de analistas' }] });
+  guard(t);
+  S.F.desenho = { ...S.F.desenho, baseline: S.F.baseline, protocolo_avaliacao: 'Golden set de 120 perguntas anotadas por 2 analistas; offline vs. baseline; teste com 6 analistas',
+    metricas_tecnicas: ['Recall@5 ≥ 0,85', 'MRR ≥ 0,70', 'Fidelidade das respostas ≥ 0,90', 'Latência p95 < 2 s', 'Custo ≤ R$ 0,05 por consulta'],
+    arquitetura: ['Ingestão e deduplicação', escolhida === 'Híbrida + re-ranking' ? 'Índice BM25 + vetorial' : 'Índice vetorial', ...(escolhida === 'Híbrida + re-ranking' ? ['Fusão RRF', 'Re-ranker'] : []), 'Geração com citação', 'Avaliação offline'] };
+  setF({ protocolo: S.F.desenho.protocolo_avaliacao, arquitetura: S.F.desenho.arquitetura });
+  await say('Desenho registrado na ficha:', desenhoCard(S.F.desenho));
+
+  await say('**Critérios de aceite** do experimento, todos com número e condição. **Confere?**');
+  await ask({ chips: [{ label: 'Confere' }] });
+  guard(t);
+  setF({ metricas: ['Recall@5: ≥ 0,85', `Tempo de busca: redução ≥ ${S.meta}%`, 'Latência p95: < 2 s', 'Fidelidade das respostas: ≥ 0,90'] });
+
+  await say('**Quem é a BO e quem é o SPONSOR?**');
+  await ask({ chips: [{ label: 'Eu sou a BO; o sponsor é o Marcos Teixeira, gerente de suporte' }] });
+  guard(t);
+  setF({ responsaveis: 'BO: Ana Ribeiro · Sponsor: Marcos Teixeira (Gerente de suporte)', titulo: 'Busca Híbrida Suporte' });
+
+  await say('Checklist completo. Nome: **Busca Híbrida Suporte**. Acionei o **Gerador de Ficha de Experimentação**, com o desenho técnico anexado:', fichaGeradaCard());
+  S.F.gerada = true; renderPanel();
+  await say('Skills para construir, considerando a sua experiência:', devSkillsCard());
+  setF({ skills: [STACK[S.prefs.stack], 'Embeddings', 'Re-ranking', 'Avaliação de LLM'] });
+  await say('**Você vai construir ou prefere rodar no sandbox da bancada do laboratório?**');
+  const a9 = await ask({ chips: [{ label: 'Eu construo' }, { label: 'Rodar na bancada do laboratório' }] });
+  guard(t);
+  if (/bancada/i.test(a9.text)) await bizPath(); else await devPath();
 }
+
 async function conversation() {
-  const t = S.token;
   try {
     await sleep(300);
-    await say('Olá, Ana. Sou o **Cientista do beOn Labs**, do time de P&D em Tecnologias Emergentes. Vou estruturar o experimento com você no método oficial. **Qual é o problema que você quer resolver?**');
-    const a1 = await ask({ chips: [{ label: 'Meus analistas perdem muito tempo procurando respostas na FAQ' }, { label: 'Quero usar IA para ajudar o atendimento' },
-      { label: 'Colar o documento da minha ideia', icon: 'file', text: DOC_IDEIA }] });
-    guard(t);
-    const ingest = a1.text.length > 400 || (a1.text.match(/^[A-ZÁÉÍÓÚ][^:\n]{1,40}:/gm) || []).length >= 3;
-    if (ingest) {
-      await autoIngest();
-    } else {
-      if (/quero usar ia/i.test(a1.text) || a1.text.length < 30) {
-        await say('IA é o meio, não o problema. **O que acontece hoje no atendimento que você gostaria que fosse diferente?**');
-        await ask({ chips: [{ label: 'Os analistas demoram para achar a resposta certa na FAQ durante a ligação' }] });
-        guard(t);
-      }
-      setF({ problema: 'Analistas do pós-pago demoram para encontrar a resposta certa na FAQ e nos procedimentos durante a ligação.' });
-      whoSignal(-8, 'Descreveu o problema pelo impacto na operação');
-
-      await say('Entendido. **Qual é o impacto hoje: quem sente o problema e quanto tempo se perde?** Uma estimativa basta.');
-      const a2 = await ask({ chips: [{ label: 'Uns 40 analistas, cerca de 2 horas por dia cada um buscando' }, { label: 'Não sei medir com precisão' }] });
-      guard(t);
-      if (/n[aã]o sei/i.test(a2.text)) {
-        await say('Sem problema. Em casos semelhantes, analistas gastam **perto de 25% do tempo de ligação buscando informação**. Uso essa referência e medimos no teste.');
-        setF({ publico: '≈ 40 analistas · ~25% do tempo de ligação em busca' });
-      } else setF({ publico: '40 analistas · ~2 h/dia cada em buscas' });
-      whoSignal(-6, 'Pensa em pessoas e tempo, não em sistema');
-
-      await say('Agora o **objetivo**: o que será realizado neste experimento? O objetivo descreve a ação; o resultado esperado fica para a hipótese.');
-      const a3 = await ask({ chips: [{ label: 'Testar uma busca inteligente na FAQ para os analistas' }, { label: 'Reduzir em 20% o tempo de busca' }] });
-      guard(t);
-      const m3 = a3.text.match(/(\d+)\s*%/);
-      if (m3) {
-        S.meta = +m3[1];
-        await say(`"Reduzir ${S.meta}%" é o que se espera comprovar, então vai para a **hipótese**. O objetivo é a ação: **"testar uma busca semântica na FAQ para os analistas". Pode ser assim?**`);
-        await ask({ chips: [{ label: 'Pode ser assim' }] });
-        guard(t);
-      }
-      setF({ objetivo: 'Testar uma busca semântica sobre a FAQ e os procedimentos do atendimento.' });
-
-      if (!m3) {
-        await say('Para a **hipótese** preciso de um resultado mensurável. **Quanto do tempo de busca você espera reduzir?**');
-        let a4 = await ask({ chips: [{ label: '20%' }, { label: 'O máximo possível' }] });
-        guard(t);
-        if (!/\d/.test(a4.text)) {
-          await say('"O máximo possível" não permite um veredito. Em casos semelhantes, **20%** é ambicioso e realista. **Fechamos em 20%?**');
-          a4 = await ask({ chips: [{ label: 'Fechado, 20%' }, { label: 'Prefiro 30%' }] });
-          guard(t);
-        }
-        const m4 = a4.text.match(/(\d+)/); S.meta = m4 ? +m4[1] : 20;
-      }
-      await say(`Hipótese no formato do método: ==${hipoteseDemo()}== **Confirma?**`);
-      const a5 = await ask({ chips: [{ label: 'Confirmo' }, { label: 'Quero ajustar para 30%' }] });
-      guard(t);
-      if (/30/.test(a5.text)) S.meta = 30;
-      setF({ hipotese: hipoteseDemo() });
-
-      await say('**Metodologia.** Eu entendi que esse experimento é de **IA generativa** e você vai usar **RAG**, porque o caso pede uma **pesquisa semântica nos seus dados**. Vamos testar com perguntas reais dos analistas e medir o tempo antes e depois.', techCard());
-      setF({ tecnologia: ['IA generativa', 'RAG · busca semântica'], metodologia: 'RAG sobre a FAQ, avaliado com 120 perguntas reais e tempo medido antes e depois com 6 analistas.' });
-    }
-
-    await say('**Amostra.** Para montar um RAG você vai precisar de uma amostra de dados, o conteúdo onde a busca vai acontecer. **Você tem dados disponíveis?**');
-    const a6 = await ask({ chips: [{ label: 'Sim, tenho uma FAQ' }, { label: 'Ainda não tenho dados' }] });
-    guard(t);
-    if (isNo(a6.text)) {
-      await say('Sem dados não é possível testar, mas a **FAQ que o time já consulta serve**, mesmo em planilha ou documento. **Consegue exportar?**');
-      await ask({ chips: [{ label: 'Consigo, tenho a FAQ numa planilha' }] });
-      guard(t);
-    }
-    await say('Então **coloque a FAQ aqui que eu vou analisar os dados.** Pode arrastar o arquivo ou usar o clipe.');
-    await ask({ upload: true, noText: true, chips: [{ label: 'Anexar arquivo', icon: 'clip', primary: true, act: 'upload' }, { label: 'Usar FAQ de exemplo', icon: 'file', file: { name: 'FAQ_atendimento.xlsx', meta: 'Planilha · 84 KB' } }] });
-    guard(t);
-    await analyze('Analisando amostra', ['Lendo o arquivo', 'Identificando colunas e estrutura', 'Checando duplicadas e respostas vazias', 'Calculando o tamanho mínimo da amostra']);
-    S.rows = 230;
-    await say('Os dados estão **bem estruturados**: **230 registros** com pergunta, resposta e categoria. Para medir com confiança, preciso de **pelo menos mais 200. Você consegue?**', dataCard(230, 430));
-    const a7 = await ask({ chips: [{ label: 'Consigo, tenho mais registros' }, { label: 'Não consigo agora' }] });
-    guard(t);
-    if (!isNo(a7.text)) {
-      await say('Perfeito. **Então mande aqui o restante dos dados.** Preciso de pelo menos mais 200.');
-      await ask({ upload: true, noText: true, chips: [{ label: 'Anexar arquivo', icon: 'clip', primary: true, act: 'upload' }, { label: 'Usar complemento de exemplo', icon: 'file', file: { name: 'FAQ_procedimentos_2026.xlsx', meta: 'Planilha · 112 KB' } }] });
-      guard(t);
-      await analyze('Analisando complemento', ['Lendo o complemento', 'Unindo às 230 perguntas anteriores', 'Removendo 9 duplicadas entre os arquivos']);
-      S.rows = 468; S.extra = true;
-      setF({ amostra: '468 pares pergunta-resposta · margem ±4 p.p.' });
-      await say('Agora sim: **468 registros**, acima do mínimo. Dá para chegar a um resultado confiável.', dataCard(468, 430));
-    } else {
-      await say('Sem problema. **Seguimos com essa amostra para chegar a um resultado plausível.** Registrei na ficha que o resultado será **indicativo** (margem de ±6,5 p.p.).');
-      setF({ amostra: '230 pares pergunta-resposta · resultado indicativo (±6,5 p.p.)' });
-    }
-
-    await say(`**Métricas.** A principal é o tempo de busca, com critério **redução ≥ ${S.meta}%**. **Como vamos medir a qualidade das respostas?**`);
-    let a8 = await ask({ chips: [{ label: 'Respostas corretas ≥ 85%' }, { label: 'Alta qualidade nas respostas' }] });
-    guard(t);
-    if (!/\d/.test(a8.text)) {
-      await say('"Alta qualidade" não é critério de aceite. Todo critério precisa de **valor numérico e condição clara de sucesso**, por exemplo **Respostas corretas ≥ 85%**. **Pode ser?**');
-      a8 = await ask({ chips: [{ label: 'Pode ser: respostas corretas ≥ 85%' }] });
-      guard(t);
-    }
-    setF({ metricas: [`Tempo de busca: redução ≥ ${S.meta}%`, 'Respostas corretas: ≥ 85%', 'Respostas com fonte citada: ≥ 90%'] });
-
-    await say('Critérios registrados, todos com valor numérico. **Quem é a responsável pelo experimento (BO) e quem é o patrocinador (SPONSOR)?**');
-    await ask({ chips: [{ label: 'Eu sou a BO; o sponsor é o Ricardo Alves, diretor de atendimento' }] });
-    guard(t);
-    setF({ responsaveis: 'BO: Ana Ribeiro · Sponsor: Ricardo Alves (Dir. Atendimento)', titulo: 'Busca Semântica FAQ' });
-
-    await say('Checklist de qualidade completo. Nome do experimento: **Busca Semântica FAQ**. Acionei o **Gerador de Ficha de Experimentação**:', fichaGeradaCard());
-    S.F.gerada = true; renderPanel();
-
-    await say('Para esse experimento, com essa amostra, **você vai precisar destas skills** para executar:', skillsCard());
-    setF({ skills: ['Python', 'Embeddings', 'Prompt', 'Avaliação de LLM'] });
-    S.F.gerada = true; renderPanel();
-    await say('**Você precisa que eu execute ou você mesma irá executar?**');
-    const a9 = await ask({ chips: [{ label: 'Quero que vocês executem' }, { label: 'Eu mesma vou executar' }] });
-    guard(t);
-    const dev = /\beu\b|mesm|consigo execut|vou execut/i.test(a9.text) && !/voc[eê]s/i.test(a9.text);
-    if (dev) await devPath(); else await bizPath();
+    if (S.papel === 'desenvolvedor') await convDev(); else await convSolicitante();
   } catch (e) { if (!(e instanceof Abort)) console.error(e); }
 }
 
@@ -883,18 +1224,19 @@ async function analyze(label, steps) {
 }
 async function bizPath() {
   S.path = 'negocio';
-  whoSignal(-30, 'Pediu que o laboratório execute', 'Área de negócio');
-  setF({ execucao: 'Laboratório · workflow de agentes' });
+  setF({ execucao: 'Laboratório · bancada de agentes' });
   renderTabs();
-  await say('Combinado. **Vou te encaminhar para o nosso workflow de desenvolvimento.** Na bancada você acompanha cada etapa, e eu te chamo quando precisar de uma aprovação sua.', handoffCard());
+  const txt = S.papel === 'desenvolvedor'
+    ? 'Combinado. **A bancada roda no sandbox do laboratório** a partir do seu desenho técnico; você acompanha cada etapa e aprova nos pontos de decisão.'
+    : 'Agora é com o laboratório. **A bancada analisa a amostra, constrói, testa e entrega o resultado.** Você só entra para aprovar nos pontos de decisão.';
+  await say(txt, handoffCard());
   pending = null; renderComposer();
 }
 async function devPath() {
   S.path = 'dev';
-  whoSignal(+30, 'Vai executar o experimento', 'Desenvolvedor');
-  setF({ execucao: 'Solicitante · desenvolvedora' });
+  setF({ execucao: 'Solicitante · constrói por conta própria' });
   renderTabs();
-  await say('Perfeito, então você assume a execução. **Aqui está a ficha final**, com a amostra já tratada e o kit do golden path. Os critérios de aceite estão na ficha: quando terminar, me envie os resultados e eu preparo o parecer.', devKitCard());
+  await say('Perfeito. **Aqui está o seu kit**: ficha, desenho técnico e o esqueleto do projeto na sua stack. Quando tiver resultados no golden set, me envie que eu preparo o parecer.', devKitCard());
   pending = null; renderComposer();
 }
 
@@ -958,7 +1300,7 @@ async function runBench() {
     if (f === 1) {
       const m = await bAsk('cientista', 'Claro. **Qual meta de redução faz mais sentido para você?**', '', [{ label: '15%' }, { label: '20%' }, { label: '25%' }]);
       guard(t); S.meta = [15, 20, 25][m];
-      setF({ hipotese: hipoteseDemo(), metricas: [`Tempo de busca: redução ≥ ${S.meta}%`, 'Respostas corretas: ≥ 85%', 'Respostas com fonte citada: ≥ 90%'] });
+      setF(S.papel === 'desenvolvedor' ? { hipotese: hipoteseDev(), metricas: ['Recall@5: ≥ 0,85', `Tempo de busca: redução ≥ ${S.meta}%`, 'Latência p95: < 2 s', 'Fidelidade das respostas: ≥ 0,90'] } : { hipotese: hipoteseSol(), metricas: [`Tempo de busca: redução ≥ ${S.meta}%`, 'Respostas corretas: ≥ 85%', 'Satisfação da equipe com a ferramenta: ≥ 4 de 5'] });
       await bSay('cientista', `Ficha atualizada para **−${S.meta}%** e aprovada. Seguindo.`);
     }
     stage('ficha', 'ok');
@@ -976,10 +1318,14 @@ async function runBench() {
 
     // 3 · Construção
     stageDivider(2); stage('dev', 'run');
-    const steps = ['Limpando a amostra (12 duplicadas removidas)', `Dividindo a FAQ em ${S.rows === 230 ? '612' : '1.140'} trechos pesquisáveis`, 'Gerando embeddings e indexando no banco vetorial', 'Configurando a busca semântica', 'Conectando o modelo de linguagem com citação de fonte'];
-    const devTxt = 'Começando a construção do RAG no sandbox do laboratório.';
-    const id = await bSay('dev', devTxt, stepsCard('Construção · sandbox exp-atd-rag-01', steps, 0));
-    for (let i = 1; i <= steps.length; i++) { await sleep(900); guard(t); bUpdate(id, bMsg(id, 'dev', devTxt, stepsCard('Construção · sandbox exp-atd-rag-01', steps, i))); }
+    // O desenvolvedor vê os passos técnicos; o solicitante, o mesmo trabalho em linguagem de negócio.
+    const steps = S.papel === 'desenvolvedor'
+      ? ['Limpando a amostra (12 duplicadas removidas)', `Dividindo a base em ${S.rows === 230 ? '612' : '1.140'} trechos pesquisáveis`, 'Gerando embeddings e indexando no banco vetorial', 'Configurando a busca híbrida com re-ranking', 'Conectando o modelo de linguagem com citação de fonte']
+      : ['Organizando as perguntas e respostas (12 repetidas removidas)', 'Preparando os documentos para consulta', 'Montando a busca inteligente', 'Ajustando as respostas para sempre mostrar a fonte'];
+    const devTxt = S.papel === 'desenvolvedor' ? 'Começando a construção no sandbox do laboratório, a partir do seu desenho técnico.' : 'Começando a construção da solução no laboratório.';
+    const rotulo = S.papel === 'desenvolvedor' ? 'Construção · sandbox ' + S.F.id.toLowerCase() : 'Construção';
+    const id = await bSay('dev', devTxt, stepsCard(rotulo, steps, 0));
+    for (let i = 1; i <= steps.length; i++) { await sleep(900); guard(t); bUpdate(id, bMsg(id, 'dev', devTxt, stepsCard(rotulo, steps, i))); }
     await bSay('dev', 'Pronto. O assistente de busca está de pé. Passando para o QA testar.');
     stage('dev', 'ok');
 
@@ -1042,13 +1388,13 @@ function reportHtml(still) {
         <div class="tile"><small>Custo por pergunta</small><b>R$ 0,03</b><span>modelo corporativo</span></div></div></section>
       <section class="rep-sec"><h3>Antes e depois</h3><div class="ba">
         <div class="ba-row"><span>Hoje</span><span class="tr"><i style="width:100%"></i></span><b>${mmss(R.before)}</b></div>
-        <div class="ba-row after"><span>Com RAG</span><span class="tr"><i style="width:${100 - R.red}%"></i></span><b>${mmss(R.after)}</b></div>
+        <div class="ba-row after"><span>${S.papel === 'desenvolvedor' ? 'Com RAG' : 'Com a busca'}</span><span class="tr"><i style="width:${100 - R.red}%"></i></span><b>${mmss(R.after)}</b></div>
         <p style="font-size:13px;color:var(--muted)">Tempo médio de busca por atendimento, medido em 120 perguntas simuladas com 6 analistas.</p></div></section>
       <section class="rep-sec"><h3>Como ficou na prática</h3><div class="qa-ex">
         <div class="qa-card"><div class="qa-q">Cliente quer trocar de plano no meio do ciclo. Paga proporcional?</div><div class="qa-a">Sim. A cobrança é proporcional aos dias de cada plano no ciclo, e a diferença aparece na fatura seguinte. Não há multa para upgrade.</div><span class="src">FAQ · Planos e ofertas · item 41</span></div>
         <div class="qa-card"><div class="qa-q">Quanto tempo leva a portabilidade de um número pré-pago?</div><div class="qa-a">Até 3 dias úteis após a solicitação. O cliente recebe SMS de confirmação e a linha antiga continua ativa até a janela de migração.</div><span class="src">Procedimentos 2026 · Portabilidade · 3.2</span></div></div></section>
       <section class="rep-sec"><h3>Como chegamos aqui</h3><div class="journey-strip">
-        ${[['Ficha', 'Aprovada por você', '02/10'], ['Amostra', `${S.rows} registros`, '02/10'], ['Construção', 'RAG com fonte', '03–06/10'], ['Qualidade', '3 rodadas · 89%', '07/10'], ['Resultado', 'Veredito', '08/10']].map((s, i) => `<div class="js"><small>0${i + 1} · ${s[2]}</small><b>${s[0]}</b><span>${s[1]}</span></div>`).join('')}</div></section>
+        ${[['Ficha', 'Aprovada por você', '02/10'], ['Amostra', `${S.rows} registros`, '02/10'], ['Construção', S.papel === 'desenvolvedor' ? 'RAG híbrido com fonte' : 'Busca com fonte', '03–06/10'], ['Qualidade', '3 rodadas · 89%', '07/10'], ['Resultado', 'Veredito', '08/10']].map((s, i) => `<div class="js"><small>0${i + 1} · ${s[2]}</small><b>${s[0]}</b><span>${s[1]}</span></div>`).join('')}</div></section>
       <section class="two">
         <div class="rep-sec"><h3>Pontos de atenção</h3><ul><li>18% da FAQ cita planos descontinuados; precisa de revisão antes de escalar.</li><li>Perguntas sobre exceções contratuais ainda pedem um especialista.</li>${R.small ? '<li>Amostra pequena: confirme com mais dados antes de uma decisão grande.</li>' : ''}</ul></div>
         <div class="rep-sec"><h3>Próximos passos recomendados</h3><ul><li>Piloto de 4 semanas com uma célula de 10 analistas.</li><li>Medir tempo médio de atendimento e satisfação do cliente no piloto.</li><li>Incluir os procedimentos de suporte técnico no próximo ciclo.</li></ul></div></section>
@@ -1101,19 +1447,28 @@ const ACTIONS = {
   report() { document.getElementById('layer').innerHTML = API.live && S.parecer ? liveReportHtml() : reportHtml(); },
   goBench() { setTab('bancada'); },
   fast() { S.fast = !S.fast; renderTabs(); toast(S.fast ? 'Demonstração rápida ligada' : 'Velocidade normal'); },
-  restart() { const fast = S.fast; S = fresh(); S.fast = fast; pending = null; bSeq = 0; closeLayer(); setTab('conversa'); API.live ? liveConversation() : conversation(); },
+  restart() {
+    const { fast, papel: pp, prefs } = S; S = fresh(); S.fast = fast; pending = null; bSeq = 0; closeLayer();
+    if (!pp) { setTab('conversa'); return; }
+    iniciarJornada(pp, prefs);
+  },
+  trocarPapel() { const { fast, papel: pp, prefs } = S; S = fresh(); S.fast = fast; S.escolha = pp; S.escolhaPrefs = { ...prefs }; pending = null; bSeq = 0; closeLayer(); setTab('conversa'); },
+  startJourney() { if (S.escolha) iniciarJornada(S.escolha, S.escolhaPrefs); },
+  raci() { document.getElementById('layer').innerHTML = raciHtml(); },
   share() { copy('https://metaexp.beonlabs/r/' + S.F.id.toLowerCase(), 'Link do resultado copiado'); },
   copyYaml() { copy(yaml(), 'Ficha copiada em YAML'); },
-  switchBiz() { if (S.path !== 'dev') return; S.who.signals.push('Mudou de ideia: prefere que o laboratório execute'); setTab('conversa'); bizPath().catch(() => {}); },
+  switchBiz() { if (S.path !== 'dev') return; setTab('conversa'); bizPath().catch(() => {}); },
   other() { toast('Experimento de outra equipe · somente leitura no protótipo'); },
 };
 document.addEventListener('click', e => {
   if (e.target.closest('#send')) return sendTyped();
   if (e.target.closest('#attach')) { if (pending && pending.upload) document.getElementById('fileIn').click(); else toast('O Cientista vai pedir os dados no momento certo'); return; }
-  const el = e.target.closest('[data-tab],[data-a],[data-chip],[data-bans],[data-dec],[data-jump]');
+  const el = e.target.closest('[data-tab],[data-a],[data-chip],[data-bans],[data-dec],[data-jump],[data-role],[data-pref]');
   if (!el) return;
   const d = el.dataset;
   if (d.tab) { closeLayer(); return setTab(d.tab); }
+  if (d.role) { S.escolha = d.role; S.escolhaPrefs = { ...prefsPadrao(d.role), ...((lembrado('prefs') || {})[d.role] || {}) }; return renderPicker(true); }
+  if (d.pref) { S.escolhaPrefs[d.pref] = d.val; return renderPicker(false); }
   if (d.chip !== undefined) {
     const c = pending && pending.chips[+d.chip]; if (!c) return;
     if (c.act === 'upload') return document.getElementById('fileIn').click();
@@ -1191,10 +1546,12 @@ function mapFicha(f) {
     metricas: f.metricas && f.metricas.length ? f.metricas.map(m => `${m.descricao}: ${m.criterio_aceite}${m.obrigatoria ? '' : ' (opcional)'}`) : undefined,
     amostra: f.amostra || f.dados, skills: f.skills && f.skills.length ? f.skills : undefined,
     responsaveis: f.bo || f.sponsor ? `BO: ${f.bo || '—'} · Sponsor: ${f.sponsor || '—'}` : undefined,
+    ...((d) => d ? { stack: [d.stack, d.fontes_dados].filter(Boolean).join(' · ') || undefined, baseline: d.baseline, abordagem: d.abordagem_escolhida,
+      protocolo: d.protocolo_avaliacao, arquitetura: d.arquitetura && d.arquitetura.length ? d.arquitetura : undefined } : {})(f.detalhes_tecnicos),
     execucao: f.execucao === 'laboratorio' ? 'Laboratório · workflow de agentes' : f.execucao === 'solicitante' ? 'Solicitante' : undefined,
   };
 }
-const CAMPO_FRONT = { publico_afetado: 'publico', tecnica: 'tecnologia', justificativa_tecnica: 'tecnologia', bo: 'responsaveis', sponsor: 'responsaveis', dados: 'amostra' };
+const CAMPO_FRONT = { detalhes_tecnicos: 'stack', publico_afetado: 'publico', tecnica: 'tecnologia', justificativa_tecnica: 'tecnologia', bo: 'responsaveis', sponsor: 'responsaveis', dados: 'amostra' };
 
 function applyFichaEvent(ev) {
   S.F = mapFicha(ev.ficha);
@@ -1277,7 +1634,6 @@ async function liveTurn(url, body) {
     if (ev.type === 'text') { const last = parts[parts.length - 1]; if (last && last.t === 'text') last.s += ev.delta; else parts.push({ t: 'text', s: ev.delta }); draw(); }
     else if (ev.type === 'retry') { for (let i = parts.length - 1; i >= 0; i--) if (parts[i].t === 'text') parts.splice(i, 1); draw(); }
     else if (ev.type === 'ficha') applyFichaEvent(ev);
-    else if (ev.type === 'perfil') { S.who = { score: ev.score, guess: ev.guess, signals: ev.sinais || [] }; renderPanel(); }
     else if (ev.type === 'chips') out.chips = ev.options;
     else if (ev.type === 'upload') out.upload = true;
     else if (ev.type === 'card') {
@@ -1285,6 +1641,8 @@ async function liveTurn(url, body) {
       else if (ev.kind === 'amostra') card(liveDataCard(ev.data));
       else if (ev.kind === 'skills') card(liveSkillsCard(ev.data));
       else if (ev.kind === 'similares') card(liveSimilaresCard(ev.data));
+      else if (ev.kind === 'abordagens') card(abordagensCard(ev.data));
+      else if (ev.kind === 'desenho') card(desenhoCard(ev.data));
       else if (ev.kind === 'ficha_gerada') { S.F = mapFicha(ev.data.ficha); S.F.v = ev.data.versao; S.F.gerada = true; S.fichaDoc = ev.data.markdown; renderPanel(); card(fichaGeradaCard()); }
     }
     else if (ev.type === 'auto_ingestao') card(`<div class="sim-note" style="color:var(--info);background:var(--info-soft)">Auto-ingestão ativada: texto longo ou estruturado</div>`);
@@ -1293,7 +1651,7 @@ async function liveTurn(url, body) {
       S.path = ev.destino === 'workflow' ? 'negocio' : 'dev';
       if (ev.markdown) S.fichaDoc = ev.markdown;
       card(ev.destino === 'workflow' ? handoffCard() : liveDevCard(ev.ficha));
-      renderTabs();
+      renderTabs(); renderPanel();
     }
     else if (ev.type === 'error') card(`<div class="err-note">${esc(ev.message)}</div>`);
   });
@@ -1304,7 +1662,7 @@ async function liveTurn(url, body) {
 async function liveConversation() {
   const t = S.token;
   try {
-    const r = await fetch('/api/sessoes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome: 'Ana' }) });
+    const r = await fetch('/api/sessoes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome: 'Ana', papel: S.papel, preferencias: S.prefs }) });
     const st = await r.json(); guard(t);
     API.sid = st.id; S.F.id = st.ficha.id; renderPanel();
     let next = await liveTurn(`/api/sessoes/${API.sid}/iniciar`, {});
@@ -1428,9 +1786,18 @@ function liveReportHtml(still) {
     m.textContent = 'LLM ao vivo'; m.classList.add('live'); m.title = `${API.info.modelo} · corpus com ${API.info.corpus.total} experimentos`;
     try { API.corpus = (await (await fetch('/api/experimentos')).json()).corpus; } catch (e) { /* lista opcional */ }
   }
+  const ultimo = lembrado('papel');
+  if (ultimo && PAPEIS[ultimo]) { S.escolha = ultimo; S.escolhaPrefs = { ...prefsPadrao(ultimo), ...((lembrado('prefs') || {})[ultimo] || {}) }; }
+  setTab('conversa');
+})();
+function iniciarJornada(pp, prefs) {
+  S.papel = pp; S.prefs = { ...prefsPadrao(pp), ...prefs };
+  S.F = { id: pp === 'desenvolvedor' ? 'EXP-SUP-RAG-01' : 'EXP-ATD-BUSCA-01', v: 0 };
+  lembrar('papel', pp);
+  const todas = lembrado('prefs') || {}; todas[pp] = S.prefs; lembrar('prefs', todas);
   setTab('conversa');
   if (API.live) liveConversation(); else conversation();
-})();
+}
 
 </script>
 

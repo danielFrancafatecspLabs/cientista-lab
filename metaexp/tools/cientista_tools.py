@@ -18,7 +18,8 @@ from ..context.golden_paths import BY_ID as GOLDEN
 from ..corpus.store import Corpus, resumo_para_contexto
 from ..ficha_doc import markdown as ficha_markdown
 from ..metodo import hipotese_valida, metricas_validas, titulo_valido
-from ..schemas import Ficha, Metrica
+from ..papeis import jornada
+from ..schemas import Abordagem, DetalhesTecnicos, Ficha, Metrica
 from .stats import margem_para_n, tamanho_amostra_proporcao
 
 
@@ -56,12 +57,6 @@ class BuscarSimilares(BaseModel):
     quantidade: int = 3
 
 
-class RegistrarSinal(BaseModel):
-    direcao: Literal["negocio", "desenvolvedor"]
-    peso: Literal["fraco", "medio", "forte", "decisivo"]
-    evidencia: str
-
-
 class SugerirRespostas(BaseModel):
     opcoes: list[str] = Field(min_length=1, max_length=4)
 
@@ -87,6 +82,23 @@ class ApresentarSkills(BaseModel):
     skills: list[Skill]
     estimativa_solicitante: str
     estimativa_laboratorio: str
+
+
+class ProporAbordagens(BaseModel):
+    abordagens: list[Abordagem] = Field(min_length=2, max_length=4)
+    justificativa_recomendacao: str
+
+
+class RegistrarDesenho(BaseModel):
+    stack: Optional[str] = None
+    fontes_dados: Optional[str] = None
+    restricoes: Optional[list[str]] = None
+    baseline: Optional[str] = None
+    abordagem_escolhida: Optional[str] = None
+    protocolo_avaliacao: Optional[str] = None
+    metricas_tecnicas: Optional[list[str]] = None
+    arquitetura: Optional[list[str]] = None
+    riscos_tecnicos: Optional[list[str]] = None
 
 
 class Encaminhar(BaseModel):
@@ -146,15 +158,6 @@ TOOL_SPECS: list[dict] = [
         "input_schema": _obj({"consulta": S, "quantidade": {"type": "integer", "description": "1 a 5"}}, ["consulta"]),
     },
     {
-        "name": "registrar_sinal_perfil",
-        "description": "Registra um indício de que a pessoa é da área de negócio ou desenvolvedora. A escolha de quem executa é um sinal decisivo.",
-        "input_schema": _obj({
-            "direcao": {"type": "string", "enum": ["negocio", "desenvolvedor"]},
-            "peso": {"type": "string", "enum": ["fraco", "medio", "forte", "decisivo"]},
-            "evidencia": {"type": "string", "description": "O que a pessoa disse ou fez, em poucas palavras"},
-        }, ["direcao", "peso", "evidencia"]),
-    },
-    {
         "name": "sugerir_respostas",
         "description": "Mostra de 2 a 3 respostas curtas que a pessoa pode tocar para responder sua última pergunta, escritas na voz dela.",
         "input_schema": _obj({"opcoes": {"type": "array", "items": S}}, ["opcoes"]),
@@ -183,6 +186,32 @@ TOOL_SPECS: list[dict] = [
         }, ["skills", "estimativa_solicitante", "estimativa_laboratorio"]),
     },
     {
+        "name": "propor_abordagens",
+        "description": "Mostra à pessoa de 2 a 4 abordagens técnicas para o problema, com prós, contras, custo, latência, complexidade e qual você recomenda.",
+        "input_schema": _obj({
+            "abordagens": {"type": "array", "items": _obj({
+                "nome": S, "descricao": S, "pros": {"type": "array", "items": S}, "contras": {"type": "array", "items": S},
+                "custo": {"type": "string", "description": "Ex.: 'R$ 0,03 por consulta'"},
+                "latencia": {"type": "string", "description": "Ex.: 'p95 ≈ 1,5 s'"},
+                "complexidade": {"type": "string", "enum": ["baixa", "media", "alta"]},
+                "recomendada": {"type": "boolean"},
+            }, ["nome", "descricao", "pros", "contras", "custo", "latencia", "complexidade", "recomendada"])},
+            "justificativa_recomendacao": S,
+        }, ["abordagens", "justificativa_recomendacao"]),
+    },
+    {
+        "name": "registrar_desenho_tecnico",
+        "description": "Registra o desenho técnico na ficha: stack, fontes de dados, restrições, baseline, abordagem escolhida, protocolo de avaliação, métricas técnicas, arquitetura e riscos. Envie só os campos que mudaram.",
+        "input_schema": _obj({
+            "stack": S, "fontes_dados": {"type": "string", "description": "Sistemas, formatos, volume e atualização"},
+            "restricoes": {"type": "array", "items": S}, "baseline": {"type": "string", "description": "O que existe hoje e seu desempenho"},
+            "abordagem_escolhida": S, "protocolo_avaliacao": {"type": "string", "description": "Conjunto de teste, divisão e procedimento"},
+            "metricas_tecnicas": {"type": "array", "items": {"type": "string", "description": "Ex.: 'Recall@5 ≥ 0,85'"}},
+            "arquitetura": {"type": "array", "items": {"type": "string", "description": "Componente da solução"}},
+            "riscos_tecnicos": {"type": "array", "items": S},
+        }, []),
+    },
+    {
         "name": "encaminhar",
         "description": "Conclui a conversa. `workflow`: o laboratório executa e a pessoa acompanha na bancada. `desenvolvedor`: a pessoa recebe a ficha final e executa.",
         "input_schema": _obj({"destino": {"type": "string", "enum": ["workflow", "desenvolvedor"]}, "resumo": S}, ["destino", "resumo"]),
@@ -195,13 +224,13 @@ for _t in TOOL_SPECS:
 
 INPUT_MODELS: dict[str, type[BaseModel]] = {
     "atualizar_ficha": AtualizarFicha, "classificar_experimento": ClassificarExperimento,
-    "buscar_experimentos_similares": BuscarSimilares, "registrar_sinal_perfil": RegistrarSinal,
+    "buscar_experimentos_similares": BuscarSimilares,
     "sugerir_respostas": SugerirRespostas, "solicitar_dados": SolicitarDados,
     "calcular_tamanho_amostra": CalcularAmostra, "apresentar_skills": ApresentarSkills,
     "encaminhar": Encaminhar, "gerar_ficha": GerarFicha,
+    "propor_abordagens": ProporAbordagens, "registrar_desenho_tecnico": RegistrarDesenho,
 }
 
-PESOS = {"fraco": 6, "medio": 12, "forte": 20, "decisivo": 40}
 
 
 # ------------------------------------------------------------- execução ----
@@ -265,9 +294,13 @@ def _classificar(ctx: ToolContext, a: ClassificarExperimento) -> Result:
     if gp and not s.ficha.skills:
         s.ficha.skills = list(gp["skills"])
         changed.append("skills")
-    card = {"type": "card", "kind": "tecnologia", "data": {**a.model_dump(), "golden_path_nome": gp["nome"] if gp else None}}
     out = {"ok": True, "golden_path": gp} if gp else {"ok": True, "aviso": "golden path não encontrado no catálogo"}
-    return json.dumps(out, ensure_ascii=False), [_ficha_event(s, changed), card]
+    events = [_ficha_event(s, changed)]
+    if s.papel == "desenvolvedor":
+        events.append({"type": "card", "kind": "tecnologia", "data": {**a.model_dump(), "golden_path_nome": gp["nome"] if gp else None}})
+    else:
+        out["lembrete"] = "registrado na ficha; não explique a técnica para o solicitante"
+    return json.dumps(out, ensure_ascii=False), events
 
 
 def _buscar(ctx: ToolContext, a: BuscarSimilares) -> Result:
@@ -280,16 +313,34 @@ def _buscar(ctx: ToolContext, a: BuscarSimilares) -> Result:
     return json.dumps(payload, ensure_ascii=False), ([event] if casos else [])
 
 
-def _sinal(ctx: ToolContext, a: RegistrarSinal) -> Result:
+def _detalhes(s: Any) -> DetalhesTecnicos:
+    if s.ficha.detalhes_tecnicos is None:
+        s.ficha.detalhes_tecnicos = DetalhesTecnicos()
+    return s.ficha.detalhes_tecnicos
+
+
+def _abordagens(ctx: ToolContext, a: ProporAbordagens) -> Result:
     s = ctx.session
-    delta = PESOS[a.peso] * (1 if a.direcao == "desenvolvedor" else -1)
-    s.perfil_score = max(4, min(96, s.perfil_score + delta))
-    s.perfil_sinais.append(a.evidencia)
-    if a.peso == "decisivo":
-        s.perfil = a.direcao
-    guess = ("Desenvolvedor" if s.perfil == "desenvolvedor" else "Área de negócio") if s.perfil else (
-        "Provavelmente desenvolvedor" if s.perfil_score > 62 else "Provavelmente área de negócio" if s.perfil_score < 38 else "Ainda conhecendo você")
-    return "ok", [{"type": "perfil", "score": s.perfil_score, "guess": guess, "sinais": s.perfil_sinais[-4:]}]
+    d = _detalhes(s)
+    d.abordagens = a.abordagens
+    rec = next((x.nome for x in a.abordagens if x.recomendada), None)
+    card = {"type": "card", "kind": "abordagens", "data": {**a.model_dump(), "recomendada": rec}}
+    return json.dumps({"ok": True, "recomendada": rec}, ensure_ascii=False), [_ficha_event(s, ["detalhes_tecnicos"]), card]
+
+
+def _desenho(ctx: ToolContext, a: RegistrarDesenho) -> Result:
+    s = ctx.session
+    d = _detalhes(s)
+    changed = list(a.model_dump(exclude_none=True))
+    for k in changed:
+        setattr(d, k, getattr(a, k))
+    if s.ficha_gerada and changed:
+        s.ficha_gerada = False
+    events = [_ficha_event(s, ["detalhes_tecnicos"])]
+    if "arquitetura" in changed or "protocolo_avaliacao" in changed:
+        events.append({"type": "card", "kind": "desenho", "data": d.model_dump(exclude={"abordagens"})})
+    falta = [k for k in ("stack", "baseline", "protocolo_avaliacao", "metricas_tecnicas", "arquitetura") if not getattr(d, k)]
+    return json.dumps({"ok": True, "desenho_incompleto": falta}, ensure_ascii=False), events
 
 
 def _sugerir(ctx: ToolContext, a: SugerirRespostas) -> Result:
@@ -322,13 +373,17 @@ def _encaminhar(ctx: ToolContext, a: Encaminhar) -> Result:
     if not s.ficha_gerada:
         return json.dumps({"ok": False, "erro": "gere a ficha com gerar_ficha antes de encaminhar",
                            "pendencias": s.ficha.pendencias()}, ensure_ascii=False), []
+    destinos = jornada(s.papel).destinos
+    if a.destino not in destinos:
+        return json.dumps({"ok": False, "erro": f"na jornada de {s.papel} o encaminhamento é para: {', '.join(destinos)}"},
+                          ensure_ascii=False), []
     faltam = [c for c in s.ficha.faltantes() if c != "execucao"]
+    if s.papel == "solicitante":
+        faltam = [c for c in faltam if c != "skills"]   # skills são decisão do laboratório
     if faltam:
         return json.dumps({"ok": False, "erro": "a ficha ainda tem campos obrigatórios vazios", "faltantes": faltam}, ensure_ascii=False), []
     s.ficha.execucao = "laboratorio" if a.destino == "workflow" else "solicitante"
     s.encaminhamento = a.destino
-    if s.perfil is None:
-        s.perfil = "negocio" if a.destino == "workflow" else "desenvolvedor"
     events = [_ficha_event(s, ["execucao"]), {"type": "handoff", "destino": a.destino, "resumo": a.resumo,
                                               "ficha": s.ficha.model_dump(exclude_none=True),
                                               "markdown": ficha_markdown(s.ficha, s.ficha_versao)}]
@@ -337,18 +392,24 @@ def _encaminhar(ctx: ToolContext, a: Encaminhar) -> Result:
 
 HANDLERS: dict[str, Callable[[ToolContext, Any], Result]] = {
     "atualizar_ficha": _atualizar, "classificar_experimento": _classificar,
-    "buscar_experimentos_similares": _buscar, "registrar_sinal_perfil": _sinal,
+    "buscar_experimentos_similares": _buscar,
     "sugerir_respostas": _sugerir, "solicitar_dados": _solicitar,
     "calcular_tamanho_amostra": _calcular, "apresentar_skills": _skills, "encaminhar": _encaminhar,
-    "gerar_ficha": _gerar,
+    "gerar_ficha": _gerar, "propor_abordagens": _abordagens, "registrar_desenho_tecnico": _desenho,
 }
+
+
+def tools_for(papel: str) -> list[dict]:
+    """Ferramentas que o Cientista recebe na jornada do papel, em ordem estável (cache)."""
+    permitidas = set(jornada(papel).ferramentas)
+    return [t for t in TOOL_SPECS if t["name"] in permitidas]
 
 
 def run_tool(ctx: ToolContext, name: str, raw_input: Any) -> tuple[dict, list[dict]]:
     """Valida e executa uma ferramenta. Devolve o bloco tool_result (sem id) e eventos."""
     model = INPUT_MODELS.get(name)
-    if model is None:
-        return {"content": f"ferramenta desconhecida: {name}", "is_error": True}, []
+    if model is None or name not in jornada(ctx.session.papel).ferramentas:
+        return {"content": f"ferramenta indisponível nesta jornada: {name}", "is_error": True}, []
     try:
         args = model.model_validate(raw_input if isinstance(raw_input, dict) else {})
     except ValidationError as e:

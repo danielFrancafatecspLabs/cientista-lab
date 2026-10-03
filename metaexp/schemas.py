@@ -27,6 +27,32 @@ class Metrica(BaseModel):
     obrigatoria: bool
 
 
+class Abordagem(BaseModel):
+    nome: str
+    descricao: str
+    pros: list[str]
+    contras: list[str]
+    custo: str = Field(description="Estimativa de custo, ex.: 'R$ 0,03 por consulta'")
+    latencia: str = Field(description="Estimativa de latência, ex.: 'p95 ≈ 1,5 s'")
+    complexidade: Literal["baixa", "media", "alta"]
+    recomendada: bool
+
+
+class DetalhesTecnicos(BaseModel):
+    """Desenho técnico, preenchido na jornada do desenvolvedor."""
+
+    stack: Optional[str] = None
+    fontes_dados: Optional[str] = Field(None, description="Sistemas, formatos, volume e atualização")
+    restricoes: list[str] = Field(default_factory=list, description="Latência, custo, segurança, LGPD")
+    baseline: Optional[str] = Field(None, description="O que existe hoje e seu desempenho")
+    abordagens: list[Abordagem] = Field(default_factory=list)
+    abordagem_escolhida: Optional[str] = None
+    protocolo_avaliacao: Optional[str] = Field(None, description="Conjunto de teste, divisão e procedimento")
+    metricas_tecnicas: list[str] = Field(default_factory=list, description="Ex.: 'Recall@5 ≥ 0,85', 'latência p95 < 2 s'")
+    arquitetura: list[str] = Field(default_factory=list, description="Componentes da solução")
+    riscos_tecnicos: list[str] = Field(default_factory=list)
+
+
 class Ficha(BaseModel):
     """Ficha de experimento no padrão beOn Labs (Apêndice A da proposta)."""
 
@@ -50,6 +76,7 @@ class Ficha(BaseModel):
     skills: list[str] = Field(default_factory=list)
     execucao: Optional[Literal["laboratorio", "solicitante"]] = None
     riscos: list[str] = Field(default_factory=list)
+    detalhes_tecnicos: Optional[DetalhesTecnicos] = None
 
     CAMPOS_OBRIGATORIOS: ClassVar[tuple[str, ...]] = (
         "titulo", "problema", "publico_afetado", "objetivo", "hipotese", "metodologia", "tecnologia",

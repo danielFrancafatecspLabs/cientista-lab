@@ -29,6 +29,8 @@ class Sessao:
     id: str
     criada_em: str
     nome: str = "você"
+    papel: str = "solicitante"                      # solicitante | desenvolvedor (ver papeis.py)
+    preferencias: dict = field(default_factory=dict)
     # Histórico exato enviado à API. Só cresce: nada é editado ou removido,
     # para manter o cache e os blocos de raciocínio válidos.
     messages: list[dict] = field(default_factory=list)
@@ -49,6 +51,8 @@ class Sessao:
         """Estado resumido para o front."""
         return {
             "id": self.id,
+            "papel": self.papel,
+            "preferencias": self.preferencias,
             "ficha": self.ficha.model_dump(exclude_none=True),
             "faltantes": self.ficha.faltantes(),
             "pendencias": self.ficha.pendencias(),
@@ -84,8 +88,12 @@ class SessionStore:
         self._cache: dict[str, Sessao] = {}
         self._locks: dict[str, threading.Lock] = {}
 
-    def create(self, nome: str | None = None) -> Sessao:
-        s = Sessao(id=uuid.uuid4().hex[:12], criada_em=datetime.now(timezone.utc).isoformat(), nome=nome or "você")
+    def create(self, nome: str | None = None, papel: str = "solicitante", preferencias: dict | None = None) -> Sessao:
+        from .papeis import jornada
+        j = jornada(papel)
+        s = Sessao(id=uuid.uuid4().hex[:12], criada_em=datetime.now(timezone.utc).isoformat(), nome=nome or "você",
+                   papel=j.papel, preferencias=j.valida_preferencias(preferencias))
+        s.perfil = j.perfil_corpus
         s.ficha.id = f"EXP-{s.id[:6].upper()}"
         self.save(s)
         return s

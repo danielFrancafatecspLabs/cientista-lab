@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -25,6 +26,7 @@ from ..agents.cientista import Cientista
 from ..corpus.store import Corpus
 from ..llm.client import LLM
 from ..metodo import criterio_valido
+from ..papeis import jornada
 from ..schemas import Experimento
 from ..sessions import Sessao
 from ..tools.profiling import PerfilArquivo
@@ -35,13 +37,15 @@ SYSTEM_SOLICITANTE = """Você interpreta uma pessoa da empresa conversando com o
 Responda como essa pessoa responderia: curto, em português do Brasil, no estilo indicado. Não revele tudo de uma vez;
 responda ao que foi perguntado. Você só conhece os fatos do seu caso. Se o Cientista pedir um arquivo e você tiver
 dados, marque `anexar_arquivo` como true. Quando ele perguntar quem executa, responda de acordo com o seu perfil:
-área de negócio pede que o laboratório execute; desenvolvedor executa por conta própria."""
+área de negócio pede que o laboratório execute; desenvolvedor normalmente executa por conta própria. Se você é da área de
+negócio, não use termos técnicos; se é desenvolvedor, responda com detalhes técnicos quando perguntado."""
 
 SYSTEM_JUIZ = """Você avalia a condução de uma conversa do Cientista do METAEXP, um agente que transforma o problema de
 uma pessoa em uma ficha de experimento. Dê nota de 1 a 5 para cada critério, com uma justificativa curta.
 Critérios: (1) faz uma pergunta por vez, em no máximo 5 linhas; (2) traz soluções vagas de volta para o problema;
 (3) exige critério de aceite numérico para cada métrica; (4) trata a falta ou insuficiência de dados de forma honesta;
-(5) adapta a linguagem ao perfil da pessoa; (6) segue o fluxo Problema → Impacto → Objetivo → Hipótese → Metodologia →
+(5) respeita a jornada do papel: com o solicitante, nenhum jargão técnico e profundidade de negócio; com o desenvolvedor,
+profundidade técnica desde o início (contexto técnico, baseline, abordagens com trade-offs, protocolo de avaliação); (6) segue o fluxo Problema → Impacto → Objetivo → Hipótese → Metodologia →
 Amostra → Métricas → Critérios e não confunde objetivo com hipótese."""
 
 
@@ -51,7 +55,7 @@ class RespostaSimulada(BaseModel):
 
 
 class NotaCriterio(BaseModel):
-    criterio: Literal["uma_pergunta_por_vez", "problema_antes_da_solucao", "criterios_numericos", "honestidade_dados", "adaptacao_perfil", "fluxo_do_metodo"]
+    criterio: Literal["uma_pergunta_por_vez", "problema_antes_da_solucao", "criterios_numericos", "honestidade_dados", "adequacao_ao_papel", "fluxo_do_metodo"]
     nota: int = Field(description="1 a 5")
     justificativa: str
 
@@ -64,7 +68,8 @@ class AvaliacaoJuiz(BaseModel):
 class ResultadoCaso:
     caso: str
     perfil_esperado: str
-    perfil_detectado: str | None
+    papel: str
+    jornada_adequada: bool
     encaminhamento: str | None
     tecnologia_esperada: str | None
     tecnologia_obtida: str | None
@@ -79,13 +84,25 @@ class ResultadoCaso:
     def acertos(self) -> dict[str, bool]:
         destino = "workflow" if self.perfil_esperado == "negocio" else "desenvolvedor"
         return {
-            "perfil": self.perfil_detectado == self.perfil_esperado,
+            "jornada_adequada": self.jornada_adequada,
             "encaminhamento": self.encaminhamento == destino,
             "tecnologia": self.tecnologia_obtida == self.tecnologia_esperada,
             "ficha_completa": self.ficha_completa,
             "metas_numericas": self.metas_numericas,
             "regras_metodo": self.regras_metodo,
         }
+
+
+JARGAO = re.compile(r"\b(RAG|embeddings?|LLM|vetoria[li]s?|pipeline|F1|AUC|recall|precis[aã]o@|fine-?tuning|prompt|API|token)\b", re.I)
+
+
+def jornada_respeitada(s: Sessao, transcript: list[str]) -> bool:
+    """Solicitante: o Cientista não usa jargão técnico. Desenvolvedor: há desenho técnico de fato."""
+    if s.papel == "solicitante":
+        falas = " ".join(t for t in transcript if t.startswith("Cientista:"))
+        return not JARGAO.search(falas)
+    d = s.ficha.detalhes_tecnicos
+    return bool(d and d.baseline and d.protocolo_avaliacao and len(d.abordagens) >= 2)
 
 
 def _caso_para_solicitante(exp: Experimento) -> str:
@@ -121,7 +138,9 @@ def _texto_assistente(msg: dict) -> str:
 
 def rodar_caso(exp: Experimento, cientista: Cientista, llm_solicitante: LLM, juiz: LLM | None,
                max_turnos: int = 14) -> ResultadoCaso:
-    s = Sessao(id=f"eval-{exp.id}", criada_em=datetime.now().isoformat(), nome="Ana")
+    papel = "solicitante" if exp.perfil_solicitante == "negocio" else "desenvolvedor"
+    s = Sessao(id=f"eval-{exp.id}", criada_em=datetime.now().isoformat(), nome="Ana", papel=papel,
+               preferencias=jornada(papel).valida_preferencias({"area": exp.dominio}))
     contexto = _caso_para_solicitante(exp)
     transcript: list[str] = []
     turnos = 0
@@ -149,7 +168,8 @@ def rodar_caso(exp: Experimento, cientista: Cientista, llm_solicitante: LLM, jui
         erro = f"{type(e).__name__}: {e}"
 
     res = ResultadoCaso(
-        caso=exp.id, perfil_esperado=exp.perfil_solicitante, perfil_detectado=s.perfil,
+        caso=exp.id, perfil_esperado=exp.perfil_solicitante, papel=papel,
+        jornada_adequada=jornada_respeitada(s, transcript),
         encaminhamento=s.encaminhamento, tecnologia_esperada=exp.ficha.tecnologia, tecnologia_obtida=s.ficha.tecnologia,
         ficha_completa=s.ficha.completa(),
         metas_numericas=bool(s.ficha.metricas) and all(criterio_valido(m.criterio_aceite) for m in s.ficha.metricas),
@@ -173,7 +193,7 @@ def rodar(corpus: Corpus, llm: LLM, n: int = 5, saida: Path | None = None, usar_
         cientista.corpus = Corpus([e for e in corpus.experiments if e.id != exp.id])
         resultados.append(rodar_caso(exp, cientista, llm, llm if usar_juiz else None))
     agregado: dict[str, float] = {}
-    for chave in ("perfil", "encaminhamento", "tecnologia", "ficha_completa", "metas_numericas", "regras_metodo"):
+    for chave in ("jornada_adequada", "encaminhamento", "tecnologia", "ficha_completa", "metas_numericas", "regras_metodo"):
         agregado[chave] = sum(r.acertos[chave] for r in resultados) / len(resultados) if resultados else 0.0
     notas = [v for r in resultados for v in r.notas_juiz.values()]
     agregado["nota_juiz_media"] = sum(notas) / len(notas) if notas else 0.0

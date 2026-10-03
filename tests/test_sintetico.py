@@ -69,3 +69,9 @@ def test_cli_plano_e_confirmacao_de_gasto(capsys):
     assert '"golden_path"' in capsys.readouterr().out
     assert cli.main(["sintetico", "--n", "3"]) == 1   # sem --sim não chama o modelo
     assert "--sim" in capsys.readouterr().out
+
+
+def test_documento_de_papeis_esta_em_dia():
+    from metaexp.papeis_doc import markdown
+    doc = (ROOT / "docs/papeis-e-responsabilidades.md").read_text(encoding="utf-8")
+    assert doc == markdown(), "rode `python -m metaexp papeis` para regerar o documento"

@@ -46,8 +46,10 @@ def _join(*parts: str) -> str:
     return "\n\n---\n\n".join(p for p in parts if p)
 
 
-def system_cientista() -> str:
-    return _join(prompt("cientista"), metodologia(), catalogo_golden_paths())
+def system_cientista(papel: str = "solicitante") -> str:
+    """Um prompt de sistema estável por papel: método + jornada + contexto do laboratório."""
+    from ..papeis import jornada
+    return _join(prompt("cientista"), prompt(jornada(papel).prompt), metodologia(), catalogo_golden_paths())
 
 
 def system_bancada(papel: str, instrucoes: str) -> str:

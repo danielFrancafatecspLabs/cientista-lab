@@ -22,13 +22,15 @@ from ..corpus.store import Corpus
 from ..llm.client import LLM, TextDelta, TurnResult
 from ..metodo import precisa_auto_ingestao
 from ..sessions import Sessao
-from ..tools.cientista_tools import TOOL_SPECS, ToolContext, run_tool
+from ..papeis import jornada
+from ..tools.cientista_tools import ToolContext, run_tool, tools_for
 from ..tools.profiling import PerfilArquivo
 
 log = logging.getLogger("metaexp.cientista")
 
-ABERTURA = ("(A pessoa acabou de abrir o METAEXP. Nome: {nome}. "
-            "Cumprimente pelo nome, apresente-se em uma frase e pergunte qual problema ela quer resolver.)")
+ABERTURA = ("(A pessoa acabou de abrir o METAEXP. Nome: {nome}. Papel escolhido: {papel} ({descricao}).\n"
+            "Preferências escolhidas:\n{preferencias}\n"
+            "Cumprimente pelo nome, diga em uma frase como será a jornada para esse papel e faça a primeira pergunta do fluxo.)")
 MAX_ITERACOES = 8
 MAX_JSON_RETRIES = 2
 
@@ -47,7 +49,12 @@ class Cientista:
         self.llm = llm
         self.corpus = corpus
         self.effort = effort
-        self.system = system_cientista()
+        self._systems: dict[str, str] = {}
+
+    def system_for(self, papel: str) -> str:
+        if papel not in self._systems:
+            self._systems[papel] = system_cientista(papel)
+        return self._systems[papel]
 
     # ------------------------------------------------------------ entradas ----
 
@@ -55,7 +62,9 @@ class Cientista:
         if sessao.messages:
             yield {"type": "done", "state": sessao.snapshot()}
             return
-        yield from self._turno(sessao, ABERTURA.format(nome=sessao.nome))
+        j = jornada(sessao.papel)
+        yield from self._turno(sessao, ABERTURA.format(nome=sessao.nome, papel=j.nome, descricao=j.descricao,
+                                                       preferencias=j.descreve_preferencias(sessao.preferencias)))
 
     def responder(self, sessao: Sessao, texto: str) -> Iterator[dict]:
         aviso = None
@@ -97,8 +106,8 @@ class Cientista:
             iteracao += 1
             result: TurnResult | None = None
             try:
-                for ev in self.llm.stream_turn(system=self.system, messages=sessao.messages,
-                                               tools=TOOL_SPECS, effort=self.effort):
+                for ev in self.llm.stream_turn(system=self.system_for(sessao.papel), messages=sessao.messages,
+                                               tools=tools_for(sessao.papel), effort=self.effort):
                     if isinstance(ev, TextDelta):
                         yield {"type": "text", "delta": ev.text}
                     else:

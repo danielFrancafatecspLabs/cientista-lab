@@ -2,7 +2,8 @@
 
 Rotas (todas sob /api):
   GET  /health                                  verifica se o backend e o corpus estão de pé
-  POST /sessoes                  {nome?}        cria uma sessão
+  GET  /papeis                                  papéis, jornadas, preferências e matriz de responsabilidades
+  POST /sessoes                  {nome?, papel, preferencias}  cria uma sessão na jornada do papel
   GET  /sessoes/{id}                            estado atual (ficha, perfil, bancada)
   POST /sessoes/{id}/iniciar                    SSE: mensagem de abertura do Cientista
   POST /sessoes/{id}/mensagens   {texto}        SSE: turno de conversa
@@ -18,7 +19,8 @@ import base64
 import binascii
 import json
 import logging
-from typing import Callable, Iterator, Optional
+from dataclasses import asdict
+from typing import Callable, Iterator, Literal, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
@@ -29,6 +31,7 @@ from ..agents.cientista import Cientista
 from ..config import Settings, settings as default_settings
 from ..corpus.store import Corpus, resumo_para_contexto
 from ..llm.client import LLM, AnthropicLLM
+from ..papeis import ETAPAS_CICLO, JORNADAS, RESPONSABILIDADES
 from ..sessions import Sessao, SessionStore
 from ..tools.profiling import perfilar
 
@@ -38,6 +41,8 @@ MAX_UPLOAD = 15 * 1024 * 1024
 
 class NovaSessao(BaseModel):
     nome: Optional[str] = None
+    papel: Literal["solicitante", "desenvolvedor"] = "solicitante"
+    preferencias: dict[str, str] = Field(default_factory=dict)
 
 
 class Mensagem(BaseModel):
@@ -105,8 +110,16 @@ def create_app(llm: LLM | None = None, cfg: Settings | None = None, corpus: Corp
 
     @app.post("/api/sessoes")
     def criar(body: NovaSessao):
-        s = store.create(body.nome)
+        s = store.create(body.nome, body.papel, body.preferencias)
         return s.snapshot()
+
+    @app.get("/api/papeis")
+    def papeis():
+        return {
+            "jornadas": [asdict(j) | {"prompt": None, "ferramentas": list(j.ferramentas)} for j in JORNADAS.values()],
+            "etapas_ciclo": list(ETAPAS_CICLO),
+            "responsabilidades": RESPONSABILIDADES,
+        }
 
     @app.get("/api/sessoes/{sid}")
     def obter(sid: str):

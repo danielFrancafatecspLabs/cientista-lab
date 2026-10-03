@@ -1,6 +1,7 @@
 """Linha de comando: `python -m metaexp <comando>`.
 
   servir                   sobe a API e o front em http://localhost:8000
+  papeis                   regera docs/papeis-e-responsabilidades.md a partir de metaexp/papeis.py
   corpus                   mostra a composição do corpus (reais × sintéticos, domínios, vereditos)
   ingerir                  converte documentos de data/real/ em registros do corpus
   sintetico --n 30         gera experimentos sintéticos equilibrados (--batch usa a Batches API)
@@ -27,6 +28,7 @@ def main(argv: list[str] | None = None) -> int:
     sv.add_argument("--host", default="127.0.0.1")
     sv.add_argument("--port", type=int, default=8000)
     sub.add_parser("corpus")
+    sub.add_parser("papeis")
     sub.add_parser("ingerir")
     for nome in ("sintetico", "plano-sintetico"):
         p = sub.add_parser(nome)
@@ -49,6 +51,14 @@ def main(argv: list[str] | None = None) -> int:
 
         from .api.app import create_app
         uvicorn.run(create_app(), host=args.host, port=args.port)
+        return 0
+
+    if args.cmd == "papeis":
+        from .papeis_doc import markdown
+        destino = ROOT / "docs/papeis-e-responsabilidades.md"
+        destino.parent.mkdir(exist_ok=True)
+        destino.write_text(markdown(), encoding="utf-8")
+        print(f"gerado {destino}")
         return 0
 
     corpus = Corpus.from_dirs(settings.corpus_dirs)

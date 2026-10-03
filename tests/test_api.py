@@ -60,3 +60,13 @@ def test_erros_http(tmp_path):
     assert r.status_code == 400
     ev = eventos(c.post(f"/api/sessoes/{sid}/bancada", json={}))
     assert ev[0]["type"] == "error"   # ainda não foi encaminhado
+
+
+def test_papeis_e_criacao_de_sessao_por_papel(tmp_path):
+    c = app(tmp_path, FakeLLM())
+    r = c.get("/api/papeis").json()
+    assert [j["papel"] for j in r["jornadas"]] == ["solicitante", "desenvolvedor"]
+    assert all(len(x["raci"]) == len(r["etapas_ciclo"]) for x in r["responsabilidades"])
+    s = c.post("/api/sessoes", json={"papel": "desenvolvedor", "preferencias": {"stack": "java", "ia": "?"}}).json()
+    assert s["papel"] == "desenvolvedor" and s["preferencias"] == {"stack": "java", "ia": "intermediario", "ambiente": "sandbox"}
+    assert c.post("/api/sessoes", json={"papel": "diretor"}).status_code == 422

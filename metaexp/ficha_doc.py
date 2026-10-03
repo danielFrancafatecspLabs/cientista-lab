@@ -35,6 +35,24 @@ def markdown(f: Ficha, versao: int = 1) -> str:
         "|---|---|---|---|",
         *[f"| {m.nome} | {m.descricao} | {m.criterio_aceite} | {'sim' if m.obrigatoria else 'não'} |" for m in f.metricas],
     ]
+    d = f.detalhes_tecnicos
+    if d:
+        partes += ["## Desenho técnico"]
+        partes += [x for x in [linha("Stack", d.stack) if d.stack else None, linha("Fontes de dados", d.fontes_dados) if d.fontes_dados else None,
+                               linha("Baseline", d.baseline) if d.baseline else None,
+                               linha("Abordagem escolhida", d.abordagem_escolhida) if d.abordagem_escolhida else None,
+                               linha("Protocolo de avaliação", d.protocolo_avaliacao) if d.protocolo_avaliacao else None] if x]
+        if d.restricoes:
+            partes += ["**Restrições:**", *[f"- {r}" for r in d.restricoes]]
+        if d.metricas_tecnicas:
+            partes += ["**Métricas técnicas:**", *[f"- {m}" for m in d.metricas_tecnicas]]
+        if d.arquitetura:
+            partes += ["**Arquitetura:**", *[f"{i}. {c}" for i, c in enumerate(d.arquitetura, 1)]]
+        if d.abordagens:
+            partes += ["**Abordagens avaliadas:**", "| Abordagem | Custo | Latência | Complexidade | Recomendada |", "|---|---|---|---|---|",
+                       *[f"| {a.nome} | {a.custo} | {a.latencia} | {a.complexidade} | {'sim' if a.recomendada else 'não'} |" for a in d.abordagens]]
+        if d.riscos_tecnicos:
+            partes += ["**Riscos técnicos:**", *[f"- {r}" for r in d.riscos_tecnicos]]
     if f.skills:
         partes += ["## Skills necessárias", ", ".join(f.skills)]
     if f.riscos:
