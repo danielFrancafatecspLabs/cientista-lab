@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mural METAEXP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#f4f2ee;--dot:#d9d5cd;--panel:#ffffff;--ink:#1d1b18;--mute:#6d675e;--line:#e3dfd7;--accent:#da291c;--accent-ink:#fff;
+  --soft:#f7f5f1;--shadow:0 1px 2px rgba(30,25,15,.08),0 4px 14px rgba(30,25,15,.06);
+  --s-produto:#fff1a8;--s-dados:#cfe6ff;--s-cientista:#ffd3cf;--s-avaliacao:#d4f2d0;--s-engenharia:#e4d9ff;--s-adocao:#ffe0b8;--s-ideia:#fff7d1;--s-pergunta:#d9f1f5;--s-risco:#fde0e6;
+  --sticky-ink:#22201b;--ok:#2f8f46;--warn:#b7791f;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#161513;--dot:#2c2a26;--panel:#201f1c;--ink:#f0ece5;--mute:#a49d92;--line:#34312c;--soft:#1b1a18;--shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.3);
+  --s-produto:#e9d977;--s-dados:#a9cdf2;--s-cientista:#f2aea8;--s-avaliacao:#acdca6;--s-engenharia:#c7b6f5;--s-adocao:#f2c486;--s-ideia:#eadfa4;--s-pergunta:#a9d9e0;--s-risco:#efb4c1;--ok:#5cc177;--warn:#e0a84a;
+}}
+:root[data-theme="dark"]{
+  --bg:#161513;--dot:#2c2a26;--panel:#201f1c;--ink:#f0ece5;--mute:#a49d92;--line:#34312c;--soft:#1b1a18;--shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.3);
+  --s-produto:#e9d977;--s-dados:#a9cdf2;--s-cientista:#f2aea8;--s-avaliacao:#acdca6;--s-engenharia:#c7b6f5;--s-adocao:#f2c486;--s-ideia:#eadfa4;--s-pergunta:#a9d9e0;--s-risco:#efb4c1;--ok:#5cc177;--warn:#e0a84a;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:18px 18px;color:var(--ink);font:14px/1.45 Figtree,system-ui,sans-serif;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,sans-serif;margin:0;letter-spacing:-.01em}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px}
+header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--panel) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;gap:14px;padding:12px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:30px;height:30px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center;font:700 15px "Bricolage Grotesque"}
+.brand h1{font-size:19px}
+.brand small{display:block;color:var(--mute);font-size:12px}
+.tabs{display:flex;gap:4px;background:var(--soft);border:1px solid var(--line);padding:3px;border-radius:10px}
+.tabs button{border:0;background:none;padding:6px 12px;border-radius:7px;cursor:pointer;color:var(--mute);font-weight:600}
+.tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:var(--shadow)}
+.spacer{flex:1}
+.btn{border:1px solid var(--line);background:var(--panel);padding:6px 11px;border-radius:8px;cursor:pointer;font-weight:600;white-space:nowrap}
+.btn:hover{border-color:var(--mute)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:none}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.filters{display:flex;gap:6px;padding:0 20px 10px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.filters .lbl{color:var(--mute);font-size:12px;margin-right:2px}
+main{padding:18px 20px 60px;max-width:1500px;margin:0 auto}
+.notice{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.intro{display:grid;grid-template-columns:1fr 340px;gap:14px;margin-bottom:16px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-self:start}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.kpi b{display:block;font:700 26px "Bricolage Grotesque"}
+.kpi span{color:var(--mute);font-size:12px}
+.bar{height:5px;border-radius:5px;background:var(--line);margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.agenda{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.agenda h3{font-size:14px;margin-bottom:6px;display:flex;justify-content:space-between}
+.agenda ol{margin:0;padding:0;list-style:none}
+.agenda li{display:flex;gap:10px;padding:4px 0;border-top:1px dashed var(--line);font-size:13px;cursor:pointer}
+.agenda li:first-child{border-top:0}
+.agenda li .mono{color:var(--mute);min-width:44px;padding-top:2px}
+.agenda li:hover{color:var(--accent)}
+/* mural */
+.board{display:grid;grid-template-columns:130px repeat(5,minmax(200px,1fr));gap:8px;overflow-x:auto;padding-bottom:8px}
+.colh{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;position:sticky;top:0}
+.colh h3{font-size:14px}
+.colh .mono{color:var(--mute)}
+.colh p{margin:4px 0 0;font-size:12px;color:var(--mute)}
+.rowh{display:flex;flex-direction:column;justify-content:flex-start;gap:4px;padding:8px 6px;font-weight:700;font-family:"Bricolage Grotesque"}
+.rowh i{width:18px;height:18px;border-radius:4px;display:block;box-shadow:var(--shadow)}
+.rowh small{font-family:Figtree;font-weight:500;color:var(--mute);font-size:11px}
+.cell{min-height:80px;border:1px dashed var(--line);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:7px;background:color-mix(in srgb,var(--panel) 35%,transparent)}
+.sticky{background:var(--sc);color:var(--sticky-ink);border-radius:3px 3px 12px 3px;padding:8px 9px 7px;box-shadow:var(--shadow);cursor:pointer;text-align:left;border:0;width:100%;position:relative;transition:transform .12s}
+.sticky:hover{transform:translateY(-2px) rotate(-.4deg)}
+.sticky:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sticky .t{font-weight:700;font-size:13px;line-height:1.25;display:block;margin:2px 0 6px}
+.sticky .meta{display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-size:11px}
+.sticky .tag{background:rgba(0,0,0,.08);border-radius:4px;padding:0 5px;font-weight:600}
+.sticky .who{margin-left:auto;display:flex}
+.sticky .who img{width:18px;height:18px;border-radius:50%;margin-left:-5px;border:1.5px solid var(--sc)}
+.sticky .free{margin-left:auto;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;opacity:.65}
+.sticky.dim{opacity:.22}
+.sticky.done .t{text-decoration:line-through;opacity:.7}
+.sticky .st{position:absolute;top:7px;right:8px;width:8px;height:8px;border-radius:50%}
+.st.fazendo{background:var(--warn)}.st.feito{background:var(--ok)}
+.sticky .votes{font-weight:700}
+/* pessoas */
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.pcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
+.pcard.me{border-color:var(--accent)}
+.phead{display:flex;align-items:center;gap:10px}
+.phead img{width:34px;height:34px;border-radius:50%}
+.phead b{display:block}
+.phead small{color:var(--mute)}
+.mini{display:flex;flex-direction:column;gap:5px}
+.mini .sticky{padding:6px 8px}
+.mini .sticky .t{margin:0;font-size:12px}
+.load{font-size:12px;color:var(--mute)}
+.load.over{color:var(--accent);font-weight:700}
+.section{margin:22px 0 10px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.section h2{font-size:18px}
+.section p{margin:0;color:var(--mute);font-size:13px}
+.balance{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.unowned{display:grid;grid-template-columns:repeat(4,minmax(200px,1fr));gap:10px;overflow-x:auto}
+.ucol{background:color-mix(in srgb,var(--panel) 55%,transparent);border:1px dashed var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:7px}
+.ucol h3{font-size:13px}
+.myform{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px}
+.myform select,.myform input{border:1px solid var(--line);background:var(--soft);border-radius:7px;padding:4px 6px}
+.myform input{width:64px}
+/* gantt */
+.gantt{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow-x:auto}
+.grow{display:grid;grid-template-columns:250px repeat(18,minmax(38px,1fr));min-width:950px;border-top:1px solid var(--line);position:relative}
+.grow:first-child{border-top:0}
+.grow.head{position:sticky;top:0;background:var(--panel);z-index:2}
+.gl{padding:6px 10px;font-size:12px;display:flex;gap:6px;align-items:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;border-right:1px solid var(--line);cursor:pointer}
+.gl .mono{color:var(--mute)}
+.gl.group{font:700 13px "Bricolage Grotesque";cursor:default}
+.gw{border-left:1px solid var(--line);font-size:10px;text-align:center;padding:4px 0;color:var(--mute)}
+.gw.wave{background:var(--soft)}
+.gw b{display:block;color:var(--ink);font:500 11px "JetBrains Mono"}
+.gbar{position:absolute;top:5px;bottom:5px;border-radius:5px;background:var(--sc);box-shadow:var(--shadow);font-size:11px;color:var(--sticky-ink);font-weight:700;padding:0 6px;display:flex;align-items:center;gap:4px;overflow:hidden;white-space:nowrap;cursor:pointer;border:0}
+.gbar.free{background:repeating-linear-gradient(135deg,var(--sc) 0 6px,color-mix(in srgb,var(--sc) 60%,transparent) 6px 12px)}
+.gbar img{width:15px;height:15px;border-radius:50%}
+.mile{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed var(--accent);z-index:1;pointer-events:none}
+.today{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);opacity:.5;z-index:1;pointer-events:none}
+.milestones{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px}
+.ms{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:9px 11px;font-size:12px}
+.ms b{display:block;font:700 13px "Bricolage Grotesque"}
+.ms .mono{color:var(--mute)}
+/* brainstorm */
+.bs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.bcol{background:color-mix(in srgb,var(--panel) 55%,transparent);border:1px dashed var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.bcol h3{font-size:16px}
+.bcol p.h{margin:0;color:var(--mute);font-size:12px}
+.add{display:flex;gap:6px}
+.add input{flex:1;min-width:0;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 8px}
+.vote{border:1px solid rgba(0,0,0,.15);background:rgba(255,255,255,.45);border-radius:6px;padding:0 6px;font-size:11px;font-weight:700;cursor:pointer;color:var(--sticky-ink)}
+.vote.on{background:var(--sticky-ink);color:#fff}
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:40;display:none}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--panel);z-index:41;box-shadow:-10px 0 30px rgba(0,0,0,.18);transform:translateX(105%);transition:transform .2s;display:flex;flex-direction:column}
+.open .scrim{display:block}.open .drawer{transform:none}
+.dh{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+.dh .swatch{width:14px;height:14px;border-radius:3px;margin-top:5px;flex:none;background:var(--sc)}
+.dh h2{font-size:19px}
+.db{padding:14px 16px;overflow:auto;flex:1;display:flex;flex-direction:column;gap:12px}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:6px 10px;font-size:13px}
+.kv dt{color:var(--mute)}.kv dd{margin:0}
+.box{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px}
+.box b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);margin-bottom:3px}
+.owners{display:flex;gap:6px;flex-wrap:wrap}
+.owner{display:flex;align-items:center;gap:6px;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:2px 9px 2px 3px;font-size:12px}
+.owner img{width:20px;height:20px;border-radius:50%}
+.df{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap}
+.link{background:none;border:0;color:var(--accent);cursor:pointer;padding:0;font-weight:600}
+form.edit{display:flex;flex-direction:column;gap:8px}
+form.edit label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute);font-weight:600}
+form.edit input,form.edit textarea,form.edit select{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:6px 8px;color:var(--ink);font-weight:400}
+form.edit .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+form.edit .checks{display:flex;gap:10px;flex-wrap:wrap;color:var(--ink);font-weight:500}
+form.edit .checks label{flex-direction:row;align-items:center;gap:4px;color:var(--ink)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:9px;font-weight:600;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.empty{color:var(--mute);font-size:12px;padding:6px}
+.skel{height:56px;border-radius:4px;background:linear-gradient(90deg,var(--line),var(--soft),var(--line));background-size:200% 100%;animation:sk 1.2s infinite;opacity:.6}
+@keyframes sk{to{background-position:-200% 0}}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);width:min(640px,94vw);padding:16px}
+dialog textarea{width:100%;height:50vh;font:12px "JetBrains Mono",monospace;background:var(--soft);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+@media (max-width:900px){
+  .intro{grid-template-columns:1fr}
+  .kpis,.balance{grid-template-columns:repeat(2,1fr)}
+  .milestones{grid-template-columns:1fr 1fr}
+  .bs{grid-template-columns:1fr}
+}
+@media (max-width:600px){
+  .top,.filters{padding-left:16px;padding-right:16px}
+  main{padding:14px 16px 60px}
+  .board{grid-template-columns:repeat(5,minmax(220px,1fr))}
+  .rowh{grid-column:1/-1;flex-direction:row;align-items:center;padding:10px 2px 0}
+  .colh.corner{display:none}
+  .unowned{grid-template-columns:repeat(4,minmax(200px,1fr))}
+  .milestones{grid-template-columns:1fr}
+  .tabs{width:100%;overflow-x:auto}
+  .tabs button{flex:1;white-space:nowrap}
+  header{position:static}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="brand"><div class="logo">M</div><div><h1>Mural METAEXP</h1><small>Cientista do beOn Labs · plano em ondas</small></div></div>
+    <nav class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-v="mural" aria-selected="true">Mural</button>
+      <button role="tab" data-v="pessoas" aria-selected="false">Quem puxa o quê</button>
+      <button role="tab" data-v="cronograma" aria-selected="false">Cronograma</button>
+      <button role="tab" data-v="brainstorm" aria-selected="false">Brainstorm</button>
+    </nav>
+    <div class="spacer"></div>
+    <button class="btn ghost" id="theme" title="Alternar tema">◐</button>
+    <button class="btn" id="copy">Copiar plano</button>
+    <button class="btn primary" id="new">+ Cartão</button>
+  </div>
+  <div class="filters" id="filters"></div>
+</header>
+<main id="main"></main>
+<div id="dw"><div class="scrim" id="scrim"></div><aside class="drawer" id="drawer" aria-label="Detalhes do cartão"></aside></div>
+<dialog id="md"><h3 style="margin-bottom:8px">Plano em markdown</h3><textarea id="mdt" readonly></textarea><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px"><button class="btn" id="mdc">Copiar</button><button class="btn primary" id="mdx">Fechar</button></div></dialog>
+<div class="toast" id="toast"></div>
+<script>
+(() => {
+"use strict";
+// ---------- estrutura do plano (moldura; os cartões vêm do banco) ----------
+const FRENTES = [
+  {id:"produto",nome:"Produto e método",dica:"visão, método, template"},
+  {id:"dados",nome:"Dados e histórico",dica:"inventário, corpus, sintético"},
+  {id:"cientista",nome:"Cientista",dica:"prompt, ferramentas, jornadas"},
+  {id:"avaliacao",nome:"Avaliação",dica:"casos, métricas, revisão"},
+  {id:"engenharia",nome:"Engenharia",dica:"API, front, infra"},
+  {id:"adocao",nome:"Piloto e adoção",dica:"áreas, treino, feedback"},
+];
+const ONDAS = [
+  {n:0,nome:"Descoberta e base",sem:[1,2],marco:"Plano aprovado, histórico inventariado e acesso ao modelo"},
+  {n:1,nome:"Cientista v1",sem:[3,6],marco:"Cientista gera fichas válidas em 15 casos de teste"},
+  {n:2,nome:"Corpus e avaliação contínua",sem:[7,10],marco:"Corpus real + sintético versionado e avaliação a cada mudança"},
+  {n:3,nome:"Piloto",sem:[11,14],marco:"10 fichas reais de 2 áreas"},
+  {n:4,nome:"Bancada e veredito",sem:[15,18],marco:"Primeiro experimento ponta a ponta e veredito do metaexperimento"},
+];
+const PERFIS = {IA:"Especialista de IA",ENG:"Engenharia de software",LAB:"Pesquisa do Lab",PROD:"Produto"};
+const PONTOS = {P:1,M:3,G:5};
+const STATUS = {a_fazer:"A fazer",fazendo:"Fazendo",feito:"Feito"};
+const TIPOS_BS = [
+  {id:"ideia",nome:"Ideias",dica:"O que mais precisamos fazer? Vire entregável depois."},
+  {id:"pergunta",nome:"Perguntas",dica:"O que precisamos decidir ou descobrir."},
+  {id:"risco",nome:"Riscos",dica:"O que pode dar errado e como mitigar."},
+];
+const AGENDA = [
+  {min:"0–5",txt:"Objetivo: sair com dono e data para a onda 0 e 1",v:"mural"},
+  {min:"5–15",txt:"Passear pelo mural: frentes × ondas e marcos",v:"mural"},
+  {min:"15–30",txt:"Brainstorm: cada um cola ideias, perguntas e riscos; votar",v:"brainstorm"},
+  {min:"30–50",txt:"Quem puxa o quê: cada pessoa marca perfil, horas e puxa cartões",v:"pessoas"},
+  {min:"50–60",txt:"Cronograma: ajustar início, confirmar marcos e próximos passos",v:"cronograma"},
+];
+
+// ---------- estado ----------
+const S = {
+  view:"mural", filtroPerfil:null, semDono:false, meus:false,
+  db:null, user:null, me:null, canWrite:null, offline:false, loaded:{cards:false},
+  cards:new Map(), claims:new Map(), votes:new Map(), people:new Map(), plano:{inicio:null},
+  profiles:{}, sel:null, editing:false,
+};
+const $ = (s, r=document) => r.querySelector(s);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const toast = (m) => { const t=$("#toast"); t.textContent=m; t.classList.add("on"); clearTimeout(toast.h); toast.h=setTimeout(()=>t.classList.remove("on"),2200); };
+const arr = (v) => Array.isArray(v) ? v : [];
+
+try { const th = localStorage.getItem("mural.theme"); if (th) document.documentElement.dataset.theme = th; } catch {}
+try { const v = localStorage.getItem("mural.view"); if (v) S.view = v; } catch {}
+
+// ---------- derivados ----------
+function lista(){ return [...S.cards.values()]; }
+function entregas(){ return lista().filter(c => c.tipo === "entrega").sort((a,b)=>(a.ordem??999)-(b.ordem??999)); }
+function donos(id){ const out=[]; for (const [u,v] of S.claims) if (arr(v.cards).includes(id)) out.push(u); return out; }
+function votos(id){ let n=0; for (const v of S.votes.values()) if (arr(v.cards).includes(id)) n++; return n; }
+function meusClaims(){ return arr(S.claims.get(S.me)?.cards); }
+function meusVotos(){ return arr(S.votes.get(S.me)?.cards); }
+function pts(c){ return PONTOS[c.esforco] || 0; }
+function corDe(c){ return c.tipo === "entrega" ? `var(--s-${c.frente||"produto"})` : `var(--s-${c.tipo})`; }
+function nome(uid){ const p=S.profiles[uid]; return (p && p.name) || "Alguém"; }
+function avatar(uid){ const p=S.profiles[uid]; return p ? p.avatarUrl : "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='10' cy='10' r='10' fill='%23999'/></svg>"; }
+function visivel(c){
+  if (S.filtroPerfil && !arr(c.perfis).includes(S.filtroPerfil)) return false;
+  if (S.semDono && donos(c.id).length) return false;
+  if (S.meus && !donos(c.id).includes(S.me)) return false;
+  return true;
+}
+function semanaData(w){
+  if (!S.plano.inicio) return null;
+  const d = new Date(S.plano.inicio + "T12:00:00"); d.setDate(d.getDate() + (w-1)*7); return d;
+}
+const fmt = (d) => d ? d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}) : "";
+
+// ---------- perfis de pessoas ----------
+let resolvendo = false;
+async function resolverPessoas(){
+  if (!S.user || resolvendo) return;
+  const ids = new Set([S.me, ...S.claims.keys(), ...S.votes.keys(), ...S.people.keys()].filter(Boolean));
+  const faltam = [...ids].filter(i => !S.profiles[i]);
+  if (!faltam.length) return;
+  resolvendo = true;
+  try { Object.assign(S.profiles, await S.user.profiles([...ids])); } catch {}
+  resolvendo = false;
+  render();
+}
+
+// ---------- escrita (uma por documento, em fila) ----------
+const filas = new Map();
+function escrever(path, fn){
+  if (!S.db) { toast("Sem conexão com o banco do mural"); return Promise.resolve(); }
+  if (S.canWrite === false) { toast("Você tem acesso só de leitura"); return Promise.resolve(); }
+  const anterior = filas.get(path) || Promise.resolve();
+  const p = anterior.then(() => fn(S.db.doc(path))).catch(e => { toast(e?.code === "permission_denied" ? "Sem permissão para editar" : "Não foi possível salvar"); console.warn(e); });
+  filas.set(path, p);
+  return p;
+}
+function alternarLista(col, id){
+  if (!S.me) { toast("Entre no claude.ai para participar"); return; }
+  const mapa = col === "claims" ? S.claims : S.votes;
+  const atual = arr(mapa.get(S.me)?.cards);
+  const nova = atual.includes(id) ? atual.filter(x => x !== id) : [...atual, id];
+  mapa.set(S.me, {cards:nova}); render();
+  escrever(`${col}/${S.me}`, d => d.set({cards:nova}));
+}
+const puxar = (id) => alternarLista("claims", id);
+const votar = (id) => alternarLista("votes", id);
+function atualizarCartao(id, patch){
+  const c = S.cards.get(id); if (!c) return;
+  Object.assign(c, patch); render();
+  return escrever(`cards/${id}`, d => d.update(patch));
+}
+
+// ---------- componentes ----------
+function stickyHtml(c, opts={}){
+  const ds = donos(c.id), v = votos(c.id);
+  const who = ds.length
+    ? `<span class="who">${ds.slice(0,3).map(u=>`<img alt="" src="${esc(avatar(u))}" title="${esc(nome(u))}">`).join("")}</span>`
+    : (c.tipo === "entrega" ? `<span class="free">sem dono</span>` : "");
+  const tags = c.tipo === "entrega"
+    ? `<span class="tag mono">${esc(c.codigo||"")}</span>${arr(c.perfis).map(p=>`<span class="tag">${esc(p)}</span>`).join("")}<span class="tag">${esc(c.esforco||"?")}</span>`
+    : `<span class="tag mono">${esc(c.codigo||c.tipo)}</span>`;
+  const vote = opts.vote ? `<button class="vote ${meusVotos().includes(c.id)?"on":""}" data-vote="${esc(c.id)}" title="Votar">▲ ${v}</button>` : (v ? `<span class="votes">▲${v}</span>` : "");
+  const dim = opts.filter !== false && !visivel(c) ? " dim" : "";
+  return `<div role="button" tabindex="0" class="sticky${dim}${c.status==="feito"?" done":""}" style="--sc:${corDe(c)}" data-card="${esc(c.id)}">
+    ${c.status && c.status!=="a_fazer" ? `<span class="st ${esc(c.status)}" title="${esc(STATUS[c.status]||"")}"></span>`:""}
+    <span class="t">${esc(c.titulo||"(sem título)")}</span>
+    <span class="meta">${tags}${vote}${who}</span></div>`;
+}
+function skel(n=2){ return Array.from({length:n},()=>`<div class="skel"></div>`).join(""); }
+
+function renderFilters(){
+  const f = $("#filters");
+  if (S.view === "brainstorm") { f.innerHTML = `<span class="lbl">Cole ideias, perguntas e riscos. Vote no que importa: ▲</span>`; return; }
+  f.innerHTML = `<span class="lbl">Perfil</span>` +
+    Object.entries(PERFIS).map(([k,v])=>`<button class="chip" data-perfil="${k}" aria-pressed="${S.filtroPerfil===k}" title="${v}">${k} · ${v}</button>`).join("") +
+    `<span class="lbl" style="margin-left:8px">Mostrar</span><button class="chip" data-f="semDono" aria-pressed="${S.semDono}">Sem dono</button>` +
+    (S.me ? `<button class="chip" data-f="meus" aria-pressed="${S.meus}">Meus</button>` : "");
+}
+
+function renderIntro(){
+  const es = entregas(); const total = es.reduce((a,c)=>a+pts(c),0);
+  const comDono = es.filter(c=>donos(c.id).length); const ptsDono = comDono.reduce((a,c)=>a+pts(c),0);
+  const feitos = es.filter(c=>c.status==="feito").length;
+  const perguntas = lista().filter(c=>c.tipo==="pergunta" && c.status!=="feito").length;
+  const pct = total ? Math.round(ptsDono/total*100) : 0;
+  return `<div class="intro"><div class="kpis">
+    <div class="kpi"><b>${es.length}</b><span>entregáveis · ${total} pontos</span></div>
+    <div class="kpi"><b>${pct}%</b><span>dos pontos com dono</span><div class="bar"><i style="width:${pct}%"></i></div></div>
+    <div class="kpi"><b>${feitos}</b><span>feitos</span><div class="bar"><i style="width:${es.length?feitos/es.length*100:0}%;background:var(--ok)"></i></div></div>
+    <div class="kpi"><b>${perguntas}</b><span>perguntas abertas</span></div>
+  </div>
+  <div class="agenda"><h3>Reunião de 60 min <span class="mono" style="color:var(--mute)">pauta</span></h3><ol>
+    ${AGENDA.map(a=>`<li data-goto="${a.v}"><span class="mono">${a.min}</span><span>${esc(a.txt)}</span></li>`).join("")}
+  </ol></div></div>`;
+}
+
+function renderMural(){
+  let h = renderIntro() + `<div class="board"><div class="colh corner"><h3>Frente</h3><p>P=1 · M=3 · G=5 pts</p></div>`;
+  for (const o of ONDAS) {
+    const d0 = semanaData(o.sem[0]);
+    h += `<div class="colh"><span class="mono">ONDA ${o.n} · SEM ${o.sem[0]}–${o.sem[1]}${d0?` · ${fmt(d0)}`:""}</span><h3>${esc(o.nome)}</h3><p>Marco: ${esc(o.marco)}</p></div>`;
+  }
+  const es = entregas();
+  for (const f of FRENTES) {
+    h += `<div class="rowh"><i style="background:var(--s-${f.id})"></i>${esc(f.nome)}<small>${esc(f.dica)}</small></div>`;
+    for (const o of ONDAS) {
+      const cs = es.filter(c=>c.frente===f.id && Number(c.onda)===o.n);
+      h += `<div class="cell">${!S.loaded.cards ? skel(1) : cs.map(c=>stickyHtml(c)).join("")}</div>`;
+    }
+  }
+  h += `</div>`;
+  if (S.loaded.cards && !es.length) h += `<div class="notice">O mural ainda não tem entregáveis. Use <b>+ Cartão</b> para criar o primeiro.</div>`;
+  return h;
+}
+
+function renderPessoas(){
+  const es = entregas();
+  const ids = new Set([...S.people.keys(), ...[...S.claims.entries()].filter(([,v])=>arr(v.cards).length).map(([k])=>k)]);
+  if (S.me) ids.add(S.me);
+  const meP = S.people.get(S.me) || {};
+  let h = `<div class="section"><h2>Time</h2><p>Marque seu perfil e quantas horas por semana você tem. Depois puxe cartões abaixo ou no mural.</p></div>`;
+  if (S.me) h += `<div class="notice myform"><b>Você:</b>
+    <label>Perfil <select id="myPerfil"><option value="">escolha</option>${Object.entries(PERFIS).map(([k,v])=>`<option value="${k}" ${meP.perfil===k?"selected":""}>${k} · ${v}</option>`).join("")}</select></label>
+    <label>Horas/semana <input id="myHoras" type="number" min="0" max="60" value="${esc(meP.horas ?? "")}"></label>
+    <span class="load">≈ 1 ponto = 1 semana de 8 h</span></div>`;
+  h += `<div class="people">`;
+  if (!ids.size) h += `<div class="empty">Ninguém entrou ainda. Compartilhe o link do mural com o time.</div>`;
+  const ordem = [...ids].sort((a,b)=> (b===S.me)-(a===S.me));
+  for (const u of ordem) {
+    const p = S.people.get(u) || {}; const cs = arr(S.claims.get(u)?.cards).map(id=>S.cards.get(id)).filter(Boolean);
+    const soma = cs.reduce((a,c)=>a+pts(c),0);
+    const cap = p.horas ? Math.max(1, Math.round(p.horas/8*18)) : null; // pontos em 18 semanas
+    h += `<div class="pcard ${u===S.me?"me":""}"><div class="phead"><img alt="" src="${esc(avatar(u))}"><div><b>${esc(nome(u))}${u===S.me?" (você)":""}</b><small>${p.perfil?esc(PERFIS[p.perfil]||p.perfil):"perfil não informado"}${p.horas?` · ${esc(p.horas)} h/sem`:""}</small></div></div>
+      <div class="load ${cap && soma>cap?"over":""}">${cs.length} cartões · ${soma} pts${cap?` de ~${cap} possíveis`:""}</div>
+      <div class="mini">${cs.length?cs.map(c=>stickyHtml(c,{filter:false})).join(""):`<div class="empty">Nenhum cartão puxado.</div>`}</div></div>`;
+  }
+  h += `</div>`;
+  // balanço por perfil
+  h += `<div class="section"><h2>Balanço por perfil</h2><p>Pontos que pedem cada perfil, quanto já tem dono e quantas pessoas declararam o perfil.</p></div><div class="balance">`;
+  for (const [k,v] of Object.entries(PERFIS)) {
+    const cs = es.filter(c=>arr(c.perfis).includes(k)); const tot = cs.reduce((a,c)=>a+pts(c),0);
+    const ok = cs.filter(c=>donos(c.id).length).reduce((a,c)=>a+pts(c),0);
+    const pessoas = [...S.people.values()].filter(p=>p.perfil===k);
+    const horas = pessoas.reduce((a,p)=>a+(Number(p.horas)||0),0);
+    h += `<div class="kpi"><span class="mono">${k}</span><b>${ok}/${tot}</b><span>${esc(v)} · ${pessoas.length} pessoa(s)${horas?` · ${horas} h/sem`:""}</span><div class="bar"><i style="width:${tot?ok/tot*100:0}%"></i></div></div>`;
+  }
+  h += `</div>`;
+  // sem dono
+  h += `<div class="section"><h2>Sem dono</h2><p>Por perfil sugerido. Clique para ver o que é “pronto” e puxar.</p></div><div class="unowned">`;
+  for (const [k,v] of Object.entries(PERFIS)) {
+    const cs = es.filter(c=>arr(c.perfis)[0]===k && !donos(c.id).length);
+    h += `<div class="ucol"><h3>${k} · ${esc(v)} <span class="mono" style="color:var(--mute)">${cs.length}</span></h3>${!S.loaded.cards?skel(2):cs.length?cs.map(c=>stickyHtml(c,{filter:false})).join(""):`<div class="empty">Tudo com dono.</div>`}</div>`;
+  }
+  return h + `</div>`;
+}
+
+function renderCronograma(){
+  const es = entregas().filter(visivel);
+  const hoje = new Date(); let hojeW = null;
+  if (S.plano.inicio) { const d0 = new Date(S.plano.inicio+"T00:00:00"); hojeW = (hoje - d0)/(7*864e5); }
+  let h = `<div class="section"><h2>Cronograma de 18 semanas</h2>
+    <p>Início <input type="date" id="inicio" value="${esc(S.plano.inicio||"")}" style="border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:2px 6px"> · barras listradas ainda não têm dono · linhas vermelhas são marcos</p></div>
+    <div class="milestones">${ONDAS.map(o=>`<div class="ms"><span class="mono">FIM DA SEM ${o.sem[1]}${S.plano.inicio?` · ${fmt(semanaData(o.sem[1]+1))}`:""}</span><b>Onda ${o.n} · ${esc(o.nome)}</b>${esc(o.marco)}</div>`).join("")}</div>
+    <div class="gantt"><div class="grow head"><div class="gl group">Entregável</div>`;
+  for (let w=1; w<=18; w++){ const o = ONDAS.find(o=>w>=o.sem[0]&&w<=o.sem[1]); h += `<div class="gw ${o&&o.n%2?"wave":""}"><b>S${w}</b>${fmt(semanaData(w))}</div>`; }
+  h += `</div>`;
+  const col = (w) => `calc(250px + (100% - 250px) * ${(w-1)/18})`;
+  const linhas = (extra) => ONDAS.map(o=>`<span class="mile" style="left:${col(o.sem[1]+1)}"></span>`).join("") + (hojeW!==null && hojeW>=0 && hojeW<=18 ? `<span class="today" style="left:calc(250px + (100% - 250px) * ${hojeW/18})" title="hoje"></span>`:"") + extra;
+  for (const f of FRENTES) {
+    const cs = es.filter(c=>c.frente===f.id); if (!cs.length) continue;
+    h += `<div class="grow"><div class="gl group"><i style="width:12px;height:12px;border-radius:3px;background:var(--s-${f.id})"></i>${esc(f.nome)}</div>${"<div class='gw'></div>".repeat(18)}${linhas("")}</div>`;
+    for (const c of cs) {
+      const [a,b] = arr(c.semanas).length===2 ? c.semanas : [ONDAS[c.onda]?.sem[0]||1, ONDAS[c.onda]?.sem[1]||1];
+      const ds = donos(c.id);
+      const bar = `<button class="gbar ${ds.length?"":"free"}" data-card="${esc(c.id)}" style="--sc:var(--s-${c.frente});left:calc(${col(a)} + 2px);width:calc((100% - 250px) * ${(b-a+1)/18} - 4px)" title="${esc(c.titulo)} · S${a}–S${b}">${ds.slice(0,2).map(u=>`<img alt="" src="${esc(avatar(u))}">`).join("")}${esc(c.codigo||"")}</button>`;
+      h += `<div class="grow"><div class="gl" data-card="${esc(c.id)}"><span class="mono">${esc(c.codigo||"")}</span>${esc(c.titulo)}</div>${"<div class='gw'></div>".repeat(18)}${linhas(bar)}</div>`;
+    }
+  }
+  if (!es.length) h += `<div class="empty" style="padding:14px">${S.loaded.cards?"Nenhum entregável com esse filtro.":"Carregando…"}</div>`;
+  return h + `</div>`;
+}
+
+function renderBrainstorm(){
+  let h = `<div class="bs">`;
+  for (const t of TIPOS_BS) {
+    const cs = lista().filter(c=>c.tipo===t.id).sort((a,b)=>votos(b.id)-votos(a.id) || (a.ordem??0)-(b.ordem??0));
+    h += `<div class="bcol"><h3>${t.nome} <span class="mono" style="color:var(--mute)">${cs.length}</span></h3><p class="h">${t.dica}</p>
+      <form class="add" data-add="${t.id}"><input name="t" maxlength="140" placeholder="Escreva e Enter" aria-label="Nova ${t.nome}"><button class="btn">Colar</button></form>
+      ${!S.loaded.cards?skel(2):cs.length?cs.map(c=>stickyHtml(c,{vote:true,filter:false})).join(""):`<div class="empty">Nada por aqui ainda.</div>`}</div>`;
+  }
+  return h + `</div>`;
+}
+
+function render(){
+  document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.v===S.view));
+  renderFilters();
+  const y = window.scrollY;
+  let h = "";
+  if (!S.db && S.offline) h += `<div class="notice">Este mural guarda os dados no claude.ai. Abra o link logado na sua conta para ver e editar os cartões.</div>`;
+  else if (S.canWrite === false) h += `<div class="notice">Você está vendo o mural em modo leitura. Peça ao dono acesso de Contributor para puxar e votar.</div>`;
+  h += ({mural:renderMural, pessoas:renderPessoas, cronograma:renderCronograma, brainstorm:renderBrainstorm}[S.view] || renderMural)();
+  $("#main").innerHTML = h;
+  window.scrollTo(0, y);
+  if (S.sel) renderDrawer();
+  resolverPessoas();
+}
+
+// ---------- gaveta ----------
+function abrir(id){ S.sel = id; S.editing = false; renderDrawer(); document.getElementById("dw").classList.add("open"); }
+function fechar(){ S.sel = null; S.editing = false; document.getElementById("dw").classList.remove("open"); }
+function renderDrawer(){
+  const c = S.cards.get(S.sel); const d = $("#drawer");
+  if (!c) { if (S.sel !== "__novo__") { fechar(); return; } }
+  if (S.editing || S.sel === "__novo__") { d.innerHTML = editHtml(c); return; }
+  const ds = donos(c.id), mine = ds.includes(S.me), voted = meusVotos().includes(c.id);
+  const fr = FRENTES.find(f=>f.id===c.frente), on = ONDAS[c.onda];
+  const dep = arr(c.depende).map(code => { const x = lista().find(y=>y.codigo===code); return x ? `<button class="link" data-card="${esc(x.id)}">${esc(code)}</button>` : esc(code); }).join(", ");
+  const bloqueia = entregas().filter(x=>arr(x.depende).includes(c.codigo)).map(x=>`<button class="link" data-card="${esc(x.id)}">${esc(x.codigo)}</button>`).join(", ");
+  d.innerHTML = `<div class="dh" style="--sc:${corDe(c)}"><span class="swatch"></span><div style="flex:1"><span class="mono" style="color:var(--mute)">${esc(c.codigo||c.tipo)} · ${esc(c.tipo)}</span><h2>${esc(c.titulo)}</h2></div><button class="btn ghost" data-close aria-label="Fechar">✕</button></div>
+  <div class="db">
+    ${c.descricao?`<div>${esc(c.descricao)}</div>`:""}
+    ${c.pronto?`<div class="box"><b>Pronto quando</b>${esc(c.pronto)}</div>`:""}
+    ${c.tipo==="entrega"?`<dl class="kv">
+      <dt>Frente</dt><dd>${esc(fr?.nome||c.frente)}</dd>
+      <dt>Onda</dt><dd>${on?`${on.n} · ${esc(on.nome)}`:"—"}</dd>
+      <dt>Semanas</dt><dd>${arr(c.semanas).length?`S${c.semanas[0]}–S${c.semanas[1]}${S.plano.inicio?` (${fmt(semanaData(c.semanas[0]))} a ${fmt(new Date(semanaData(c.semanas[1]).getTime()+4*864e5))})`:""}`:"—"}</dd>
+      <dt>Perfis</dt><dd>${arr(c.perfis).map(p=>esc(PERFIS[p]||p)).join(", ")||"—"}</dd>
+      <dt>Esforço</dt><dd>${esc(c.esforco||"—")} · ${pts(c)} pt</dd>
+      <dt>Depende de</dt><dd>${dep||"—"}</dd>
+      <dt>Destrava</dt><dd>${bloqueia||"—"}</dd>
+    </dl>`:""}
+    <div><div class="mono" style="color:var(--mute);margin-bottom:5px">DONOS</div><div class="owners">${ds.length?ds.map(u=>`<span class="owner"><img alt="" src="${esc(avatar(u))}">${esc(nome(u))}</span>`).join(""):`<span class="empty" style="padding:0">Ninguém puxou ainda.</span>`}</div></div>
+    <label class="myform">Status <select id="dStatus">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${(c.status||"a_fazer")===k?"selected":""}>${v}</option>`).join("")}</select> <span class="load">▲ ${votos(c.id)} voto(s)</span></label>
+  </div>
+  <div class="df">
+    <button class="btn ${mine?"":"primary"}" data-claim="${esc(c.id)}">${mine?"Soltar":"Eu puxo"}</button>
+    <button class="btn" data-vote="${esc(c.id)}">${voted?"Tirar voto":"▲ Votar"}</button>
+    ${c.tipo==="ideia"?`<button class="btn" data-promote>Virar entregável</button>`:""}
+    <span class="spacer"></span>
+    <button class="btn ghost" data-edit>Editar</button>
+    <button class="btn ghost" data-del style="color:var(--accent)">Excluir</button>
+  </div>`;
+}
+function editHtml(c){
+  const n = !c; c = c || {tipo:"entrega",frente:"cientista",onda:1,semanas:[3,4],perfis:[],esforco:"M"};
+  const ehEntrega = c.tipo === "entrega" || S.promover;
+  return `<div class="dh"><div style="flex:1"><h2>${n?"Novo cartão":S.promover?"Virar entregável":"Editar cartão"}</h2></div><button class="btn ghost" data-close aria-label="Fechar">✕</button></div>
+  <form class="edit db" id="editForm">
+    <label>Tipo <select name="tipo">${["entrega","ideia","pergunta","risco"].map(t=>`<option ${((S.promover?"entrega":c.tipo)===t)?"selected":""}>${t}</option>`).join("")}</select></label>
+    <label>Título <input name="titulo" required maxlength="120" value="${esc(c.titulo||"")}"></label>
+    <label>Descrição <textarea name="descricao" rows="3" maxlength="600">${esc(c.descricao||"")}</textarea></label>
+    <div class="ent" ${ehEntrega?"":"hidden"}>
+    <label>Pronto quando <input name="pronto" maxlength="200" value="${esc(c.pronto||"")}"></label>
+    <div class="row"><label>Frente <select name="frente">${FRENTES.map(f=>`<option value="${f.id}" ${c.frente===f.id?"selected":""}>${esc(f.nome)}</option>`).join("")}</select></label>
+    <label>Onda <select name="onda">${ONDAS.map(o=>`<option value="${o.n}" ${Number(c.onda)===o.n?"selected":""}>${o.n} · ${esc(o.nome)}</option>`).join("")}</select></label></div>
+    <div class="row"><label>Semana início <input name="s0" type="number" min="1" max="18" value="${esc(arr(c.semanas)[0]||1)}"></label><label>Semana fim <input name="s1" type="number" min="1" max="18" value="${esc(arr(c.semanas)[1]||1)}"></label></div>
+    <div class="row"><label>Esforço <select name="esforco">${["P","M","G"].map(e=>`<option ${c.esforco===e?"selected":""}>${e}</option>`).join("")}</select></label><label>Código <input name="codigo" maxlength="8" value="${esc(c.codigo||"")}" placeholder="ex.: C8"></label></div>
+    <label>Perfis <span class="checks">${Object.keys(PERFIS).map(k=>`<label><input type="checkbox" name="perfis" value="${k}" ${arr(c.perfis).includes(k)?"checked":""}>${k}</label>`).join("")}</span></label>
+    <label>Depende de (códigos separados por vírgula) <input name="depende" value="${esc(arr(c.depende).join(", "))}"></label>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn ghost" data-cancel>Cancelar</button><button class="btn primary">Salvar</button></div>
+  </form>`;
+}
+async function salvarForm(form){
+  const fd = new FormData(form); const tipo = fd.get("tipo");
+  const data = {tipo, titulo:String(fd.get("titulo")).trim(), descricao:String(fd.get("descricao")||"").trim()};
+  if (!data.titulo) return;
+  if (tipo === "entrega") {
+    let s0 = Number(fd.get("s0"))||1, s1 = Number(fd.get("s1"))||s0; if (s1<s0) [s0,s1]=[s1,s0];
+    Object.assign(data, {pronto:String(fd.get("pronto")||"").trim(), frente:fd.get("frente"), onda:Number(fd.get("onda")), semanas:[s0,s1], esforco:fd.get("esforco"),
+      codigo:String(fd.get("codigo")||"").trim().toUpperCase(), perfis:fd.getAll("perfis"), depende:String(fd.get("depende")||"").split(",").map(s=>s.trim().toUpperCase()).filter(Boolean)});
+  }
+  const atual = S.cards.get(S.sel);
+  if (atual) {
+    await atualizarCartao(atual.id, data); S.editing = false; S.promover = false; renderDrawer(); toast("Cartão salvo");
+  } else {
+    if (!S.db) { toast("Sem conexão com o banco do mural"); return; }
+    data.status = "a_fazer"; data.ordem = 1000 + S.cards.size; data.autor = S.me || null;
+    try { const ref = await S.db.collection("cards").add(data); fechar(); toast("Cartão criado"); setTimeout(()=>{ if (S.cards.has(ref.id)) abrir(ref.id); }, 300); }
+    catch (e) { toast("Não foi possível criar"); console.warn(e); }
+  }
+}
+
+// ---------- markdown ----------
+function planoMd(){
+  let md = `# Plano METAEXP · Cientista do beOn Labs\n\nInício: ${S.plano.inicio ? new Date(S.plano.inicio+"T12:00:00").toLocaleDateString("pt-BR") : "a definir"}\n`;
+  for (const o of ONDAS) {
+    md += `\n## Onda ${o.n} · ${o.nome} (semanas ${o.sem[0]}–${o.sem[1]})\nMarco: ${o.marco}\n\n`;
+    for (const c of entregas().filter(c=>Number(c.onda)===o.n)) {
+      const ds = donos(c.id).map(nome);
+      md += `- [${c.status==="feito"?"x":" "}] **${c.codigo||""} ${c.titulo}** (${c.esforco||"?"}, S${arr(c.semanas)[0]}–S${arr(c.semanas)[1]}, ${arr(c.perfis).join("/")}) · dono: ${ds.join(", ")||"sem dono"}${c.pronto?`\n  - Pronto quando: ${c.pronto}`:""}\n`;
+    }
+  }
+  for (const t of TIPOS_BS) {
+    const cs = lista().filter(c=>c.tipo===t.id).sort((a,b)=>votos(b.id)-votos(a.id));
+    if (cs.length) md += `\n## ${t.nome}\n\n` + cs.map(c=>`- ${c.titulo}${votos(c.id)?` (▲${votos(c.id)})`:""}${c.descricao?` · ${c.descricao}`:""}`).join("\n") + "\n";
+  }
+  return md;
+}
+
+// ---------- eventos ----------
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button,[data-card],[data-goto],li");
+  if (!t) return;
+  if (t.closest("#tabs") && t.dataset.v) { S.view = t.dataset.v; try{localStorage.setItem("mural.view",S.view)}catch{} render(); window.scrollTo(0,0); return; }
+  if (t.dataset.goto) { S.view = t.dataset.goto; render(); window.scrollTo(0,0); return; }
+  if (t.dataset.vote) { e.stopPropagation(); votar(t.dataset.vote); return; }
+  if (t.dataset.claim) { puxar(t.dataset.claim); return; }
+  if (t.dataset.perfil) { S.filtroPerfil = S.filtroPerfil===t.dataset.perfil ? null : t.dataset.perfil; render(); return; }
+  if (t.dataset.f) { S[t.dataset.f] = !S[t.dataset.f]; render(); return; }
+  if (t.hasAttribute("data-close") || t.hasAttribute("data-cancel")) { if (S.editing && S.sel!=="__novo__") { S.editing=false; S.promover=false; renderDrawer(); } else fechar(); return; }
+  if (t.hasAttribute("data-edit")) { S.editing = true; renderDrawer(); return; }
+  if (t.hasAttribute("data-promote")) { S.editing = true; S.promover = true; renderDrawer(); return; }
+  if (t.hasAttribute("data-del")) {
+    const c = S.cards.get(S.sel); if (!c || !confirm(`Excluir “${c.titulo}”?`)) return;
+    escrever(`cards/${c.id}`, d => d.delete()).then(()=>toast("Cartão excluído")); fechar(); return;
+  }
+  if (t.dataset.card) { abrir(t.dataset.card); return; }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") fechar();
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches?.(".sticky")) { e.preventDefault(); abrir(e.target.dataset.card); }
+});
+$("#scrim").addEventListener("click", fechar);
+document.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const f = e.target;
+  if (f.id === "editForm") { salvarForm(f); return; }
+  if (f.dataset.add) {
+    const v = f.t.value.trim(); if (!v) return;
+    if (!S.db) { toast("Sem conexão com o banco do mural"); return; }
+    f.t.value = "";
+    S.db.collection("cards").add({tipo:f.dataset.add, titulo:v, descricao:"", status:"a_fazer", ordem:1000+S.cards.size, autor:S.me||null}).catch(err=>{ toast("Não foi possível colar"); console.warn(err); });
+  }
+});
+document.addEventListener("change", (e) => {
+  const t = e.target;
+  if (t.id === "dStatus") atualizarCartao(S.sel, {status:t.value});
+  if (t.id === "inicio" && t.value) { S.plano.inicio = t.value; render(); escrever("config/plano", d => d.set({inicio:t.value})); }
+  if (t.id === "myPerfil" || t.id === "myHoras") {
+    const p = {perfil:$("#myPerfil").value || null, horas:Number($("#myHoras").value)||null};
+    S.people.set(S.me, p); render(); escrever(`people/${S.me}`, d => d.set(p));
+  }
+  if (t.name === "tipo" && t.form?.id === "editForm") t.form.querySelector(".ent").hidden = t.value !== "entrega";
+});
+$("#theme").addEventListener("click", () => {
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  const cur = document.documentElement.dataset.theme || (dark ? "dark" : "light");
+  const nx = cur === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = nx; try{localStorage.setItem("mural.theme",nx)}catch{}
+});
+$("#new").addEventListener("click", () => { S.sel = "__novo__"; S.editing = true; renderDrawer(); document.getElementById("dw").classList.add("open"); });
+$("#copy").addEventListener("click", async () => {
+  const md = planoMd();
+  try { await navigator.clipboard.writeText(md); toast("Plano copiado em markdown"); }
+  catch { $("#mdt").value = md; $("#md").showModal(); $("#mdt").select(); }
+});
+$("#mdx").addEventListener("click", () => $("#md").close());
+$("#mdc").addEventListener("click", () => { $("#mdt").select(); try { document.execCommand("copy"); toast("Copiado"); } catch {} });
+
+// ---------- conexão ----------
+function mapaDe(snap){ const m = new Map(); snap.docs.forEach(d => m.set(d.id, {...d.data()})); return m; }
+async function conectar(){
+  if (!window.claude?.use) { S.offline = true; S.loaded.cards = true; render(); return; }
+  const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+  S.db = db; S.user = user;
+  if (user) { try { S.me = await user.id(); } catch {} try { S.canWrite = await user.can("data.write"); } catch {} }
+  if (!db) { S.offline = true; S.loaded.cards = true; render(); return; }
+  const erro = (e) => { console.warn(e); toast("Conexão com o mural instável"); };
+  db.collection("cards").onSnapshot(s => { const m = new Map(); s.docs.forEach(d => m.set(d.id, {id:d.id, ...d.data()})); S.cards = m; S.loaded.cards = true; render(); }, erro);
+  db.collection("claims").onSnapshot(s => { S.claims = mapaDe(s); render(); }, erro);
+  db.collection("votes").onSnapshot(s => { S.votes = mapaDe(s); render(); }, erro);
+  db.collection("people").onSnapshot(s => { S.people = mapaDe(s); render(); }, erro);
+  db.doc("config/plano").onSnapshot(d => { S.plano = d.exists ? {...d.data()} : {inicio:null}; render(); }, erro);
+}
+render();
+conectar().catch(e => { console.warn(e); S.offline = true; S.loaded.cards = true; render(); });
+})();
+</script>
+</body>
+</html>
