@@ -1,0 +1,1281 @@
+{
+ "config": {
+  "inicio": "2026-10-12"
+ },
+ "cartoes": [
+  {
+   "codigo": "M1",
+   "tipo": "entrega",
+   "frente": "produto",
+   "onda": 0,
+   "semanas": [
+    1,
+    1
+   ],
+   "perfis": [
+    "PROD"
+   ],
+   "esforco": "P",
+   "titulo": "Metas da Fase 1 assinadas",
+   "descricao": "Fechar com o Lab as metas do Cientista: fichas completas ≥ 90%, regras 100%, mediana ≤ 14 turnos, revisão cega ≥ 4,0, top-3 relevante ≥ 80%.",
+   "pronto": "Metas aprovadas pelo sponsor e pelo Lab",
+   "depende": [],
+   "status": "a_fazer",
+   "ordem": 0
+  },
+  {
+   "codigo": "M2",
+   "tipo": "entrega",
+   "frente": "produto",
+   "onda": 0,
+   "semanas": [
+    1,
+    2
+   ],
+   "perfis": [
+    "LAB"
+   ],
+   "esforco": "P",
+   "titulo": "Método oficial v1 congelado",
+   "descricao": "Prompt oficial, regras da ficha e checklist versionados no repositório; mudanças só com revisão do Lab.",
+   "pronto": "Tag metodo-v1 no repositório assinada pelo Lab",
+   "depende": [],
+   "status": "a_fazer",
+   "ordem": 1
+  },
+  {
+   "codigo": "M3",
+   "tipo": "entrega",
+   "frente": "produto",
+   "onda": 0,
+   "semanas": [
+    2,
+    2
+   ],
+   "perfis": [
+    "LAB",
+    "ENG"
+   ],
+   "esforco": "P",
+   "titulo": "Template oficial da ficha",
+   "descricao": "Campos, ordem e layout do documento gerado pelo Gerador de Ficha, com um exemplo preenchido.",
+   "pronto": "Ficha de exemplo gerada pelo Cientista igual ao template",
+   "depende": [
+    "M2"
+   ],
+   "status": "a_fazer",
+   "ordem": 2
+  },
+  {
+   "codigo": "M4",
+   "tipo": "entrega",
+   "frente": "produto",
+   "onda": 1,
+   "semanas": [
+    3,
+    3
+   ],
+   "perfis": [
+    "LAB",
+    "IA"
+   ],
+   "esforco": "P",
+   "titulo": "Rubrica do juiz v1",
+   "descricao": "Rubrica de 1 a 5 para problema, hipótese, critérios e condução, com exemplos de nota 1, 3 e 5.",
+   "pronto": "Rubrica revisada pelo Lab e usada em 10 fichas de teste",
+   "depende": [
+    "M2"
+   ],
+   "status": "a_fazer",
+   "ordem": 3
+  },
+  {
+   "codigo": "M5",
+   "tipo": "entrega",
+   "frente": "produto",
+   "onda": 1,
+   "semanas": [
+    4,
+    4
+   ],
+   "perfis": [
+    "PROD"
+   ],
+   "esforco": "M",
+   "titulo": "Jornadas validadas com usuários",
+   "descricao": "Testar o Cientista com 3 pessoas de negócio e 2 desenvolvedores reais e anotar onde travam.",
+   "pronto": "Relatório com os 10 principais atritos priorizados",
+   "depende": [
+    "I1",
+    "T3"
+   ],
+   "status": "a_fazer",
+   "ordem": 4
+  },
+  {
+   "codigo": "M6",
+   "tipo": "entrega",
+   "frente": "produto",
+   "onda": 3,
+   "semanas": [
+    7,
+    8
+   ],
+   "perfis": [
+    "PROD",
+    "LAB"
+   ],
+   "esforco": "P",
+   "titulo": "Regras de encaminhamento",
+   "descricao": "Quando a ficha vai para a bancada do Lab, quando o dev executa sozinho e o que o kit entrega.",
+   "pronto": "Regras documentadas e refletidas na ferramenta encaminhar",
+   "depende": [
+    "M2"
+   ],
+   "status": "a_fazer",
+   "ordem": 5
+  },
+  {
+   "codigo": "M7",
+   "tipo": "entrega",
+   "frente": "produto",
+   "onda": 4,
+   "semanas": [
+    10,
+    10
+   ],
+   "perfis": [
+    "PROD"
+   ],
+   "esforco": "P",
+   "titulo": "Ficha exportável para a esteira",
+   "descricao": "Exportar a ficha aprovada em Word, PDF ou Docs e registrar na esteira de governança.",
+   "pronto": "Ficha do piloto chega na esteira sem retrabalho manual",
+   "depende": [
+    "M3"
+   ],
+   "status": "a_fazer",
+   "ordem": 6
+  },
+  {
+   "codigo": "H1",
+   "tipo": "entrega",
+   "frente": "dados",
+   "onda": 0,
+   "semanas": [
+    1,
+    2
+   ],
+   "perfis": [
+    "LAB"
+   ],
+   "esforco": "M",
+   "titulo": "Inventário do histórico",
+   "descricao": "Planilha com cada ficha, relatório, parecer e apresentação: local, formato, ano, área e dono.",
+   "pronto": "Inventário fecha com a contagem por ano e área",
+   "depende": [],
+   "status": "a_fazer",
+   "ordem": 7
+  },
+  {
+   "codigo": "H2",
+   "tipo": "entrega",
+   "frente": "dados",
+   "onda": 0,
+   "semanas": [
+    1,
+    2
+   ],
+   "perfis": [
+    "PROD"
+   ],
+   "esforco": "P",
+   "titulo": "Regras de uso dos dados (LGPD)",
+   "descricao": "O que pode entrar no corpus, como anonimizar, quem acessa, onde fica e por quanto tempo.",
+   "pronto": "Regras validadas com Segurança e Jurídico",
+   "depende": [],
+   "status": "a_fazer",
+   "ordem": 8
+  },
+  {
+   "codigo": "H3",
+   "tipo": "entrega",
+   "frente": "dados",
+   "onda": 1,
+   "semanas": [
+    3,
+    4
+   ],
+   "perfis": [
+    "LAB"
+   ],
+   "esforco": "M",
+   "titulo": "Coleta organizada",
+   "descricao": "Uma pasta por experimento com ficha, relatório, parecer e anexos, nomes padronizados.",
+   "pronto": "100% dos itens do inventário coletados ou marcados como perdidos",
+   "depende": [
+    "H1",
+    "H2"
+   ],
+   "status": "a_fazer",
+   "ordem": 9
+  },
+  {
+   "codigo": "H4",
+   "tipo": "entrega",
+   "frente": "dados",
+   "onda": 1,
+   "semanas": [
+    3,
+    4
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "M",
+   "titulo": "Anonimização na entrada",
+   "descricao": "Presidio + spaCy pt e regras próprias (CPF, telefone, protocolo, nomes de clientes) antes de qualquer extração.",
+   "pronto": "Amostra de 30 documentos revisada sem PII restante",
+   "depende": [
+    "H2"
+   ],
+   "status": "a_fazer",
+   "ordem": 10
+  },
+  {
+   "codigo": "H5",
+   "tipo": "entrega",
+   "frente": "dados",
+   "onda": 1,
+   "semanas": [
+    4,
+    4
+   ],
+   "perfis": [
+    "IA",
+    "ENG"
+   ],
+   "esforco": "M",
+   "titulo": "Conversor de documentos",
+   "descricao": "PDF, DOCX e PPTX para texto estruturado, preservando tabelas (Docling ou pdfplumber).",
+   "pronto": "95% dos documentos convertidos sem perda de seções",
+   "depende": [
+    "H3"
+   ],
+   "status": "a_fazer",
+   "ordem": 11
+  },
+  {
+   "codigo": "H6",
+   "tipo": "entrega",
+   "frente": "dados",
+   "onda": 2,
+   "semanas": [
+    5,
+    6
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "G",
+   "titulo": "Ingestão para o formato Experimento",
+   "descricao": "O modelo preenche o registro Experimento com saída estruturada e trecho de evidência por campo; falhas vão para revisão.",
+   "pronto": "≥ 85% dos registros válidos na primeira passada",
+   "depende": [
+    "H4",
+    "H5"
+   ],
+   "status": "a_fazer",
+   "ordem": 12
+  },
+  {
+   "codigo": "H7",
+   "tipo": "entrega",
+   "frente": "dados",
+   "onda": 2,
+   "semanas": [
+    5,
+    6
+   ],
+   "perfis": [
+    "LAB"
+   ],
+   "esforco": "M",
+   "titulo": "20 registros ouro",
+   "descricao": "Curadoria humana campo a campo de 20 experimentos reais, cobrindo os domínios e técnicas mais frequentes.",
+   "pronto": "20 registros revisados por 2 pessoas do Lab",
+   "depende": [
+    "H6"
+   ],
+   "status": "a_fazer",
+   "ordem": 13
+  },
+  {
+   "codigo": "H8",
+   "tipo": "entrega",
+   "frente": "dados",
+   "onda": 2,
+   "semanas": [
+    6,
+    6
+   ],
+   "perfis": [
+    "IA",
+    "LAB"
+   ],
+   "esforco": "P",
+   "titulo": "Rótulos do histórico",
+   "descricao": "Domínio, técnica, situação dos dados e veredito de cada registro, para filtros e taxonomia.",
+   "pronto": "100% do corpus rotulado e conferido por amostragem",
+   "depende": [
+    "H6"
+   ],
+   "status": "a_fazer",
+   "ordem": 14
+  },
+  {
+   "codigo": "H9",
+   "tipo": "entrega",
+   "frente": "dados",
+   "onda": 3,
+   "semanas": [
+    7,
+    8
+   ],
+   "perfis": [
+    "LAB"
+   ],
+   "esforco": "M",
+   "titulo": "Ouro de 20 para 50",
+   "descricao": "Ampliar os registros ouro com casos difíceis: dados insuficientes, hipótese reformulada, invalidados.",
+   "pronto": "50 registros ouro, ao menos 10 invalidados ou inconclusivos",
+   "depende": [
+    "H7"
+   ],
+   "status": "a_fazer",
+   "ordem": 15
+  },
+  {
+   "codigo": "H10",
+   "tipo": "entrega",
+   "frente": "dados",
+   "onda": 4,
+   "semanas": [
+    9,
+    9
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "P",
+   "titulo": "Taxonomia do sintético calibrada",
+   "descricao": "Pesos de domínio, técnica, situação dos dados e veredito tirados da distribuição real.",
+   "pronto": "Distribuição do sintético a ≤ 5 p.p. da real em cada eixo",
+   "depende": [
+    "H8"
+   ],
+   "status": "a_fazer",
+   "ordem": 16
+  },
+  {
+   "codigo": "H11",
+   "tipo": "entrega",
+   "frente": "dados",
+   "onda": 4,
+   "semanas": [
+    9,
+    10
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "M",
+   "titulo": "200 experimentos sintéticos",
+   "descricao": "Geração em lote ancorada em sementes reais, filtro automático pelas regras do método e juiz.",
+   "pronto": "200 aprovados no filtro; 10% revisados pelo Lab",
+   "depende": [
+    "H10",
+    "A4"
+   ],
+   "status": "a_fazer",
+   "ordem": 17
+  },
+  {
+   "codigo": "H12",
+   "tipo": "entrega",
+   "frente": "dados",
+   "onda": 4,
+   "semanas": [
+    10,
+    10
+   ],
+   "perfis": [
+    "IA",
+    "LAB"
+   ],
+   "esforco": "P",
+   "titulo": "Data card do corpus",
+   "descricao": "Origem, cobertura, limitações, versão e como regenerar, para o corpus real e o sintético.",
+   "pronto": "Data card publicado e citado em toda avaliação",
+   "depende": [
+    "H11"
+   ],
+   "status": "a_fazer",
+   "ordem": 18
+  },
+  {
+   "codigo": "I1",
+   "tipo": "entrega",
+   "frente": "cientista",
+   "onda": 0,
+   "semanas": [
+    2,
+    2
+   ],
+   "perfis": [
+    "IA",
+    "LAB",
+    "ENG",
+    "PROD"
+   ],
+   "esforco": "P",
+   "titulo": "Primeiras conversas reais",
+   "descricao": "Cada pessoa do time roda 5 conversas com o Cientista atual no modelo real e anota o que falha.",
+   "pronto": "Lista de falhas priorizada por frequência e gravidade",
+   "depende": [
+    "T1"
+   ],
+   "status": "a_fazer",
+   "ordem": 19
+  },
+  {
+   "codigo": "I2",
+   "tipo": "entrega",
+   "frente": "cientista",
+   "onda": 1,
+   "semanas": [
+    3,
+    4
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "M",
+   "titulo": "Prompt do Cientista v1",
+   "descricao": "Ajustar o prompt com as falhas: fluxo do método, ritmo por papel, quando insistir e quando seguir.",
+   "pronto": "As 10 falhas mais frequentes não se repetem nas personas",
+   "depende": [
+    "I1",
+    "M2"
+   ],
+   "status": "a_fazer",
+   "ordem": 20
+  },
+  {
+   "codigo": "I3",
+   "tipo": "entrega",
+   "frente": "cientista",
+   "onda": 1,
+   "semanas": [
+    3,
+    4
+   ],
+   "perfis": [
+    "IA",
+    "ENG"
+   ],
+   "esforco": "M",
+   "titulo": "Ferramentas da ficha estáveis",
+   "descricao": "atualizar_ficha, gerar_ficha e validações do método sem regressão, com teste para cada regra.",
+   "pronto": "Testes cobrindo todas as regras do checklist",
+   "depende": [
+    "M2"
+   ],
+   "status": "a_fazer",
+   "ordem": 21
+  },
+  {
+   "codigo": "I4",
+   "tipo": "entrega",
+   "frente": "cientista",
+   "onda": 1,
+   "semanas": [
+    4,
+    4
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "P",
+   "titulo": "Auto-ingestão afinada",
+   "descricao": "Texto colado com mais de 400 caracteres ou 3 seções: extrair tudo e perguntar só o que falta.",
+   "pronto": "Persona texto longo gera ficha em ≤ 5 turnos",
+   "depende": [
+    "I3"
+   ],
+   "status": "a_fazer",
+   "ordem": 22
+  },
+  {
+   "codigo": "I5",
+   "tipo": "entrega",
+   "frente": "cientista",
+   "onda": 2,
+   "semanas": [
+    5,
+    6
+   ],
+   "perfis": [
+    "IA",
+    "ENG"
+   ],
+   "esforco": "M",
+   "titulo": "Busca híbrida no corpus",
+   "descricao": "BM25 em português + embeddings multilíngues + reranker, com filtros por domínio, técnica e veredito.",
+   "pronto": "Recall@5 ≥ 0,80 nas consultas de avaliação",
+   "depende": [
+    "H6",
+    "T4"
+   ],
+   "status": "a_fazer",
+   "ordem": 23
+  },
+  {
+   "codigo": "I6",
+   "tipo": "entrega",
+   "frente": "cientista",
+   "onda": 2,
+   "semanas": [
+    6,
+    6
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "M",
+   "titulo": "Casos semelhantes no contexto",
+   "descricao": "Injetar os 3 a 5 casos mais parecidos, resumidos, com critérios, amostra, veredito e lições.",
+   "pronto": "Cientista cita um caso real em ≥ 70% das conversas aplicáveis",
+   "depende": [
+    "I5"
+   ],
+   "status": "a_fazer",
+   "ordem": 24
+  },
+  {
+   "codigo": "I7",
+   "tipo": "entrega",
+   "frente": "cientista",
+   "onda": 2,
+   "semanas": [
+    6,
+    6
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "P",
+   "titulo": "Critérios ancorados no histórico",
+   "descricao": "Ao propor critério de aceite, sugerir a faixa que o Lab já usou em casos parecidos.",
+   "pronto": "Juiz: nota de critérios ≥ 4 em 80% dos casos",
+   "depende": [
+    "I6"
+   ],
+   "status": "a_fazer",
+   "ordem": 25
+  },
+  {
+   "codigo": "I8",
+   "tipo": "entrega",
+   "frente": "cientista",
+   "onda": 3,
+   "semanas": [
+    7,
+    8
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "M",
+   "titulo": "Jornada do desenvolvedor profunda",
+   "descricao": "Baseline, abordagens com trade-offs, protocolo de avaliação e kit por stack.",
+   "pronto": "Persona dev aprovada pelo Lab em 5 de 5 casos",
+   "depende": [
+    "I2"
+   ],
+   "status": "a_fazer",
+   "ordem": 26
+  },
+  {
+   "codigo": "I9",
+   "tipo": "entrega",
+   "frente": "cientista",
+   "onda": 3,
+   "semanas": [
+    7,
+    8
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "M",
+   "titulo": "Análise da amostra enviada",
+   "descricao": "Perfil do arquivo, cálculo amostral e explicação na linguagem de cada papel.",
+   "pronto": "Persona dados insuficientes recebe cálculo correto e alternativa",
+   "depende": [
+    "I3"
+   ],
+   "status": "a_fazer",
+   "ordem": 27
+  },
+  {
+   "codigo": "I10",
+   "tipo": "entrega",
+   "frente": "cientista",
+   "onda": 4,
+   "semanas": [
+    9,
+    10
+   ],
+   "perfis": [
+    "IA",
+    "LAB"
+   ],
+   "esforco": "G",
+   "titulo": "Playbooks por domínio e técnica",
+   "descricao": "Cartões destilados do corpus: métricas típicas, faixas de critério, amostras e armadilhas; revisados pelo Lab.",
+   "pronto": "1 playbook por combinação frequente, todos revisados",
+   "depende": [
+    "H9"
+   ],
+   "status": "a_fazer",
+   "ordem": 28
+  },
+  {
+   "codigo": "I11",
+   "tipo": "entrega",
+   "frente": "cientista",
+   "onda": 4,
+   "semanas": [
+    10,
+    10
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "P",
+   "titulo": "Playbook injetado no contexto",
+   "descricao": "Quando o domínio e a técnica são identificados, o playbook entra no contexto do turno.",
+   "pronto": "Placar de qualidade sobe sem regredir nenhuma métrica",
+   "depende": [
+    "I10"
+   ],
+   "status": "a_fazer",
+   "ordem": 29
+  },
+  {
+   "codigo": "I12",
+   "tipo": "entrega",
+   "frente": "cientista",
+   "onda": 5,
+   "semanas": [
+    11,
+    14
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "M",
+   "titulo": "Ciclo de feedback do Lab",
+   "descricao": "Cada correção do Lab numa ficha real vira caso de avaliação e exemplo.",
+   "pronto": "Toda correção do piloto registrada como caso",
+   "depende": [
+    "A6"
+   ],
+   "status": "a_fazer",
+   "ordem": 30
+  },
+  {
+   "codigo": "A1",
+   "tipo": "entrega",
+   "frente": "avaliacao",
+   "onda": 1,
+   "semanas": [
+    3,
+    3
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "M",
+   "titulo": "Solicitante simulado",
+   "descricao": "Outro modelo faz o papel do solicitante, guiado por uma persona e por um caso ouro ou sintético.",
+   "pronto": "Conversa completa roda com um comando",
+   "depende": [
+    "I3"
+   ],
+   "status": "a_fazer",
+   "ordem": 31
+  },
+  {
+   "codigo": "A2",
+   "tipo": "entrega",
+   "frente": "avaliacao",
+   "onda": 1,
+   "semanas": [
+    3,
+    4
+   ],
+   "perfis": [
+    "IA",
+    "LAB"
+   ],
+   "esforco": "M",
+   "titulo": "6 personas e 15 casos",
+   "descricao": "Negócio objetivo, negócio vago, dev técnico, texto longo, dados insuficientes e apressado.",
+   "pronto": "15 casos rodando de ponta a ponta",
+   "depende": [
+    "A1"
+   ],
+   "status": "a_fazer",
+   "ordem": 32
+  },
+  {
+   "codigo": "A3",
+   "tipo": "entrega",
+   "frente": "avaliacao",
+   "onda": 1,
+   "semanas": [
+    4,
+    4
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "P",
+   "titulo": "Baseline do Cientista",
+   "descricao": "Ficha completa, regras do método, turnos, perguntas repetidas e nota do juiz na versão atual.",
+   "pronto": "Relatório de baseline publicado",
+   "depende": [
+    "A2"
+   ],
+   "status": "a_fazer",
+   "ordem": 33
+  },
+  {
+   "codigo": "A4",
+   "tipo": "entrega",
+   "frente": "avaliacao",
+   "onda": 2,
+   "semanas": [
+    5,
+    6
+   ],
+   "perfis": [
+    "IA",
+    "LAB"
+   ],
+   "esforco": "M",
+   "titulo": "Juiz calibrado",
+   "descricao": "Juiz automático com a rubrica, comparado a notas humanas do Lab.",
+   "pronto": "Concordância com humanos (kappa) ≥ 0,6",
+   "depende": [
+    "M4",
+    "A3"
+   ],
+   "status": "a_fazer",
+   "ordem": 34
+  },
+  {
+   "codigo": "A5",
+   "tipo": "entrega",
+   "frente": "avaliacao",
+   "onda": 2,
+   "semanas": [
+    6,
+    6
+   ],
+   "perfis": [
+    "IA",
+    "LAB"
+   ],
+   "esforco": "P",
+   "titulo": "Consultas de busca",
+   "descricao": "50 consultas com os experimentos esperados, para medir a busca.",
+   "pronto": "50 consultas com gabarito revisado",
+   "depende": [
+    "H7"
+   ],
+   "status": "a_fazer",
+   "ordem": 35
+  },
+  {
+   "codigo": "A6",
+   "tipo": "entrega",
+   "frente": "avaliacao",
+   "onda": 3,
+   "semanas": [
+    7,
+    8
+   ],
+   "perfis": [
+    "IA",
+    "ENG"
+   ],
+   "esforco": "M",
+   "titulo": "Placar no CI",
+   "descricao": "Toda mudança de prompt, ferramenta ou modelo roda a avaliação e mostra antes e depois; regressão bloqueia.",
+   "pronto": "Todo PR do Cientista mostra o placar",
+   "depende": [
+    "A3",
+    "T2"
+   ],
+   "status": "a_fazer",
+   "ordem": 36
+  },
+  {
+   "codigo": "A7",
+   "tipo": "entrega",
+   "frente": "avaliacao",
+   "onda": 3,
+   "semanas": [
+    7,
+    8
+   ],
+   "perfis": [
+    "IA"
+   ],
+   "esforco": "M",
+   "titulo": "Conjunto de avaliação: 60 casos",
+   "descricao": "Ampliar para 60 casos, metade a partir dos registros ouro.",
+   "pronto": "60 casos estáveis, com variação entre execuções medida",
+   "depende": [
+    "A2",
+    "H9"
+   ],
+   "status": "a_fazer",
+   "ordem": 37
+  },
+  {
+   "codigo": "A8",
+   "tipo": "entrega",
+   "frente": "avaliacao",
+   "onda": 4,
+   "semanas": [
+    9,
+    10
+   ],
+   "perfis": [
+    "LAB"
+   ],
+   "esforco": "M",
+   "titulo": "Revisão cega",
+   "descricao": "Lab dá nota a fichas do Cientista e a fichas manuais sem saber a origem.",
+   "pronto": "Nota do Cientista ≥ 4,0 e ≥ fichas manuais",
+   "depende": [
+    "A4"
+   ],
+   "status": "a_fazer",
+   "ordem": 38
+  },
+  {
+   "codigo": "A9",
+   "tipo": "entrega",
+   "frente": "avaliacao",
+   "onda": 5,
+   "semanas": [
+    11,
+    14
+   ],
+   "perfis": [
+    "PROD",
+    "IA"
+   ],
+   "esforco": "M",
+   "titulo": "Medir H1 e H4 no piloto",
+   "descricao": "Lead time da ficha comparado ao histórico e interrupções evitadas pelo G0.",
+   "pronto": "Relatório de H1 e H4 com o piloto",
+   "depende": [
+    "P3",
+    "T8"
+   ],
+   "status": "a_fazer",
+   "ordem": 39
+  },
+  {
+   "codigo": "T1",
+   "tipo": "entrega",
+   "frente": "engenharia",
+   "onda": 0,
+   "semanas": [
+    1,
+    2
+   ],
+   "perfis": [
+    "ENG"
+   ],
+   "esforco": "P",
+   "titulo": "Acesso ao modelo e ambientes",
+   "descricao": "Chave ou gateway corporativo do Claude, ambientes de desenvolvimento e homologação, orçamento.",
+   "pronto": "Time roda o Cientista com a chave corporativa",
+   "depende": [],
+   "status": "a_fazer",
+   "ordem": 40
+  },
+  {
+   "codigo": "T2",
+   "tipo": "entrega",
+   "frente": "engenharia",
+   "onda": 0,
+   "semanas": [
+    2,
+    2
+   ],
+   "perfis": [
+    "ENG"
+   ],
+   "esforco": "P",
+   "titulo": "Gateway de modelos",
+   "descricao": "Proxy único com versão de modelo fixada, cota, log de custo e rota para modelos abertos.",
+   "pronto": "Todas as chamadas passam pelo gateway",
+   "depende": [
+    "T1"
+   ],
+   "status": "a_fazer",
+   "ordem": 41
+  },
+  {
+   "codigo": "T3",
+   "tipo": "entrega",
+   "frente": "engenharia",
+   "onda": 1,
+   "semanas": [
+    3,
+    4
+   ],
+   "perfis": [
+    "ENG"
+   ],
+   "esforco": "M",
+   "titulo": "Front ligado ao modelo real",
+   "descricao": "Escolha de papel, chat, ficha ao lado e envio de arquivos com o modelo real em homologação.",
+   "pronto": "Jornada completa em homologação para os dois papéis",
+   "depende": [
+    "T1"
+   ],
+   "status": "a_fazer",
+   "ordem": 42
+  },
+  {
+   "codigo": "T4",
+   "tipo": "entrega",
+   "frente": "engenharia",
+   "onda": 1,
+   "semanas": [
+    3,
+    4
+   ],
+   "perfis": [
+    "ENG"
+   ],
+   "esforco": "M",
+   "titulo": "Postgres + pgvector",
+   "descricao": "Sessões, corpus e vetores no banco, com migração das sessões em JSON.",
+   "pronto": "Sessões e corpus lidos do banco",
+   "depende": [
+    "T1"
+   ],
+   "status": "a_fazer",
+   "ordem": 43
+  },
+  {
+   "codigo": "T5",
+   "tipo": "entrega",
+   "frente": "engenharia",
+   "onda": 2,
+   "semanas": [
+    5,
+    6
+   ],
+   "perfis": [
+    "ENG"
+   ],
+   "esforco": "M",
+   "titulo": "Object storage do histórico",
+   "descricao": "Documentos brutos em armazenamento restrito, com acesso auditado.",
+   "pronto": "Ingestão lê do storage, nunca do Git",
+   "depende": [
+    "H2"
+   ],
+   "status": "a_fazer",
+   "ordem": 44
+  },
+  {
+   "codigo": "T6",
+   "tipo": "entrega",
+   "frente": "engenharia",
+   "onda": 3,
+   "semanas": [
+    7,
+    8
+   ],
+   "perfis": [
+    "ENG"
+   ],
+   "esforco": "M",
+   "titulo": "Observabilidade e custo",
+   "descricao": "Trace por turno: contexto, casos recuperados, ferramentas, tokens, cache, latência e custo por ficha.",
+   "pronto": "Painel com custo por ficha e alerta de orçamento",
+   "depende": [
+    "T2"
+   ],
+   "status": "a_fazer",
+   "ordem": 45
+  },
+  {
+   "codigo": "T7",
+   "tipo": "entrega",
+   "frente": "engenharia",
+   "onda": 4,
+   "semanas": [
+    9,
+    10
+   ],
+   "perfis": [
+    "ENG"
+   ],
+   "esforco": "M",
+   "titulo": "Login corporativo e perfis",
+   "descricao": "SSO, RBAC por papel e mascaramento de PII nos arquivos enviados.",
+   "pronto": "Solicitante vê só os próprios experimentos",
+   "depende": [
+    "T3"
+   ],
+   "status": "a_fazer",
+   "ordem": 46
+  },
+  {
+   "codigo": "T8",
+   "tipo": "entrega",
+   "frente": "engenharia",
+   "onda": 4,
+   "semanas": [
+    10,
+    10
+   ],
+   "perfis": [
+    "ENG"
+   ],
+   "esforco": "P",
+   "titulo": "Eventos de lead time",
+   "descricao": "Registrar entrada do desafio, cada versão da ficha e aprovação do G0.",
+   "pronto": "Lead time por ficha calculado automaticamente",
+   "depende": [
+    "T4"
+   ],
+   "status": "a_fazer",
+   "ordem": 47
+  },
+  {
+   "codigo": "T9",
+   "tipo": "entrega",
+   "frente": "engenharia",
+   "onda": 5,
+   "semanas": [
+    11,
+    11
+   ],
+   "perfis": [
+    "ENG"
+   ],
+   "esforco": "M",
+   "titulo": "Ambiente do piloto",
+   "descricao": "Deploy interno com backup, monitoramento e plano de rollback.",
+   "pronto": "Piloto no ar com monitoramento",
+   "depende": [
+    "T7"
+   ],
+   "status": "a_fazer",
+   "ordem": 48
+  },
+  {
+   "codigo": "P1",
+   "tipo": "entrega",
+   "frente": "adocao",
+   "onda": 3,
+   "semanas": [
+    8,
+    8
+   ],
+   "perfis": [
+    "PROD"
+   ],
+   "esforco": "P",
+   "titulo": "Áreas e sponsors do piloto",
+   "descricao": "Escolher 2 áreas com desafio real e sponsor disponível.",
+   "pronto": "2 áreas confirmadas com data de início",
+   "depende": [],
+   "status": "a_fazer",
+   "ordem": 49
+  },
+  {
+   "codigo": "P2",
+   "tipo": "entrega",
+   "frente": "adocao",
+   "onda": 4,
+   "semanas": [
+    10,
+    10
+   ],
+   "perfis": [
+    "PROD",
+    "LAB"
+   ],
+   "esforco": "P",
+   "titulo": "Guia de uso do Cientista",
+   "descricao": "Uma página por papel: como começar, o que preparar, o que esperar.",
+   "pronto": "Guia lido e aprovado por 2 usuários das áreas",
+   "depende": [
+    "M5"
+   ],
+   "status": "a_fazer",
+   "ordem": 50
+  },
+  {
+   "codigo": "P3",
+   "tipo": "entrega",
+   "frente": "adocao",
+   "onda": 5,
+   "semanas": [
+    11,
+    14
+   ],
+   "perfis": [
+    "PROD",
+    "LAB"
+   ],
+   "esforco": "G",
+   "titulo": "Piloto: 10 fichas reais",
+   "descricao": "Solicitantes reais usam o Cientista; o Lab acompanha e aprova cada ficha no G0.",
+   "pronto": "10 fichas reais aprovadas no G0",
+   "depende": [
+    "P1",
+    "T9"
+   ],
+   "status": "a_fazer",
+   "ordem": 51
+  },
+  {
+   "codigo": "P4",
+   "tipo": "entrega",
+   "frente": "adocao",
+   "onda": 5,
+   "semanas": [
+    14,
+    14
+   ],
+   "perfis": [
+    "PROD",
+    "LAB"
+   ],
+   "esforco": "P",
+   "titulo": "Decisão de seguir para a bancada",
+   "descricao": "Com as metas da Fase 1 e H1/H4 medidos, decidir iniciar a Fase 2.",
+   "pronto": "Decisão registrada pelo sponsor",
+   "depende": [
+    "A9",
+    "A8"
+   ],
+   "status": "a_fazer",
+   "ordem": 52
+  },
+  {
+   "codigo": "Q1",
+   "tipo": "pergunta",
+   "titulo": "Quem libera o acesso ao histórico e até quando?",
+   "descricao": "Sem histórico não existe memória do Lab (sprint 2).",
+   "status": "a_fazer",
+   "ordem": 53
+  },
+  {
+   "codigo": "Q2",
+   "tipo": "pergunta",
+   "titulo": "Qual orçamento mensal de modelo para dev, avaliação e piloto?",
+   "descricao": "A avaliação no CI consome tokens a cada PR.",
+   "status": "a_fazer",
+   "ordem": 54
+  },
+  {
+   "codigo": "Q3",
+   "tipo": "pergunta",
+   "titulo": "Quem do Lab assina o método v1 e a rubrica do juiz?",
+   "descricao": "Dono do método e do prompt do Cientista.",
+   "status": "a_fazer",
+   "ordem": 55
+  },
+  {
+   "codigo": "Q4",
+   "tipo": "pergunta",
+   "titulo": "Quantas horas por semana o Lab tem para curadoria?",
+   "descricao": "Registros ouro, playbooks e revisão cega dependem disso.",
+   "status": "a_fazer",
+   "ordem": 56
+  },
+  {
+   "codigo": "Q5",
+   "tipo": "pergunta",
+   "titulo": "Quais 2 áreas topam o piloto na semana 11?",
+   "descricao": "Áreas com desafio real e sponsor disponível.",
+   "status": "a_fazer",
+   "ordem": 57
+  },
+  {
+   "codigo": "Q6",
+   "tipo": "pergunta",
+   "titulo": "Embeddings em GPU própria ou CPU no início?",
+   "descricao": "Define se precisamos de uma L4 já no sprint 2.",
+   "status": "a_fazer",
+   "ordem": 58
+  },
+  {
+   "codigo": "R1",
+   "tipo": "risco",
+   "titulo": "Histórico menor ou mais bagunçado que o esperado",
+   "descricao": "Mitigação: priorizar 20 ouro bem feitos e calibrar o sintético por eles.",
+   "status": "a_fazer",
+   "ordem": 59
+  },
+  {
+   "codigo": "R2",
+   "tipo": "risco",
+   "titulo": "PII escapando da anonimização",
+   "descricao": "Mitigação: revisão por amostragem e bloqueio de ingestão sem aprovação.",
+   "status": "a_fazer",
+   "ordem": 60
+  },
+  {
+   "codigo": "R3",
+   "tipo": "risco",
+   "titulo": "Juiz automático discordando do Lab",
+   "descricao": "Mitigação: calibrar com notas humanas e manter revisão cega como decisão final.",
+   "status": "a_fazer",
+   "ordem": 61
+  },
+  {
+   "codigo": "R4",
+   "tipo": "risco",
+   "titulo": "Melhorar o prompt e regredir em outro caso",
+   "descricao": "Mitigação: placar no CI bloqueando regressões.",
+   "status": "a_fazer",
+   "ordem": 62
+  },
+  {
+   "codigo": "R5",
+   "tipo": "risco",
+   "titulo": "Curadoria do Lab virar gargalo",
+   "descricao": "Mitigação: horas declaradas no mural e lotes pequenos por sprint.",
+   "status": "a_fazer",
+   "ordem": 63
+  }
+ ]
+}
