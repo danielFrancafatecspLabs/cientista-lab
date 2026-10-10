@@ -1,114 +1,136 @@
 # cientista-lab · METAEXP
 
-Plataforma de experimentação do beOn Labs orientada por agentes. A pessoa escolhe o papel (solicitante ou desenvolvedor) e conversa com o **Agente Cientista**, que conduz a jornada daquele papel, transforma o problema em uma ficha de experimento e analisa os dados enviados. O solicitante segue para a **bancada**, onde os agentes de Dados, Desenvolvedor, QA e Analista executam o experimento até o parecer. O desenvolvedor recebe a ficha, o desenho técnico e o kit, e pode também usar a bancada.
+Plataforma de experimentação (IDP) do beOn Labs conduzida por agentes. Quatro papéis entram pela porta da frente:
 
-Todos os agentes usam o Claude (`claude-opus-5-5`) pelo SDK oficial da Anthropic.
+| Papel | Porta | O que acontece |
+|---|---|---|
+| **Solicitante** | Tenho um desafio de negócio | O **Cientista** entende o problema a fundo com perguntas de alto valor, transforma em ficha e o laboratório executa na bancada. Nenhum jargão técnico. |
+| **Desenvolvedor** | Quero construir algo | Conversa técnica: baseline, abordagens com trade-offs, protocolo de avaliação. Sai com a ficha e um **kit executável** (avaliador + CI que bloqueia regressões). |
+| **Lab** | Reviso e aprovo experimentos | Fila de revisão (gate G0) com pré-análise do **Agente Revisor**, evidências da conversa e decisão em um clique. |
+| **Sponsor** | Acompanho o portfólio | Portfólio por etapa, indicadores do metaexperimento e as decisões de escalar, iterar ou encerrar. |
 
-## Papéis e jornadas
-
-A primeira tela pede que a pessoa escolha o papel, e cada papel tem uma jornada própria:
-
-- **Solicitante**: procurou o beOn Labs para executar um desafio tecnológico. Conversa fluida e cadenciada, com profundidade de negócio e nenhum termo técnico. O laboratório escolhe a tecnologia e a bancada executa; a pessoa só aprova nos pontos de decisão. Personaliza a área e o ritmo da conversa.
-- **Desenvolvedor**: de qualquer área, quer construir algo. Jornada técnica desde a primeira pergunta: contexto técnico, baseline, abordagens com trade-offs, protocolo de avaliação e arquitetura. Recebe ficha, desenho técnico e kit na stack escolhida; a bancada é opcional. Personaliza stack, experiência com IA e onde vai rodar.
-
-Cada jornada tem prompt (`metaexp/prompts/jornada_*.md`), ferramentas e encaminhamentos próprios, definidos em `metaexp/papeis.py`. A matriz completa de papéis e responsabilidades (Solicitante, Desenvolvedor, BO, Sponsor, agentes, Curador e Especialista) está em [`docs/papeis-e-responsabilidades.md`](docs/papeis-e-responsabilidades.md), gerada a partir do mesmo arquivo com `python -m metaexp papeis`.
+Todos os agentes usam o Claude (`claude-opus-5-5`) pelo SDK oficial da Anthropic. O app é React; o backend é FastAPI.
 
 ## Como rodar
 
 ```bash
 pip install -e ".[dev]"
-cp .env.example .env          # preencha ANTHROPIC_API_KEY (ou use `ant auth login`)
-python -m metaexp servir      # http://localhost:8000
+cp .env.example .env              # ANTHROPIC_API_KEY, ou use `ant auth login`
+(cd web && npm install && npm run build)
+python -m metaexp servir          # http://localhost:8000 (API + app)
 ```
 
-O front em `prototipo/` detecta o backend sozinho: com a API no ar, o selo no topo mostra **LLM ao vivo** e a conversa usa o modelo; sem backend (por exemplo, no link publicado), ele roda o roteiro de demonstração.
+Para desenvolver o front com recarga instantânea: `python -m metaexp servir` em um terminal e `cd web && npm run dev` em outro (http://localhost:5173, com `/api` apontando para o backend).
+
+Sem backend, o app entra em **modo demonstração** (ou force com `?demo`): um backend em memória com roteiros que percorrem o ciclo inteiro. Dá para criar uma ficha como Solicitante, trocar para Lab e aprovar, voltar e rodar a bancada, e decidir como Sponsor.
+
+Com Docker: `docker build -t metaexp . && docker run -p 8000:8000 -e ANTHROPIC_API_KEY=... -v metaexp-data:/app/data metaexp`.
 
 ```bash
-python -m pytest              # 38 testes, sem rede e sem custo (cliente de modelo falso)
+python -m pytest                  # 50 testes, sem rede e sem custo (cliente de modelo falso)
+cd web && npm run typecheck       # contrato TypeScript
 ```
+
+## O que diferencia o Cientista
+
+### 1. Descoberta do problema antes da hipótese
+
+O Cientista mantém um **mapa do problema** com dez dimensões (o que acontece, quem sente, tamanho, um caso real, causas, como se resolve hoje, decisão em jogo, como saberemos, restrições, premissa mais arriscada). A cada resposta, registra o que entendeu com profundidade de 0 a 3 e a fala da pessoa como evidência. O código (`metaexp/core/descoberta.py`) decide onde o entendimento está fraco e sugere técnicas de pergunta: caso concreto, ordem de grandeza, decisão destravada, quando desistir, cinco porquês etc. O modelo escreve a pergunta.
+
+Na interface, cada pergunta vem com **"Por que pergunto isso"** (dimensão, técnica e motivo), o mapa aparece ao lado e, quando o problema fica claro, o Cientista resume o entendimento para a pessoa **confirmar antes da hipótese**. Escrever a hipótese com o mapa raso gera um aviso para o modelo.
+
+### 2. Confiança verificável
+
+Seguindo o que desenvolvedores dizem confiar em IA quando conseguem verificar a resposta e quando há atribuição ([Stack Overflow Developer Survey 2026](https://survey.stackoverflow.co/2026/ai/data)), o Cientista diz de onde vem cada sugestão: casos do histórico do Lab citados pelo id, cálculos feitos por ferramenta ou estimativas declaradas como estimativas. As regras do método são conferidas em código, não só pedidas ao modelo, e pessoas decidem nos portões G0–G3.
+
+### 3. Experimento como código para o desenvolvedor
+
+O protocolo de avaliação (conjunto, divisão, métricas técnicas com baseline e meta, gate de regressão) vira um kit (`metaexp/core/kit.py`): `experimento.yaml`, `eval/avaliar.py` sem dependências, `eval/metas.json`, workflow de CI e modelo de relatório. O CI avalia a cada push, falha se uma meta não for atendida ou se houver regressão contra o baseline congelado, e registra o histórico por commit. A ideia vem da avaliação de agentes em ciclos de integração contínua, em que o que importa é não regredir ao longo do tempo ([SWE-CI, arXiv 2603.03823](https://arxiv.org/abs/2603.03823)).
+
+## Ciclo de vida
+
+```
+conversa → em_revisao (G0, Lab) → aprovado → em_execucao (bancada: G1 amostra, G2 Ralph Loop) → parecer (G3) → decidido (Sponsor)
+                ↓
+            devolvido → o Cientista retoma a conversa com o comentário do Lab
+```
+
+`METAEXP_REVISAO_LAB=0` desliga o G0 humano para times sem papel de Lab (a ficha é aprovada ao ser encaminhada).
 
 ## Arquitetura
 
 ```mermaid
 flowchart LR
-  UI[prototipo/app.html<br>chat + bancada] -- SSE --> API[metaexp/api<br>FastAPI]
-  API --> C[Agente Cientista<br>laço com ferramentas]
-  API --> B[Bancada<br>Dados → Dev ⇄ QA → Analista]
-  C --> T[ferramentas por papel<br>ficha · amostra · desenho · encaminhar]
-  C --> K[(corpus<br>reais + sintéticos)]
-  B --> X[executor<br>simulado / sandbox]
-  C & B --> L[llm/client.py<br>SDK anthropic]
-  S[synthetic/<br>ingestão + gerador] --> K
-  E[evals/<br>solicitante simulado + juiz] --> C
+  W[web/ React] -- REST + SSE --> A[api.py FastAPI]
+  A --> C[agents/cientista.py<br>laço com ferramentas]
+  A --> R[agents/revisor.py<br>pré-revisão G0]
+  A --> B[agents/bancada.py<br>Dados → Dev ⇄ QA → Analista]
+  C --> F[agents/ferramentas.py]
+  F --> D[core/<br>método · descoberta · papéis · kit]
+  C & R & B --> L[llm.py<br>SDK anthropic]
+  C --> K[(corpus/<br>reais + sintéticos)]
+  A --> S[(sessions.py<br>SQLite)]
 ```
 
 | Pasta | O que tem |
 |---|---|
-| `metaexp/llm/client.py` | Única porta para o modelo: `stream_turn` (chat com ferramentas, token a token) e `structured` (saída validada por Pydantic). Prompt de sistema cacheado, esforço por papel, fallback no servidor quando um classificador recusa. |
-| `metaexp/context/` | Montagem dos contextos: metodologia do laboratório, catálogo de golden paths e prompts de cada papel. Contexto estável vai no prompt de sistema (idêntico byte a byte, para o cache); contexto variável entra pelas mensagens ou por ferramentas. |
-| `metaexp/prompts/` | Prompts em Markdown: `cientista.md` (o roteiro da conversa), `bancada.md`, `sintetico.md`, `ingestao.md`. |
-| `metaexp/tools/` | Ferramentas do Cientista (`atualizar_ficha`, `gerar_ficha`, `classificar_experimento`, `buscar_experimentos_similares`, `propor_abordagens`, `registrar_desenho_tecnico`, `sugerir_respostas`, `solicitar_dados`, `calcular_tamanho_amostra`, `apresentar_skills`, `encaminhar`), perfil determinístico de arquivos e estatística. |
-| `metaexp/agents/` | `cientista.py` (laço de conversa), `bancada.py` (etapas e gates G0–G3, com o Ralph Loop real entre Desenvolvedor e QA) e `executor.py` (resultados simulados hoje; ponto de troca para execução em sandbox). |
-| `metaexp/corpus/` | Corpus de experimentos e busca BM25 em português, usada como memória do laboratório. |
-| `metaexp/synthetic/` | Ingestão de documentos reais, taxonomia de variação, gerador sintético e controle de qualidade. |
-| `metaexp/evals/` | Avaliação do Cientista com solicitantes simulados e juiz. |
-| `metaexp/papeis.py` | Papéis, jornadas, preferências, ferramentas por papel e matriz de responsabilidades. |
-| `metaexp/metodo.py` | Regras do método oficial validadas em código e checklist de qualidade mínima. |
-| `metaexp/schemas.py` | Contratos de dados: `Ficha`, `AnaliseAmostra`, `PlanoTecnico`, `AvaliacaoQA`, `Resultados`, `Parecer`, `Experimento`. |
-| `data/corpus/sintetico/` | Corpus inicial com 7 experimentos variados (domínio, técnica, perfil, dados, veredito). |
+| `metaexp/core/` | Domínio puro, sem rede nem modelo: `schemas.py` (contratos), `metodo.py` (regras oficiais), `descoberta.py` (mapa do problema), `papeis.py` (papéis e jornadas), `kit.py` (experimento como código), `stats.py`, `profiling.py`, `ficha_doc.py`. |
+| `metaexp/llm.py` | Única porta para o modelo: `stream_turn` (chat com ferramentas) e `structured` (saída Pydantic). Prompt cacheado, esforço por uso, fallback no servidor quando um classificador recusa. |
+| `metaexp/agents/` | `cientista.py` (laço de conversa), `ferramentas.py` (12 ferramentas estritas), `revisor.py` (pré-revisão), `bancada.py` (gates e Ralph Loop), `executor.py` (simulado; ponto de troca para sandbox). |
+| `metaexp/prompts/` | Prompts em Markdown e a montagem dos contextos (`__init__.py`). |
+| `metaexp/corpus/` | Corpus de experimentos, busca BM25 e golden paths. |
+| `metaexp/sessions.py` | Sessões e ciclo de vida em SQLite (um documento JSON por experimento; troca para Postgres sem mudar o domínio). |
+| `metaexp/api.py` | Rotas HTTP e SSE; serve o app de `web/dist`. |
+| `metaexp/synthetic/`, `metaexp/evals/` | Ingestão do histórico e dataset sintético; avaliação do Cientista com solicitante simulado e juiz. |
+| `web/src/api/` | Contrato TypeScript (`types.ts`), cliente ao vivo e backend de demonstração. |
+| `web/src/features/` | `entrada`, `estudio` (conversa, mapa, ficha, desenho, kit), `bancada`, `lab`, `sponsor`. |
 
-### Método oficial do beOn Labs
+### Prompts
 
-O prompt do Cientista (`metaexp/prompts/cientista.md`) segue o método oficial: papel, regras críticas, fluxo obrigatório **Problema → Impacto → Objetivo → Hipótese → Metodologia → Amostra → Métricas → Critérios**, auto-ingestão e encerramento pelo Gerador de Ficha. As regras também são conferidas em código (`metaexp/metodo.py`), então o modelo não consegue gerar uma ficha fora do padrão:
-
-| Regra | Como é garantida |
+| Arquivo | Papel |
 |---|---|
-| Hipótese começa com "Acreditamos que", no máximo 2 linhas, mensurável | `atualizar_ficha` devolve aviso na hora; `gerar_ficha` recusa |
-| Toda métrica tem critério de aceite com valor numérico e condição ("Acurácia ≥ 85%") | idem |
-| Nome do experimento com no máximo 3 palavras | idem |
-| Objetivo diferente da hipótese | pendência no checklist |
-| Qualidade mínima: problema, objetivo, hipótese, metodologia, amostra, métricas, critérios, BO e SPONSOR | `gerar_ficha` (o Gerador de Ficha de Experimentação) só gera com o checklist completo; `encaminhar` exige ficha gerada |
-| Auto-ingestão (texto com mais de 400 caracteres ou 3+ seções) | detectada no servidor, que envia ao modelo uma instrução de sistema com as pendências atuais |
+| `prompts/cientista.md` | Quem é o Cientista, como é um bom resultado, descoberta e arte da pergunta, método oficial (regras críticas inalteradas), ritmo, confiança, ferramentas e encerramento. |
+| `prompts/papel_solicitante.md` / `papel_desenvolvedor.md` | Tom, profundidade e encerramento de cada jornada. |
+| `prompts/revisor.md` | Rubrica do Lab (problema, hipótese, critérios, dados, viabilidade) com evidência por nota. |
+| `prompts/bancada.md`, `sintetico.md`, `ingestao.md` | Agentes da bancada, gerador sintético e ingestão do histórico. |
 
-A ficha gerada sai em Markdown (`metaexp/ficha_doc.py`) e pode ser baixada em `GET /api/sessoes/{id}/ficha.md`. Se o laboratório já tem um template oficial da ficha, basta ajustar esse arquivo.
+O prompt de sistema de cada papel junta método, jornada, catálogo da descoberta, metodologia e golden paths, idêntico byte a byte entre turnos para aproveitar o cache. Instruções pontuais (auto-ingestão, feedback do Lab) entram como mensagens de sistema no meio da conversa, sem invalidar o prefixo.
 
-### Como o Cientista usa contexto
+### Método oficial garantido em código
 
-1. **Prompt de sistema** (fixo e cacheado, um por papel): método oficial, jornada do papel, metodologia do beOn Labs, catálogo de golden paths com amostra mínima e skills de cada um.
-2. **Histórico** (só cresce, nunca é editado): mantém o cache e os blocos de raciocínio válidos entre turnos.
-3. **Ferramentas**: o Cientista busca experimentos semelhantes no corpus quando entende o problema, recebe o perfil dos arquivos enviados (estrutura, volume, qualidade, exemplos) e calcula tamanho de amostra de forma determinística.
-4. **Estado da sessão**: papel, preferências, ficha e arquivos ficam no servidor (`data/sessions/`) e voltam ao front como eventos.
+| Regra | Como |
+|---|---|
+| Hipótese com "Acreditamos que", até 2 linhas, mensurável | `atualizar_ficha` avisa na hora; `gerar_ficha` recusa |
+| Toda métrica com critério numérico e condição | idem |
+| Nome com até 3 palavras; objetivo ≠ hipótese; BO e Sponsor | checklist de qualidade mínima |
+| Auto-ingestão (mais de 400 caracteres ou 3+ seções) | detectada no servidor, que instrui o modelo com as pendências atuais |
+| Encaminhar só com ficha gerada; uma vez por versão | `encaminhar` |
+| Pré-revisão nunca recomenda aprovar com checklist pendente | `agents/revisor.py` |
 
-## Dataset sintético a partir dos seus experimentos
+## API
 
-O corpus é a memória do laboratório: dá contexto ao Cientista (casos semelhantes), serve de referência para gerar novos casos e vira casos de avaliação. Ele junta experimentos **reais** e **sintéticos** no mesmo formato (`Experimento`).
+| Rota | Uso |
+|---|---|
+| `GET /api/health`, `GET /api/papeis` | estado do backend; papéis, jornadas, dimensões e técnicas |
+| `POST /api/sessoes` | cria a conversa `{nome?, papel, preferencias}` |
+| `GET /api/sessoes/{id}` | estado completo + transcrição |
+| `POST /api/sessoes/{id}/iniciar` · `/mensagens` · `/arquivos` · `/retomar` | SSE: abertura, turno, amostra, retomada após o Lab |
+| `POST /api/sessoes/{id}/bancada` | SSE: avança a bancada |
+| `GET /api/sessoes/{id}/ficha.md` · `/kit` · `/kit.zip` | ficha oficial; kit do experimento |
+| `GET /api/experimentos` · `GET /api/experimentos/{id}` | fila e detalhe (com transcrição e mapa) |
+| `POST /api/experimentos/{id}/pre-revisao` · `/revisao` · `/decisao` | Agente Revisor; decisão G0 do Lab; decisão do Sponsor |
+| `GET /api/portfolio` | indicadores (lead time, aprovação na 1ª revisão, cobertura do mapa, decisões pendentes) |
 
-**1. Ingerir o que vocês já fizeram.** Coloque fichas, relatórios e pareceres em `data/real/` (PDF, DOCX, MD, TXT ou JSON; uma subpasta por experimento quando houver vários arquivos) e rode:
+Eventos SSE do Cientista: `text`, `mapa`, `porque`, `ficha`, `card` (`sintese`, `similares`, `amostra`, `abordagens`, `avaliacao`, `desenho`, `tecnologia`, `skills`, `ficha_gerada`), `chips`, `upload`, `handoff`, `auto_ingestao`, `retry`, `error`, `done`. Da bancada: `etapa`, `mensagem`, `card` (`ficha`, `amostra`, `plano`, `rodada`, `parecer`), `aprovacao`, `aguardando`, `done`.
 
-```bash
-python -m metaexp ingerir
-```
-
-PDFs vão direto para o modelo como documento; DOCX tem texto e tabelas extraídos. Nomes de pessoas viram papéis. Os registros vão para `data/corpus/real/`, que, como `data/real/`, fica fora do Git.
-
-**2. Planejar a cobertura** (sem chamar o modelo):
-
-```bash
-python -m metaexp plano-sintetico --n 60
-```
-
-A amostragem é estratificada em sete eixos: domínio, golden path, tecnologia, perfil do solicitante, situação dos dados (sem dados, amostra pequena, suficiente, sensíveis), veredito (validada, parcial, invalidada, inconclusiva) e estilo de conversa (vago, chega com a solução pronta, muito técnico, apressado...). Todo valor de cada eixo aparece antes de qualquer combinação se repetir, e combinações incoerentes são corrigidas (sem dados não termina "validada"). Ajuste os pesos em `synthetic/taxonomy.py` com a distribuição real da esteira.
-
-**3. Gerar.** Cada especificação vira um experimento completo (ficha, amostra, conversa de elaboração, plano, resultados e parecer). Os experimentos reais mais parecidos entram como referência de estilo, então quanto mais documentos reais vocês ingerirem, mais o sintético se parece com o laboratório.
+## Dataset a partir dos experimentos do Lab
 
 ```bash
-python -m metaexp sintetico --n 60 --sim            # uma chamada por experimento
-python -m metaexp sintetico --n 300 --batch --sim   # Batches API: metade do custo, assíncrono
+python -m metaexp ingerir                         # data/real/ → data/corpus/real/ (fora do Git)
+python -m metaexp plano-sintetico --n 60          # cobertura estratificada, sem chamar o modelo
+python -m metaexp sintetico --n 300 --batch --sim # Batches API: metade do custo
+python -m metaexp corpus                          # composição do corpus
 ```
-
-O controle de qualidade descarta registros com ficha incompleta, meta sem número, características diferentes das pedidas, veredito incoerente com as métricas ou quase duplicatas. Sem `--sim`, o comando só mostra quantas chamadas faria.
-
-**4. Conferir.** `python -m metaexp corpus` mostra a composição (reais × sintéticos, domínios, tecnologias, vereditos).
 
 ## Avaliação
 
@@ -116,34 +138,9 @@ O controle de qualidade descarta registros com ficha incompleta, meta sem númer
 python -m metaexp avaliar --n 5 --sim
 ```
 
-Para cada experimento do corpus com conversa, um segundo modelo interpreta o solicitante (perfil, problema, dados e jeito de falar) sem ver a ficha final. O caso avaliado sai do corpus de busca para o Cientista não "colar" a resposta. Ao final, a avaliação mede:
-
-- **Determinísticas:** jornada respeitada (sem jargão para o solicitante; desenho técnico real para o desenvolvedor), encaminhamento coerente com o papel, tecnologia, ficha completa, critérios numéricos, regras do método (hipótese, nome, BO/Sponsor), turnos até o encaminhamento.
-- **Juiz:** notas de 1 a 5 para uma pergunta por vez (até 5 linhas), problema antes da solução, critérios numéricos, honestidade sobre dados, adequação ao papel e respeito ao fluxo do método.
-
-O resultado vai para `data/evals/`. Rode sempre que mudar `prompts/cientista.md` ou as ferramentas.
-
-## API
-
-| Rota | Uso |
-|---|---|
-| `GET /api/health` | backend no ar, modelo e composição do corpus |
-| `GET /api/papeis` | papéis, jornadas, preferências e matriz de responsabilidades |
-| `POST /api/sessoes` | cria uma sessão `{nome?, papel, preferencias}` na jornada do papel |
-| `POST /api/sessoes/{id}/iniciar` | SSE: abertura do Cientista |
-| `POST /api/sessoes/{id}/mensagens` | SSE: um turno de conversa `{texto}` |
-| `POST /api/sessoes/{id}/arquivos` | SSE: análise de amostra `{nome, conteudo_base64}` |
-| `POST /api/sessoes/{id}/bancada` | SSE: avança a bancada `{decisao?, comentario?}` |
-| `GET /api/experimentos` | corpus e sessões |
-
-Eventos SSE: `text`, `ficha`, `auto_ingestao`, `card` (`tecnologia`, `abordagens`, `desenho`, `ficha_gerada`, `amostra`, `skills`, `similares`, `ficha`, `plano`, `rodada`, `parecer`), `chips`, `upload`, `handoff`, `etapa`, `mensagem`, `aprovacao`, `error`, `done`.
+Um segundo modelo interpreta o solicitante sem ver a ficha final. Medidas determinísticas: jornada respeitada, encaminhamento, ficha completa, critérios numéricos, regras do método, **descoberta** (cobertura do mapa ≥ 0,6 e síntese confirmada) e turnos. O juiz dá notas a sete critérios, entre eles a **qualidade das perguntas**. Rode a cada mudança de prompt ou ferramenta.
 
 ## O que ainda é simulado
 
-- **Execução do experimento.** `ExecutorSimulado` pede ao modelo resultados plausíveis e marca tudo como `simulado`; o parecer e o relatório deixam isso visível. Para medir de verdade, implemente `ExecutorSandbox` em `agents/executor.py` (por exemplo, com a ferramenta de execução de código do Claude ou um contêiner próprio).
-- **QA da bancada.** O Ralph Loop avalia o plano técnico contra os critérios da ficha. Com execução real, o QA passa a avaliar os outputs gerados.
-- **Busca no corpus.** BM25 lexical atende algumas centenas ou milhares de experimentos. Para mais que isso, troque `corpus/search.py` por busca vetorial mantendo a interface.
-
-## Proposta de pesquisa
-
-A proposta de pesquisa aplicada (Design Science Research, gates G0–G3, Ralph Loop, métricas C, ΔT, A e S) é a referência de todos os conceitos usados aqui. As fórmulas estão em `metaexp/tools/stats.py` e `schemas.AvaliacaoQA.qualidade`.
+- **Execução do experimento** na bancada: `ExecutorSimulado` marca os resultados como simulados, e o parecer deixa isso visível. Para medir de verdade, implemente um executor em sandbox em `agents/executor.py`.
+- **Busca no corpus**: BM25 lexical. Para milhares de experimentos, troque por busca híbrida mantendo a interface de `corpus/search.py`.

@@ -2,10 +2,11 @@
 
 Um turno da pessoa pode gerar várias chamadas ao modelo (texto, ferramentas,
 mais texto). Tudo sai como uma sequência de eventos que a API transmite ao
-front por SSE:
+front por SSE (contrato completo em `web/src/api/types.ts`):
 
-  {"type": "text", "delta": "..."}         pedaço de texto do Cientista
-  {"type": "ficha" | "perfil" | "card" | "chips" | "upload" | "handoff", ...}
+  {"type": "text", "delta": "..."}              pedaço de texto do Cientista
+  {"type": "mapa" | "porque" | "ficha" | "card" | "chips" | "upload" | "handoff", ...}
+  {"type": "auto_ingestao"} | {"type": "retry"}
   {"type": "error", "message": "..."}
   {"type": "done", "state": {...}}
 """
@@ -16,22 +17,23 @@ import json
 import logging
 from typing import Iterator
 
-from ..context.builder import system_cientista
-from ..context.golden_paths import BY_ID as GOLDEN
-from ..corpus.store import Corpus
-from ..llm.client import LLM, TextDelta, TurnResult
-from ..metodo import precisa_auto_ingestao
-from ..sessions import Sessao
-from ..papeis import jornada
-from ..tools.cientista_tools import ToolContext, run_tool, tools_for
-from ..tools.profiling import PerfilArquivo
+from metaexp.agents.ferramentas import ToolContext, run_tool, tools_for
+from metaexp.core.metodo import precisa_auto_ingestao
+from metaexp.core.papeis import jornada
+from metaexp.core.profiling import PerfilArquivo
+from metaexp.corpus.golden_paths import BY_ID as GOLDEN
+from metaexp.corpus.store import Corpus
+from metaexp.llm import LLM, TextDelta, TurnResult
+from metaexp.prompts import system_cientista
+from metaexp.sessions import Sessao
 
 log = logging.getLogger("metaexp.cientista")
 
-ABERTURA = ("(A pessoa acabou de abrir o METAEXP. Nome: {nome}. Papel escolhido: {papel} ({descricao}).\n"
-            "Preferências escolhidas:\n{preferencias}\n"
-            "Cumprimente pelo nome, diga em uma frase como será a jornada para esse papel e faça a primeira pergunta do fluxo.)")
-MAX_ITERACOES = 8
+ABERTURA = ("<abertura>\nA pessoa acabou de abrir o METAEXP.\nNome: {nome}\nPapel: {papel} ({descricao})\n"
+            "Preferências:\n{preferencias}\n</abertura>\n"
+            "Cumprimente pelo nome, diga em uma frase o que vamos construir juntos e faça a primeira pergunta.")
+RETOMADA = "Voltei para ajustar a ficha conforme a revisão do Lab."
+MAX_ITERACOES = 10
 MAX_JSON_RETRIES = 2
 
 
@@ -45,16 +47,11 @@ def _amostra_minima(sessao: Sessao) -> int:
 
 
 class Cientista:
-    def __init__(self, llm: LLM, corpus: Corpus, effort: str | None = None):
+    def __init__(self, llm: LLM, corpus: Corpus, effort: str | None = None, revisao_lab: bool = True):
         self.llm = llm
         self.corpus = corpus
         self.effort = effort
-        self._systems: dict[str, str] = {}
-
-    def system_for(self, papel: str) -> str:
-        if papel not in self._systems:
-            self._systems[papel] = system_cientista(papel)
-        return self._systems[papel]
+        self.revisao_lab = revisao_lab
 
     # ------------------------------------------------------------ entradas ----
 
@@ -70,11 +67,29 @@ class Cientista:
         aviso = None
         if precisa_auto_ingestao(texto):
             pend = sessao.ficha.pendencias()
-            aviso = ("AUTO-INGESTÃO ativada: a mensagem anterior é um texto longo ou estruturado. Extraia de uma vez "
-                     "todos os elementos que ela traz e registre com atualizar_ficha. Depois valide o checklist e, se "
-                     "faltar algo, pergunte somente pelo primeiro item ausente. Não gere a ficha com pendências. "
-                     f"Pendências antes desta mensagem: {'; '.join(pend) if pend else 'nenhuma'}.")
+            aviso = ("AUTO-INGESTÃO: a mensagem anterior é um texto longo ou estruturado. Extraia de uma vez tudo o que "
+                     "ela traz: registre o entendimento do problema com mapear_problema e os campos da ficha com "
+                     "atualizar_ficha. Depois, se faltar algo, pergunte só pelo item ausente de maior valor. Não gere a "
+                     f"ficha com pendências. Pendências antes desta mensagem: {'; '.join(pend) if pend else 'nenhuma'}.")
         yield from self._turno(sessao, texto, aviso_sistema=aviso)
+
+    def retomar(self, sessao: Sessao) -> Iterator[dict]:
+        """O Lab devolveu a ficha: a conversa volta com o feedback como instrução do operador."""
+        rev = sessao.feedback_pendente()
+        if rev is None:
+            yield {"type": "error", "message": "Não há revisão do Lab pendente para esta ficha."}
+            yield {"type": "done", "state": sessao.snapshot()}
+            return
+        sessao.ficha_gerada = False
+        sessao.mudar_status("conversa", "retomada após revisão do Lab")
+        aviso = ("REVISÃO DO LAB: a ficha versão {v} foi devolvida pelo Lab com o comentário abaixo. Explique à pessoa, "
+                 "em linguagem simples e em até três frases, o que precisa mudar e por quê, e conduza os ajustes um de "
+                 "cada vez. Depois gere a ficha de novo e encaminhe.\n<comentario_lab>\n{c}\n</comentario_lab>"
+                 ).format(v=rev.versao_ficha, c=rev.comentario or "(sem comentário)")
+        if sessao.pre_revisao and sessao.pre_revisao.ajustes_sugeridos:
+            aviso += "\n<ajustes_sugeridos_pelo_revisor>\n" + "\n".join(f"- {a}" for a in sessao.pre_revisao.ajustes_sugeridos) + \
+                     "\n</ajustes_sugeridos_pelo_revisor>"
+        yield from self._turno(sessao, RETOMADA, aviso_sistema=aviso)
 
     def receber_arquivo(self, sessao: Sessao, perfil: PerfilArquivo) -> Iterator[dict]:
         sessao.arquivos.append(perfil.to_dict())
@@ -98,22 +113,23 @@ class Cientista:
             # Mensagem de sistema no meio da conversa: instrução do operador, sem
             # invalidar o prefixo cacheado e sem misturar com a fala da pessoa.
             sessao.messages.append({"role": "system", "content": aviso_sistema})
-            yield {"type": "auto_ingestao"}
-        ctx = ToolContext(sessao, self.corpus)
+            if aviso_sistema.startswith("AUTO-INGESTÃO"):
+                yield {"type": "auto_ingestao"}
+        ctx = ToolContext(sessao, self.corpus, revisao_lab=self.revisao_lab)
+        system, tools = system_cientista(sessao.papel), tools_for(sessao.papel)
         json_retries = 0
         iteracao = 0
         while iteracao < MAX_ITERACOES:
             iteracao += 1
             result: TurnResult | None = None
             try:
-                for ev in self.llm.stream_turn(system=self.system_for(sessao.papel), messages=sessao.messages,
-                                               tools=tools_for(sessao.papel), effort=self.effort):
+                for ev in self.llm.stream_turn(system=system, messages=sessao.messages, tools=tools, effort=self.effort):
                     if isinstance(ev, TextDelta):
                         yield {"type": "text", "delta": ev.text}
                     else:
                         result = ev
             except ValueError:
-                # JSON de ferramenta que o SDK não conseguiu interpretar: reenvia o turno.
+                # JSON de ferramenta que o SDK não conseguiu interpretar: refaz a chamada.
                 json_retries += 1
                 yield {"type": "retry"}  # o front descarta o texto parcial desta tentativa
                 if json_retries > MAX_JSON_RETRIES:
@@ -135,10 +151,16 @@ class Cientista:
 
             if result.stop_reason == "pause_turn":
                 continue
-            if not result.tool_calls:
-                break
             if result.stop_reason == "max_tokens":
+                if result.tool_calls:
+                    # Entradas possivelmente truncadas: não executa, mas fecha cada chamada
+                    # para o histórico continuar válido no próximo turno.
+                    sessao.messages.append({"role": "user", "content": [
+                        {"type": "tool_result", "tool_use_id": c.id, "is_error": True,
+                         "content": "não executada: resposta cortada em max_tokens"} for c in result.tool_calls]})
                 yield {"type": "error", "message": "A resposta ficou longa demais e foi cortada."}
+                break
+            if not result.tool_calls:
                 break
 
             tool_results = []

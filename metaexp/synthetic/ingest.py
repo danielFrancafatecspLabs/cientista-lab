@@ -16,11 +16,11 @@ import logging
 import re
 from pathlib import Path
 
-from ..config import Settings, settings as default_settings
-from ..context.builder import system_ingestao
-from ..corpus.store import save
-from ..llm.client import LLM
-from ..schemas import Experimento
+from metaexp.config import Settings, settings as default_settings
+from metaexp.prompts import system_ingestao
+from metaexp.corpus.store import save
+from metaexp.llm import LLM
+from metaexp.core.schemas import Experimento
 
 log = logging.getLogger("metaexp.ingest")
 SUPORTADOS = {".pdf", ".docx", ".md", ".txt", ".json"}

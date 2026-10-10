@@ -1,0 +1,64 @@
+.entrada { width: 100%; max-width: 1180px; margin: 0 auto; padding: 56px 24px 80px; display: flex; flex-direction: column; gap: 40px; }
+.hero { max-width: 760px; display: grid; gap: 18px; animation: rise 0.5s var(--ease); }
+.hero h1 { font-size: clamp(36px, 5.4vw, 60px); line-height: 1.02; letter-spacing: -0.035em; font-weight: 700; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero p { font-size: 18px; color: var(--ink-2); max-width: 640px; line-height: 1.55; }
+
+.portas { display: grid; grid-template-columns: 1fr; gap: 20px; align-items: start; }
+.portas.com-painel { grid-template-columns: minmax(0, 1fr) 400px; }
+.grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.porta {
+  text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: var(--r-lg); padding: 22px;
+  display: flex; flex-direction: column; gap: 12px; cursor: pointer; box-shadow: var(--shadow-1); position: relative;
+  transition: border-color 0.2s, transform 0.2s var(--ease), box-shadow 0.2s, opacity 0.2s; animation: rise 0.5s var(--ease) both;
+}
+.porta:nth-child(2) { animation-delay: 0.04s; } .porta:nth-child(3) { animation-delay: 0.08s; } .porta:nth-child(4) { animation-delay: 0.12s; }
+.porta:hover { border-color: var(--line-2); transform: translateY(-2px); box-shadow: var(--shadow-2); }
+.porta.sel { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink), var(--shadow-2); }
+.porta.apagada { opacity: 0.55; }
+.porta-topo { display: flex; align-items: center; gap: 10px; }
+.porta-ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.porta-ic.t-painel { background: var(--sunken); color: var(--ink); }
+.porta-chamada { font: 650 24px/1.12 var(--f-display); letter-spacing: -0.025em; }
+.porta-promessa { color: var(--ink-2); font-size: 14.5px; }
+.porta ul { list-style: none; padding: 0; margin: 2px 0 0; display: grid; gap: 6px; }
+.porta li { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ink-2); }
+.porta li svg { color: var(--ok); flex: none; }
+.porta-cta { margin-top: auto; padding-top: 6px; display: inline-flex; align-items: center; gap: 6px; font-weight: 650; font-size: 14px; }
+.porta:hover .porta-cta svg { transform: translateX(3px); }
+.porta-cta svg { transition: transform 0.2s var(--ease); }
+
+.personalizar { padding: 22px; display: flex; flex-direction: column; gap: 16px; position: sticky; top: 80px; animation: rise 0.25s var(--ease); }
+.personalizar header { display: flex; align-items: center; justify-content: space-between; margin: -6px -8px 0; }
+.personalizar h2 { font-size: 24px; }
+.personalizar .entrar { margin-top: 4px; width: 100%; }
+.personalizar .erro { color: var(--accent); font-size: 13.5px; }
+
+.ciclo { display: grid; gap: 22px; padding-top: 12px; border-top: 1px solid var(--line); }
+.ciclo-cab { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; padding-top: 28px; }
+.ciclo-cab h2 { font-size: 26px; }
+.ciclo-cab p { max-width: 460px; }
+.ciclo ol { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; }
+.ciclo li { display: grid; gap: 4px; padding: 14px 12px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); }
+.ciclo li b { font-size: 14px; }
+.ciclo li small { color: var(--mute); font-size: 12px; line-height: 1.35; }
+.ciclo-n { font: 700 11px/1 var(--f-mono); color: var(--mute); }
+.ciclo li:has(.ciclo-n:not(:empty)) .ciclo-n { color: var(--ink-2); }
+.ciclo li:nth-child(3) .ciclo-n, .ciclo li:nth-child(4) .ciclo-n, .ciclo li:nth-child(6) .ciclo-n, .ciclo li:nth-child(7) .ciclo-n { color: var(--accent); }
+.principios { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.principios > div { display: grid; grid-template-columns: 22px 1fr; column-gap: 12px; row-gap: 4px; padding: 18px; border-radius: var(--r-lg); background: var(--sunken); }
+.principios svg { grid-row: span 2; color: var(--accent); margin-top: 2px; }
+.principios span { color: var(--ink-2); font-size: 14px; }
+
+@media (max-width: 1020px) {
+  .portas.com-painel { grid-template-columns: 1fr; }
+  .personalizar { position: static; }
+  .ciclo ol { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+  .entrada { padding: 32px 16px 56px; gap: 28px; }
+  .grade { grid-template-columns: 1fr; }
+  .principios { grid-template-columns: 1fr; }
+  .ciclo ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero p { font-size: 16px; }
+}

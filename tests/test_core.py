@@ -6,11 +6,11 @@ import pytest
 from metaexp.config import ROOT
 from metaexp.corpus.search import BM25, tokenize
 from metaexp.corpus.store import Corpus, load_dir
-from metaexp.schemas import AvaliacaoQA, CriterioAvaliado, Ficha
+from metaexp.core.schemas import AvaliacaoQA, CriterioAvaliado, Ficha
 from metaexp.synthetic.quality import validar
 from metaexp.synthetic.taxonomy import amostrar, cobertura
-from metaexp.tools.profiling import perfilar
-from metaexp.tools.stats import margem_para_n, reducao_lead_time, tamanho_amostra_proporcao
+from metaexp.core.profiling import perfilar
+from metaexp.core.stats import margem_para_n, reducao_lead_time, tamanho_amostra_proporcao
 
 SEEDS = ROOT / "data/corpus/sintetico"
 
@@ -37,7 +37,7 @@ def test_ficha_faltantes():
 
 
 def test_regras_do_metodo():
-    from metaexp.metodo import criterio_valido, hipotese_valida, precisa_auto_ingestao, titulo_valido
+    from metaexp.core.metodo import criterio_valido, hipotese_valida, precisa_auto_ingestao, titulo_valido
     assert criterio_valido("Acurácia ≥ 85%") and criterio_valido("MAPE < 10%") and criterio_valido("Viés entre -3% e 3%")
     assert not criterio_valido("Alta acurácia") and not criterio_valido("85%") and not criterio_valido("")
     assert hipotese_valida("Acreditamos que X irá gerar 20% de redução para Y.") == []

@@ -1,0 +1,55 @@
+.sponsor { width: 100%; max-width: 1240px; margin: 0 auto; padding: 32px 24px 80px; display: grid; gap: 32px; }
+.sp-cab { display: grid; gap: 8px; }
+.sp-cab h1 { font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.03em; }
+.kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px 16px; display: grid; gap: 6px; align-content: start; }
+.kpi b { font: 700 28px/1 var(--f-display); letter-spacing: -0.03em; }
+.kpi small { color: var(--mute); font-size: 12px; line-height: 1.35; }
+.kpi.destaque { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.kpi.destaque .eyebrow, .kpi.destaque small { color: color-mix(in srgb, var(--bg) 70%, transparent); }
+.sp-secao { display: grid; gap: 14px; }
+.sp-sec-cab { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.sp-sec-cab h2 { font-size: 22px; }
+
+.decisoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 14px; }
+.decisao { padding: 18px; display: grid; gap: 10px; border-color: var(--ink); }
+.dec-cab { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.dec-cab .btn { margin-left: auto; }
+.decisao h3 { font-size: 19px; }
+.dec-passos { font-size: 13.5px; color: var(--ink-2); }
+.dec-form { display: grid; gap: 8px; justify-items: end; }
+.dec-feita { display: flex; gap: 6px; align-items: center; font-size: 14px; padding: 10px 12px; border-radius: var(--r); background: var(--ok-soft); color: var(--ok); }
+
+.quadro { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; align-items: start; }
+.coluna { background: var(--sunken); border-radius: var(--r-lg); padding: 10px; display: grid; gap: 8px; min-height: 120px; align-content: start; }
+.col-cab { display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; font-size: 13px; }
+.col-cab .mono { color: var(--mute); }
+.exp { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: var(--r); padding: 10px 12px; display: grid; gap: 4px; cursor: pointer; transition: border-color 0.15s, transform 0.15s var(--ease); }
+.exp:hover { border-color: var(--ink-2); transform: translateY(-1px); }
+.exp b { font-size: 14px; } .exp small { color: var(--mute); font-size: 12px; }
+.exp-pe { display: flex; gap: 4px; flex-wrap: wrap; }
+
+.hipoteses { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.hipoteses > div { padding: 16px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); display: grid; gap: 6px; align-content: start; }
+.hipoteses .mono { color: var(--accent); font-weight: 700; }
+.hipoteses small { color: var(--mute); font-size: 12.5px; }
+
+.gaveta-fundo { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.28); z-index: 60; animation: aparecer 0.15s; }
+@keyframes aparecer { from { opacity: 0; } to { opacity: 1; } }
+.gaveta { position: absolute; top: 0; right: 0; bottom: 0; width: min(640px, 100%); background: var(--bg); box-shadow: var(--shadow-2); display: flex; flex-direction: column; animation: deslizar 0.25s var(--ease); }
+@keyframes deslizar { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.gaveta-cab { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--line); }
+.gaveta-corpo { flex: 1; padding: 20px; display: grid; gap: 16px; align-content: start; }
+.gaveta-corpo h2 { font-size: 26px; }
+.gaveta-meta { display: flex; gap: 10px; align-items: center; font-size: 13px; }
+
+@media (max-width: 1100px) {
+  .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .quadro { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hipoteses { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .sponsor { padding: 22px 14px 56px; }
+  .kpis, .quadro, .hipoteses { grid-template-columns: 1fr; }
+  .decisoes { grid-template-columns: 1fr; }
+}

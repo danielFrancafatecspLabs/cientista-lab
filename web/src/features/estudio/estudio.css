@@ -1,0 +1,71 @@
+.estudio { flex: none; display: grid; grid-template-columns: minmax(0, 1fr) 420px; grid-template-rows: minmax(0, 1fr); height: calc(100dvh - 60px); min-height: 0; overflow: hidden; }
+.estudio-carregando, .estudio-erro { flex: 1; display: grid; place-items: center; align-content: center; gap: 12px; padding: 40px; text-align: center; }
+
+.conversa { display: flex; flex-direction: column; min-height: 0; min-width: 0; border-right: 1px solid var(--line); }
+.conversa-topo { display: flex; align-items: end; justify-content: space-between; gap: 12px; padding: 18px 28px 10px; }
+.titulo-exp { display: grid; gap: 6px; }
+.titulo-exp h1 { font-size: 22px; }
+.painel-toggle { display: none; }
+
+.jornada { list-style: none; margin: 0; padding: 4px 28px 14px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--line); }
+.jornada li { display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 6px; border-radius: 999px; font-size: 12.5px; color: var(--mute); white-space: nowrap; font-weight: 600; }
+.jornada li .j-dot { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--line-2); display: grid; place-items: center; flex: none; }
+.jornada li.ok { color: var(--ink-2); }
+.jornada li.ok .j-dot { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.jornada li.agora { background: var(--accent-soft); color: var(--accent); }
+.jornada li.agora .j-dot { border-color: var(--accent); box-shadow: inset 0 0 0 3px var(--accent-soft), inset 0 0 0 8px var(--accent); }
+
+.mensagens { flex: 1; min-height: 0; padding: 24px 28px 12px; display: flex; flex-direction: column; gap: 22px; }
+.msg { display: flex; gap: 12px; max-width: 760px; width: 100%; animation: rise 0.25s var(--ease); }
+.msg.pessoa { justify-content: flex-end; align-self: flex-end; }
+.msg.pessoa .bolha { background: var(--ink); color: var(--bg); padding: 10px 15px; border-radius: 18px 18px 6px 18px; max-width: 80%; white-space: pre-wrap; font-size: 14.5px; }
+.msg.sistema { align-items: center; gap: 8px; color: var(--mute); font-size: 13px; padding: 8px 12px; border-radius: var(--r); background: var(--sunken); width: auto; align-self: flex-start; }
+.msg.sistema.erro { color: var(--accent); background: var(--accent-soft); }
+.autor { width: 30px; height: 30px; border-radius: 10px; background: var(--accent); color: #fff; display: grid; place-items: center; flex: none; margin-top: 1px; }
+.msg-corpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.prosa { font-size: 15.5px; line-height: 1.6; color: var(--ink); }
+.prosa p + p, .prosa p + blockquote, .prosa blockquote + p, .prosa ul, .prosa ol { margin-top: 10px; }
+.prosa strong { font-weight: 700; }
+.prosa blockquote { margin: 10px 0 0; padding: 12px 16px; border-left: 3px solid var(--accent); background: var(--surface); border-radius: 0 var(--r) var(--r) 0; font-family: var(--f-display); font-size: 16.5px; line-height: 1.45; letter-spacing: -0.01em; }
+.prosa code { font-family: var(--f-mono); font-size: 0.86em; background: var(--sunken); padding: 1px 5px; border-radius: 5px; }
+.prosa ul, .prosa ol { padding-left: 20px; }
+.cursor { display: inline-block; width: 7px; height: 16px; background: var(--accent); margin-left: 2px; vertical-align: -2px; animation: pulse 1s infinite; border-radius: 1px; }
+.digitando { display: inline-flex; gap: 4px; padding: 10px 0; }
+.digitando i { width: 7px; height: 7px; border-radius: 50%; background: var(--mute); animation: pulse 1.2s infinite; }
+.digitando i:nth-child(2) { animation-delay: 0.15s; } .digitando i:nth-child(3) { animation-delay: 0.3s; }
+
+.porque { border: 1px dashed var(--line-2); border-radius: var(--r); background: var(--surface-2); align-self: flex-start; max-width: 100%; }
+.porque button { border: 0; background: none; display: flex; align-items: center; gap: 8px; padding: 7px 12px; cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--ink-2); flex-wrap: wrap; text-align: left; }
+.porque-tags { display: inline-flex; gap: 4px; }
+.porque-tags span { font: 600 10.5px/1 var(--f-mono); padding: 4px 6px; border-radius: 6px; background: var(--sunken); color: var(--mute); text-transform: lowercase; }
+.porque p { padding: 0 12px 10px 33px; font-size: 13.5px; color: var(--ink-2); }
+.porque.aberto { border-style: solid; }
+
+.composer-wrap { padding: 10px 28px 20px; display: grid; gap: 10px; background: linear-gradient(to top, var(--bg) 70%, transparent); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line-2); background: var(--surface); border-radius: 999px; padding: 7px 13px; font-size: 13.5px; cursor: pointer; text-align: left; transition: border-color 0.15s, background 0.15s; animation: rise 0.25s var(--ease) both; }
+.chip:hover { border-color: var(--ink); background: var(--surface-2); }
+.upload-pedido { display: grid; grid-template-columns: 22px 1fr 18px; gap: 12px; align-items: center; text-align: left; border: 1.5px dashed var(--accent-line); background: var(--accent-soft); color: var(--ink); border-radius: var(--r-lg); padding: 12px 16px; cursor: pointer; }
+.upload-pedido b { display: block; font-size: 14px; }
+.upload-pedido small { color: var(--ink-2); font-size: 12.5px; }
+.composer { display: flex; align-items: flex-end; gap: 6px; background: var(--surface); border: 1px solid var(--line-2); border-radius: 22px; padding: 6px; box-shadow: var(--shadow-1); transition: border-color 0.15s, box-shadow 0.15s; }
+.composer:focus-within { border-color: var(--ink-2); box-shadow: 0 0 0 4px var(--sunken); }
+.composer textarea { flex: 1; border: 0; outline: none; resize: none; background: transparent; padding: 9px 6px; max-height: 220px; line-height: 1.45; }
+.composer.ocupado { opacity: 0.75; }
+
+.encerramento { margin: 10px 28px 20px; padding: 16px 18px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.encerramento > div { display: grid; gap: 6px; }
+.encerramento small { color: var(--mute); }
+.encerramento.devolvido { border-color: var(--accent-line); background: var(--accent-soft); }
+
+@media (max-width: 1100px) {
+  .estudio { grid-template-columns: minmax(0, 1fr); }
+  .conversa { border-right: 0; }
+  .painel-toggle { display: inline-flex; }
+}
+@media (max-width: 640px) {
+  .conversa-topo, .jornada, .mensagens, .composer-wrap { padding-left: 14px; padding-right: 14px; }
+  .encerramento { margin: 10px 14px 16px; }
+  .titulo-exp h1 { font-size: 18px; }
+  .prosa { font-size: 15px; }
+}

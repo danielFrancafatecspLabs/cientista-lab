@@ -8,8 +8,8 @@ import pytest
 from anthropic import DefaultHttpxClient
 
 from metaexp.config import Settings
-from metaexp.llm.client import FALLBACK_BETA, AnthropicLLM, LLMRefusal, TextDelta, TurnResult
-from metaexp.schemas import PlanoTecnico
+from metaexp.llm import FALLBACK_BETA, AnthropicLLM, LLMRefusal, TextDelta, TurnResult
+from metaexp.core.schemas import PlanoTecnico
 
 PLANO = {"abordagem": "RAG", "etapas": ["a"], "componentes": ["b"], "criterios_atendidos": ["c"], "riscos_tecnicos": []}
 

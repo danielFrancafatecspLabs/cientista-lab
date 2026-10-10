@@ -5,7 +5,7 @@ from __future__ import annotations
 import itertools
 from typing import Callable, Iterator
 
-from metaexp.llm.client import TextDelta, ToolCall, TurnResult
+from metaexp.llm import TextDelta, ToolCall, TurnResult
 
 _ids = itertools.count(1)
 

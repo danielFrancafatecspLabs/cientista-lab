@@ -38,6 +38,9 @@ class Settings:
     effort_synth: str = field(default_factory=lambda: _env("METAEXP_EFFORT_SYNTH", "medium"))
     # Reexecuta recusas de classificadores em outro modelo, no servidor.
     use_fallbacks: bool = field(default_factory=lambda: _env("METAEXP_FALLBACKS", "1") == "1")
+    # Gate G0 humano: toda ficha encaminhada espera a revisão do Lab. Desligue (0)
+    # em times sem papel de Lab: a ficha é aprovada ao ser encaminhada.
+    revisao_lab: bool = field(default_factory=lambda: _env("METAEXP_REVISAO_LAB", "1") == "1")
 
     corpus_dirs: tuple[Path, ...] = field(
         default_factory=lambda: tuple(
@@ -49,7 +52,7 @@ class Settings:
     )
     real_docs_dir: Path = field(default_factory=lambda: Path(_env("METAEXP_REAL_DOCS", str(ROOT / "data/real"))))
     sessions_dir: Path = field(default_factory=lambda: Path(_env("METAEXP_SESSIONS_DIR", str(ROOT / "data/sessions"))))
-    frontend_dir: Path = field(default_factory=lambda: Path(_env("METAEXP_FRONTEND_DIR", str(ROOT / "prototipo"))))
+    frontend_dir: Path = field(default_factory=lambda: Path(_env("METAEXP_FRONTEND_DIR", str(ROOT / "web/dist"))))
 
     # Ralph Loop (seção 4.6 da proposta)
     q_min: float = 0.85

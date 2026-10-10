@@ -2,15 +2,16 @@ from datetime import datetime
 
 from metaexp.agents.bancada import Bancada
 from metaexp.agents.cientista import Cientista
+from metaexp.prompts import system_cientista
 from metaexp.config import ROOT, Settings
 from metaexp.corpus.store import Corpus, load_dir
-from metaexp.schemas import (AnaliseAmostra, AvaliacaoQA, CriterioAvaliado, Metrica, Parecer, PlanoTecnico,
+from metaexp.core.schemas import (AnaliseAmostra, AvaliacaoQA, CriterioAvaliado, Metrica, Parecer, PlanoTecnico,
                              ResultadoMetrica, Resultados)
 from metaexp.sessions import Sessao
-from metaexp.tools.cientista_tools import TOOL_SPECS, ToolContext, run_tool
-from metaexp.tools.profiling import PerfilArquivo
+from metaexp.agents.ferramentas import TOOL_SPECS, ToolContext, run_tool
+from metaexp.core.profiling import PerfilArquivo
 
-from .fakes import FakeLLM, turno
+from tests.fakes import FakeLLM, turno
 
 CORPUS = Corpus(load_dir(ROOT / "data/corpus/sintetico"))
 
@@ -151,29 +152,42 @@ def _fake_bancada(qs: list[float]) -> FakeLLM:
     })
 
 
-def test_bancada_completa_com_ralph_loop():
+def _aprovada(s: Sessao) -> None:
+    ficha_completa(s)
+    s.encaminhamento = "workflow"
+    s.mudar_status("em_revisao")
+    s.mudar_status("aprovado")
+
+
+def test_bancada_espera_a_revisao_do_lab():
     s = sessao()
     ficha_completa(s)
     s.encaminhamento = "workflow"
+    s.mudar_status("em_revisao")
+    ev = list(Bancada(_fake_bancada([0.9]), cfg=Settings()).avancar(s))
+    assert ev[0]["type"] == "aguardando" and ev[0]["motivo"] == "revisao_lab" and not s.bancada.iniciada
+
+
+def test_bancada_completa_com_ralph_loop():
+    s = sessao()
+    _aprovada(s)
     b = Bancada(_fake_bancada([0.6, 0.7, 0.9]), cfg=Settings())
     ev1 = list(b.avancar(s))
-    assert ev1[-2]["type"] == "aprovacao" and s.bancada.aguardando == "ficha"
-    ev2 = list(b.avancar(s, "aprovar"))
-    assert any(e.get("kind") == "amostra" for e in ev2) and s.bancada.aguardando == "amostra"
+    assert s.status == "em_execucao" and any(e.get("kind") == "amostra" for e in ev1) and s.bancada.aguardando == "amostra"
     ev3 = list(b.avancar(s, "seguir"))
     rodadas = [e["data"] for e in ev3 if e.get("kind") == "rodada"]
     assert [r["q"] for r in rodadas] == [0.6, 0.7, 0.9]
     parecer = next(e for e in ev3 if e.get("kind") == "parecer")
     assert parecer["data"]["resultados"]["simulado"] is True   # o executor simulado sempre marca
     assert s.bancada.status == {"ficha": "ok", "amostra": "ok", "construcao": "ok", "qualidade": "ok", "resultado": "ok"}
+    assert s.status == "parecer"
 
 
 def test_bancada_escalona_no_kmax_e_retoma_com_orientacao():
     s = sessao()
-    ficha_completa(s)
-    s.encaminhamento = "workflow"
+    _aprovada(s)
     b = Bancada(_fake_bancada([0.5, 0.5, 0.6, 0.6, 0.7, 0.9]), cfg=Settings())
-    list(b.avancar(s)); list(b.avancar(s, "aprovar"))
+    list(b.avancar(s))
     ev = list(b.avancar(s, "seguir"))
     assert len(s.bancada.rodadas) == 5 and s.bancada.aguardando == "qualidade"
     assert ev[-2]["type"] == "aprovacao"
@@ -192,9 +206,11 @@ def test_jornadas_recebem_prompt_e_ferramentas_proprios():
     t_sol, t_dev = llm.chamadas[0]["tools"], llm.chamadas[1]["tools"]
     assert "propor_abordagens" not in t_sol and "apresentar_skills" not in t_sol
     assert {"propor_abordagens", "registrar_desenho_tecnico", "apresentar_skills"} <= set(t_dev)
-    assert "JORNADA: SOLICITANTE" in c.system_for("solicitante") and "JORNADA: DESENVOLVEDOR" in c.system_for("desenvolvedor")
+    assert "Jornada: Solicitante" in system_cientista("solicitante") and "Jornada: Desenvolvedor" in system_cientista("desenvolvedor")
+    assert "`premissa_critica`" in system_cientista("solicitante")          # catálogo da descoberta no prompt
+    assert "mapear_problema" in t_sol and "mapear_problema" in t_dev
     abertura = dev.messages[0]["content"]
-    assert "Papel escolhido: Desenvolvedor" in abertura and "TypeScript" in abertura and "Começando em IA" in abertura
+    assert "Papel: Desenvolvedor" in abertura and "TypeScript" in abertura and "Começando" in abertura
 
 
 def test_solicitante_nao_ve_tecnica_nem_escolhe_executor():
@@ -219,12 +235,16 @@ def test_desenvolvedor_registra_desenho_tecnico():
     ab = lambda nome, rec: {"nome": nome, "descricao": "d", "pros": ["p"], "contras": ["c"], "custo": "R$ 0,01", "latencia": "p95 1 s", "complexidade": "media", "recomendada": rec}
     _, events = run_tool(ctx, "propor_abordagens", {"abordagens": [ab("BM25", False), ab("Híbrida com re-ranking", True)], "justificativa_recomendacao": "melhor recall"})
     assert events[-1]["kind"] == "abordagens" and events[-1]["data"]["recomendada"] == "Híbrida com re-ranking"
-    block, events = run_tool(ctx, "registrar_desenho_tecnico", {"stack": "Python", "baseline": "Busca por palavra-chave, Recall@5 0,52",
-                                                                "protocolo_avaliacao": "120 perguntas reais", "metricas_tecnicas": ["Recall@5 ≥ 0,85"],
-                                                                "arquitetura": ["ingestão", "índice híbrido", "re-ranker"]})
-    assert events[-1]["kind"] == "desenho" and '"desenho_incompleto": []' in block["content"]
+    block, events = run_tool(ctx, "registrar_desenho_tecnico", {
+        "stack": "Python", "baseline": "Busca por palavra-chave, Recall@5 0,52", "abordagem_escolhida": "Híbrida com re-ranking",
+        "avaliacao": {"conjunto": "120 perguntas reais rotuladas pelo atendimento", "tamanho": 120,
+                      "metricas": [{"nome": "Recall@5", "alvo": "≥ 0,85", "baseline": "0,52", "liga_a": "tempo"}],
+                      "gate_regressao": "queda > 2 p.p. em recall@5"},
+        "arquitetura": ["ingestão", "índice híbrido", "re-ranker"]})
+    kinds = [e.get("kind") for e in events]
+    assert "avaliacao" in kinds and "desenho" in kinds and '"desenho_incompleto": []' in block["content"]
     ficha_completa(s)
     run_tool(ctx, "gerar_ficha", {})
-    from metaexp.ficha_doc import markdown
+    from metaexp.core.ficha_doc import markdown
     md = markdown(s.ficha)
-    assert "## Desenho técnico" in md and "| Híbrida com re-ranking |" in md and "Recall@5 ≥ 0,85" in md
+    assert "## Desenho técnico" in md and "| Híbrida com re-ranking |" in md and "| Recall@5 | ≥ 0,85 | 0,52 | tempo |" in md

@@ -14,8 +14,8 @@ from typing import Iterable
 
 from pydantic import ValidationError
 
-from ..schemas import Experimento
-from .search import BM25
+from metaexp.core.schemas import Experimento
+from metaexp.corpus.search import BM25
 
 log = logging.getLogger("metaexp.corpus")
 

@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from ..corpus.search import tokenize
-from ..schemas import Experimento
-from .taxonomy import Especificacao
+from metaexp.corpus.search import tokenize
+from metaexp.core.schemas import Experimento
+from metaexp.synthetic.taxonomy import Especificacao
 
 LIMIAR_DUPLICATA = 0.6   # similaridade de Jaccard entre fichas
 

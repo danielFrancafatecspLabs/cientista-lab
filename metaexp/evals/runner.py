@@ -22,14 +22,15 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from ..agents.cientista import Cientista
-from ..corpus.store import Corpus
-from ..llm.client import LLM
-from ..metodo import criterio_valido
-from ..papeis import jornada
-from ..schemas import Experimento
-from ..sessions import Sessao
-from ..tools.profiling import PerfilArquivo
+from metaexp.agents.cientista import Cientista
+from metaexp.core import descoberta
+from metaexp.corpus.store import Corpus
+from metaexp.llm import LLM
+from metaexp.core.metodo import criterio_valido
+from metaexp.core.papeis import jornada
+from metaexp.core.schemas import Experimento
+from metaexp.sessions import Sessao
+from metaexp.core.profiling import PerfilArquivo
 
 log = logging.getLogger("metaexp.evals")
 
@@ -46,7 +47,9 @@ Critérios: (1) faz uma pergunta por vez, em no máximo 5 linhas; (2) traz solu�
 (3) exige critério de aceite numérico para cada métrica; (4) trata a falta ou insuficiência de dados de forma honesta;
 (5) respeita a jornada do papel: com o solicitante, nenhum jargão técnico e profundidade de negócio; com o desenvolvedor,
 profundidade técnica desde o início (contexto técnico, baseline, abordagens com trade-offs, protocolo de avaliação); (6) segue o fluxo Problema → Impacto → Objetivo → Hipótese → Metodologia →
-Amostra → Métricas → Critérios e não confunde objetivo com hipótese."""
+Amostra → Métricas → Critérios e não confunde objetivo com hipótese; (7) faz perguntas de alto valor: específicas,
+ancoradas no que a pessoa acabou de dizer, que pedem casos concretos, números e a decisão em jogo, em vez de perguntas
+genéricas como "qual o impacto?"."""
 
 
 class RespostaSimulada(BaseModel):
@@ -55,7 +58,7 @@ class RespostaSimulada(BaseModel):
 
 
 class NotaCriterio(BaseModel):
-    criterio: Literal["uma_pergunta_por_vez", "problema_antes_da_solucao", "criterios_numericos", "honestidade_dados", "adequacao_ao_papel", "fluxo_do_metodo"]
+    criterio: Literal["uma_pergunta_por_vez", "problema_antes_da_solucao", "criterios_numericos", "honestidade_dados", "adequacao_ao_papel", "fluxo_do_metodo", "qualidade_das_perguntas"]
     nota: int = Field(description="1 a 5")
     justificativa: str
 
@@ -77,6 +80,8 @@ class ResultadoCaso:
     metas_numericas: bool
     turnos: int
     regras_metodo: bool = False
+    cobertura_mapa: float = 0.0
+    sintese_confirmada: bool = False
     notas_juiz: dict[str, int] = field(default_factory=dict)
     erro: str | None = None
 
@@ -90,6 +95,7 @@ class ResultadoCaso:
             "ficha_completa": self.ficha_completa,
             "metas_numericas": self.metas_numericas,
             "regras_metodo": self.regras_metodo,
+            "descoberta": self.cobertura_mapa >= 0.6 and self.sintese_confirmada,
         }
 
 
@@ -102,7 +108,7 @@ def jornada_respeitada(s: Sessao, transcript: list[str]) -> bool:
         falas = " ".join(t for t in transcript if t.startswith("Cientista:"))
         return not JARGAO.search(falas)
     d = s.ficha.detalhes_tecnicos
-    return bool(d and d.baseline and d.protocolo_avaliacao and len(d.abordagens) >= 2)
+    return bool(d and d.baseline and d.avaliacao and d.avaliacao.metricas and len(d.abordagens) >= 2)
 
 
 def _caso_para_solicitante(exp: Experimento) -> str:
@@ -174,6 +180,7 @@ def rodar_caso(exp: Experimento, cientista: Cientista, llm_solicitante: LLM, jui
         ficha_completa=s.ficha.completa(),
         metas_numericas=bool(s.ficha.metricas) and all(criterio_valido(m.criterio_aceite) for m in s.ficha.metricas),
         regras_metodo=not s.ficha.pendencias(),
+        cobertura_mapa=descoberta.cobertura(s.mapa), sintese_confirmada=s.mapa.sintese_confirmada,
         turnos=turnos, erro=erro)
     if juiz and transcript:
         av = juiz.structured(system=SYSTEM_JUIZ, messages=[{"role": "user", "content":
@@ -193,10 +200,11 @@ def rodar(corpus: Corpus, llm: LLM, n: int = 5, saida: Path | None = None, usar_
         cientista.corpus = Corpus([e for e in corpus.experiments if e.id != exp.id])
         resultados.append(rodar_caso(exp, cientista, llm, llm if usar_juiz else None))
     agregado: dict[str, float] = {}
-    for chave in ("jornada_adequada", "encaminhamento", "tecnologia", "ficha_completa", "metas_numericas", "regras_metodo"):
+    for chave in ("jornada_adequada", "encaminhamento", "tecnologia", "ficha_completa", "metas_numericas", "regras_metodo", "descoberta"):
         agregado[chave] = sum(r.acertos[chave] for r in resultados) / len(resultados) if resultados else 0.0
     notas = [v for r in resultados for v in r.notas_juiz.values()]
     agregado["nota_juiz_media"] = sum(notas) / len(notas) if notas else 0.0
+    agregado["cobertura_mapa_media"] = sum(r.cobertura_mapa for r in resultados) / len(resultados) if resultados else 0.0
     agregado["turnos_medios"] = sum(r.turnos for r in resultados) / len(resultados) if resultados else 0.0
     out = {"data": datetime.now().isoformat(timespec="seconds"), "casos": len(resultados), "agregado": agregado,
            "resultados": [asdict(r) | {"acertos": r.acertos} for r in resultados]}

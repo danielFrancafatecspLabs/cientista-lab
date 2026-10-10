@@ -12,7 +12,7 @@ import random
 from collections import Counter
 from dataclasses import asdict, dataclass
 
-from ..context.golden_paths import GOLDEN_PATHS
+from metaexp.corpus.golden_paths import GOLDEN_PATHS
 
 DOMINIOS = ["rede", "atendimento", "digital", "financeiro", "suprimentos", "juridico", "rh", "marketing", "operacoes"]
 PERFIS = ["negocio", "desenvolvedor"]

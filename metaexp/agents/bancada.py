@@ -1,8 +1,9 @@
 """Bancada: o workflow de agentes que executa o experimento para a área de negócio.
 
-A bancada avança por etapas e para sempre que precisa de uma decisão humana
-(aprovar a ficha, liberar a amostra, resolver um escalonamento). O front chama
-`avancar(sessao, decisao)` e recebe eventos até a próxima parada:
+A bancada só começa com a ficha aprovada pelo Lab (gate G0). Depois avança por
+etapas e para sempre que precisa de uma decisão humana (liberar a amostra,
+resolver um escalonamento). O front chama `avancar(sessao, decisao)` e recebe
+eventos até a próxima parada:
 
   {"type": "etapa", "etapa": "amostra", "status": "run|wait|ok|bloqueada"}
   {"type": "mensagem", "agente": "dados", "texto": "..."}
@@ -17,13 +18,13 @@ import json
 import logging
 from typing import Iterator
 
-from ..config import Settings, settings as default_settings
-from ..context.builder import ficha_json, system_bancada
-from ..llm.client import LLM
-from ..schemas import AnaliseAmostra, AvaliacaoQA, Ficha, Parecer, PlanoTecnico, Resultados
-from ..sessions import Sessao
-from ..tools.stats import tamanho_amostra_proporcao
-from .executor import Executor, ExecutorSimulado
+from metaexp.config import Settings, settings as default_settings
+from metaexp.prompts import ficha_json, system_bancada
+from metaexp.llm import LLM
+from metaexp.core.schemas import AnaliseAmostra, AvaliacaoQA, Parecer, PlanoTecnico, Resultados
+from metaexp.sessions import Sessao
+from metaexp.core.stats import tamanho_amostra_proporcao
+from metaexp.agents.executor import Executor, ExecutorSimulado
 
 log = logging.getLogger("metaexp.bancada")
 
@@ -46,9 +47,6 @@ PAPEIS = {
                  "Compare os resultados com a hipótese, as metas e os critérios obrigatórios da ficha e dê o veredito "
                  "(gate G3). Se algum critério obrigatório não foi atendido, a hipótese não está validada. "
                  "Se os resultados forem simulados, diga isso no resumo."),
-    "ajuste": ("Agente Cientista",
-               "Aplique o ajuste pedido pelo solicitante na ficha e devolva a ficha completa. Mantenha hipótese, "
-               "métricas e critérios coerentes entre si e preserve o que não foi pedido para mudar."),
 }
 
 
@@ -81,14 +79,15 @@ class Bancada:
             return
         try:
             if not b.iniciada:
+                if s.status != "aprovado":
+                    yield {"type": "aguardando", "motivo": "revisao_lab", "status": s.status,
+                           "message": "A ficha ainda está com o Lab para revisão (G0)."}
+                    yield {"type": "done", "state": s.snapshot()}
+                    return
                 b.iniciada = True
-                yield from self._pedir_aprovacao_ficha(s)
-            elif b.aguardando == "ficha":
-                if decisao == "ajustar" and comentario:
-                    yield from self._ajustar_ficha(s, comentario)
-                else:
-                    yield from self._concluir("ficha", s)
-                    yield from self._amostra(s)
+                s.mudar_status("em_execucao")
+                yield from self._ficha_aprovada(s)
+                yield from self._amostra(s)
             elif b.aguardando == "amostra":
                 if decisao == "encerrar":
                     yield from self._encerrar(s, "Encerrado na etapa de amostra por falta de dados.")
@@ -119,19 +118,12 @@ class Bancada:
         yield _ev_etapa(etapa, "wait")
         yield {"type": "aprovacao", "etapa": etapa, "opcoes": [{"id": i, "rotulo": r} for i, r in opcoes]}
 
-    def _pedir_aprovacao_ficha(self, s: Sessao) -> Iterator[dict]:
-        yield _ev_etapa("ficha", "run")
-        yield _ev_msg("cientista", f"Bem-vinda à bancada, {s.nome}. Antes de começar, revise a ficha final. Está tudo ok com ela?")
+    def _ficha_aprovada(self, s: Sessao) -> Iterator[dict]:
+        rev = s.revisoes[-1] if s.revisoes else None
+        nota = f" Comentário do Lab: {rev.comentario}" if rev and rev.comentario else ""
+        yield _ev_msg("cientista", f"A ficha foi aprovada pelo Lab. Vamos começar, {s.nome}.{nota}")
         yield {"type": "card", "kind": "ficha", "data": s.ficha.model_dump(exclude_none=True)}
-        yield from self._esperar("ficha", s, [("aprovar", "Está tudo ok"), ("ajustar", "Quero ajustar")])
-
-    def _ajustar_ficha(self, s: Sessao, comentario: str) -> Iterator[dict]:
-        nova = self._call("ajuste", f"<ficha>\n{ficha_json(s.ficha)}\n</ficha>\n<ajuste>{comentario}</ajuste>", Ficha)
-        nova.id, nova.execucao = s.ficha.id, s.ficha.execucao
-        s.ficha = nova
-        yield _ev_msg("cientista", "Ficha ajustada. Confere se ficou como você queria?")
-        yield {"type": "card", "kind": "ficha", "data": s.ficha.model_dump(exclude_none=True)}
-        yield from self._esperar("ficha", s, [("aprovar", "Está tudo ok"), ("ajustar", "Quero ajustar")])
+        yield from self._concluir("ficha", s)
 
     def _amostra(self, s: Sessao) -> Iterator[dict]:
         s.bancada.status["amostra"] = "run"
@@ -214,8 +206,10 @@ class Bancada:
         yield _ev_msg("analista", f"Terminei a análise. {parecer.titulo}")
         yield {"type": "card", "kind": "parecer", "data": {**parecer.model_dump(), "resultados": resultados.model_dump()}}
         yield from self._concluir("resultado", s)
+        s.mudar_status("parecer", parecer.veredito)
 
     def _encerrar(self, s: Sessao, motivo: str) -> Iterator[dict]:
         s.bancada.decisao_final = "encerrado"
         s.bancada.aguardando = None
+        s.mudar_status("encerrado", motivo)
         yield _ev_msg("cientista", motivo + " O aprendizado fica registrado no histórico do laboratório.")

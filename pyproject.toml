@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "metaexp"
-version = "0.2.0"
+version = "0.3.0"
 description = "Plataforma de experimentação do beOn Labs orientada por agentes (Claude)"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -27,7 +27,7 @@ metaexp = "metaexp.cli:main"
 include = ["metaexp*"]
 
 [tool.setuptools.package-data]
-metaexp = ["prompts/*.md", "context/*.md"]
+metaexp = ["prompts/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

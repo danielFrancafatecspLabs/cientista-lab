@@ -1,24 +1,43 @@
 # Papéis e responsabilidades do METAEXP
 
-O METAEXP é a plataforma interna de experimentação (IDP) do beOn Labs. Este documento define quem participa de um experimento, o que cada papel faz e por qual jornada entra na plataforma. A fonte é `metaexp/papeis.py`, a mesma usada pelo backend e pela rota `GET /api/papeis`.
+O METAEXP é a plataforma interna de experimentação (IDP) do beOn Labs. Este documento define quem participa de um experimento, o que cada papel faz e por qual porta entra na plataforma. A fonte é `metaexp/core/papeis.py`, a mesma usada pelo backend (`GET /api/papeis`) e pelo app.
 
-## Quem entra pela plataforma
+## As quatro portas de entrada
 
-A primeira tela pede que a pessoa escolha o papel. Cada papel tem uma jornada própria, com prompt, ferramentas, etapas e encaminhamento diferentes.
+A primeira tela pede que a pessoa escolha o papel. Solicitante e Desenvolvedor conversam com o Cientista; Lab e Sponsor trabalham em painéis.
+
+| Papel | Porta | Quem é | O que recebe | Etapas |
+|---|---|---|---|---|
+| **Solicitante** | Tenho um desafio de negócio | Você trouxe um desafio para o beOn Labs resolver com tecnologia. | Você fala do seu negócio. O Cientista transforma isso em um experimento e o laboratório executa. | Desafio → Entendimento → Hipótese → Sucesso → Dados → Responsáveis → Ficha → Revisão do Lab → Bancada |
+| **Desenvolvedor** | Quero construir algo | Você quer construir uma solução e precisa provar que ela funciona. | Desenho técnico com baseline, trade-offs e protocolo de avaliação, e um kit pronto para rodar com CI. | Problema → Contexto técnico → Baseline → Hipótese → Abordagens → Avaliação → Dados → Ficha → Kit |
+| **Lab** | Reviso e aprovo experimentos | Você garante o rigor do método antes de qualquer execução. | Fila de revisão com pré-análise do Agente Revisor, evidências da conversa e decisão em um clique. | Fila → Pré-revisão → Evidências → Decisão |
+| **Sponsor** | Acompanho o portfólio | Você patrocina experimentos e decide o que escala. | Portfólio por etapa, indicadores do metaexperimento e as decisões que dependem de você. | Portfólio → Indicadores → Decisões |
+
+## As duas conversas com o Cientista
 
 | | Solicitante | Desenvolvedor |
 |---|---|---|
-| Quem é | Procurou o beOn Labs para executar um desafio tecnológico. | Desenvolvedor de qualquer área querendo construir algo. |
-| Promessa | Você fala do seu negócio; o laboratório cuida da tecnologia e executa. | Desenho técnico desde o início: baseline, abordagens, avaliação e kit para construir. |
-| Tom da conversa | Fluida e cadenciada, linguagem de negócio, nenhum termo técnico | Técnica e profunda desde a primeira pergunta, como uma revisão de design |
-| O que o Cientista aprofunda | Frequência e custo do problema, impacto no cliente, quem decide, o que muda se der certo | Stack, fontes de dados, restrições, baseline, abordagens com trade-offs, protocolo de avaliação, arquitetura |
-| Etapas | Desafio → Impacto → Objetivo → Hipótese → Amostra → Métricas → Responsáveis → Ficha → Bancada | Problema → Contexto técnico → Objetivo → Baseline → Hipótese → Abordagens → Amostra → Avaliação → Critérios → Responsáveis → Ficha → Kit |
-| Tecnologia | Escolhida pelo laboratório e registrada na ficha, sem explicação técnica na conversa | Discutida abertamente: 2 a 4 abordagens com prós, contras, custo, latência e recomendação |
+| Tom | Reunião com quem conhece o próprio negócio: linguagem de negócio, nenhum termo técnico | Revisão de design com um tech lead: técnico, direto, trade-offs explícitos |
+| Descoberta do problema | Longa e profunda: casos concretos, quantificação, decisão em jogo | Curta e afiada: quem sofre, tamanho, decisão, sinal de sucesso |
+| Depois da descoberta | Objetivo, hipótese, sucesso em termos de negócio, dados, responsáveis | Contexto técnico, baseline, abordagens, protocolo de avaliação, arquitetura |
 | Ferramentas exclusivas | — | `propor_abordagens`, `registrar_desenho_tecnico`, `apresentar_skills` |
-| Encaminhamento | Sempre para a bancada do laboratório | Recebe ficha, desenho técnico e kit; a bancada é opcional |
-| Personalização na entrada | Área: Rede, Atendimento, Digital, Financeiro, Suprimentos, Jurídico, RH, Marketing, Operações, Outra<br>Ritmo da conversa: Direto ao ponto, Guiado, com exemplos | Stack principal: Python, TypeScript / Node, Java / Kotlin, SQL e dados<br>Experiência com IA: Começando em IA, Já usei LLMs e APIs, Especialista em ML<br>Onde vai rodar: Sandbox do laboratório, Minha infraestrutura |
+| Ao final | Ficha vai para a revisão do Lab e depois para a bancada | Ficha, desenho e kit (avaliador + CI); bancada opcional |
+| Personalização | Área: Atendimento, Rede, Digital, Financeiro, Suprimentos, Jurídico, RH, Marketing, Operações, Outra<br>Ritmo: Direto ao ponto, Guiado, com exemplos | Stack: Python, TypeScript / Node, Java / Kotlin, SQL e dados<br>Experiência com IA: Começando, Já usei LLMs, Especialista em ML<br>Onde vai rodar: Sandbox do Lab, Minha infraestrutura |
 
-As duas jornadas seguem o mesmo método oficial: hipótese começando com "Acreditamos que", critérios de aceite numéricos, nome com até 3 palavras, BO e Sponsor, checklist de qualidade mínima e Gerador de Ficha. O que muda é a profundidade e o vocabulário.
+Nas duas, o Cientista mantém um **mapa do problema** com dez dimensões e mostra à pessoa por que cada pergunta importa:
+
+- **O que acontece**: o que se observa hoje, descrito em fatos e não em soluções.
+- **Quem sente**: quem é afetado, quantas pessoas e em que momento do trabalho.
+- **Tamanho do problema**: frequência, volume e custo em números, mesmo que aproximados.
+- **Um caso real**: o último exemplo real, com o que aconteceu passo a passo.
+- **Por que acontece**: as causas prováveis, separando sintoma de causa raiz.
+- **Como se resolve hoje**: o contorno atual e por que ele não basta.
+- **Decisão em jogo**: que decisão o resultado vai destravar e quem a toma.
+- **Como saberemos**: o sinal observável de sucesso, que vira métrica e critério.
+- **Restrições**: prazo, regras, dados disponíveis, orçamento e riscos que limitam a solução.
+- **Premissa mais arriscada**: o que precisa ser verdade para valer a pena, e ainda não sabemos.
+
+O método oficial vale para todos: hipótese começando com "Acreditamos que", critérios de aceite numéricos, nome com até 3 palavras, BO e Sponsor, checklist de qualidade mínima e Gerador de Ficha.
 
 ## Todos os papéis
 
@@ -26,21 +45,39 @@ As duas jornadas seguem o mesmo método oficial: hipótese começando com "Acred
 
 Traz o desafio de negócio e decide com base no resultado.
 
-- Descrever o problema, o impacto e o objetivo
-- Fornecer ou indicar os dados
-- Aprovar a ficha
+- Explicar o problema, o impacto e a decisão em jogo
+- Indicar ou fornecer os dados
+- Confirmar a ficha
 - Validar resultados com conhecimento do domínio
-- Aceitar o parecer e decidir o encaminhamento
+- Aceitar o parecer
 
 ### Desenvolvedor (pessoa)
 
 Constrói a solução com apoio do método e dos agentes.
 
 - Detalhar contexto técnico, baseline e restrições
-- Escolher a abordagem com os trade-offs apresentados
+- Escolher a abordagem pelos trade-offs
 - Definir o protocolo de avaliação
-- Construir e executar a solução (ou enviá-la à bancada)
-- Reportar resultados para o parecer
+- Construir com o kit e o CI do experimento
+- Reportar resultados
+
+### Lab (pesquisa) (pessoa)
+
+Garante o rigor do método e destrava casos difíceis.
+
+- Revisar e aprovar fichas (G0)
+- Confirmar a amostra (G1)
+- Orientar quando o Ralph Loop atinge Kmax
+- Manter o método e os golden paths
+- Fazer revisão cega de pareceres
+
+### Sponsor (pessoa)
+
+Patrocina o portfólio e decide o que escala.
+
+- Priorizar desafios
+- Aprovar recursos
+- Decidir escalar, iterar ou encerrar após o parecer
 
 ### BO (responsável pelo experimento) (pessoa)
 
@@ -48,25 +85,25 @@ Responde pelo experimento do início ao fim.
 
 - Garantir acesso a dados e pessoas
 - Acompanhar prazos e gates
-- Assinar a ficha e o parecer
-
-### Sponsor (patrocinador) (pessoa)
-
-Patrocina o experimento e decide sobre piloto e escala.
-
-- Priorizar o desafio
-- Aprovar recursos
-- Decidir piloto e escala a partir do veredito
+- Assinar ficha e parecer
 
 ### Agente Cientista (agente de IA)
 
-Conduz a conversa no método oficial e gera a ficha.
+Entende o problema a fundo e conduz a ficha no método oficial.
 
-- Adaptar a jornada ao papel
+- Mapear o problema com perguntas de alto valor
+- Ancorar critérios no histórico do Lab
 - Validar o checklist de qualidade mínima
-- Buscar experimentos semelhantes
-- Analisar a amostra enviada
+- Desenhar a avaliação com o desenvolvedor
 - Gerar a ficha e encaminhar
+
+### Agente Revisor (agente de IA)
+
+Prepara a revisão do Lab com uma pré-análise verificável.
+
+- Pontuar a ficha na rubrica do Lab
+- Apontar riscos e ajustes concretos
+- Citar o trecho que justifica cada nota
 
 ### Agentes da bancada (agente de IA)
 
@@ -77,41 +114,27 @@ Executam o experimento: Dados, Desenvolvedor, QA e Analista.
 - Rodar o Ralph Loop até Qk ≥ 0,85 (G2)
 - Emitir o parecer com evidências (G3)
 
-### Curador de governança (pessoa)
-
-Mantém o método, os golden paths e os indicadores da esteira.
-
-- Revisar fichas fora do padrão
-- Promover novos golden paths
-- Acompanhar C, ΔT, A e S
-
-### Especialista revisor (pessoa)
-
-Destrava casos difíceis e garante a qualidade dos resultados.
-
-- Orientar quando o Ralph Loop atinge Kmax
-- Fazer revisão cega de pareceres
-
 ## Matriz por etapa do ciclo
 
 R = responsável por executar · A = aprova ou decide · C = consultado · I = informado
 
-| Papel | Ficha (G0) | Amostra (G1) | Construção | Qualidade (G2) | Resultado (G3) | Piloto e escala |
-|---|---|---|---|---|---|---|
-| Solicitante | A | C | I | I | A | C |
-| Desenvolvedor | A | R | R | R | C | C |
-| BO (responsável pelo experimento) | R | A | I | I | R | R |
-| Sponsor (patrocinador) | I | I | I | I | I | A |
-| Agente Cientista | R | C | I | I | I | I |
-| Agentes da bancada | I | R | R | R | R | I |
-| Curador de governança | C | I | I | C | C | I |
-| Especialista revisor | I | C | C | A | C | I |
+| Papel | Ficha | Revisão (G0) | Amostra (G1) | Construção | Qualidade (G2) | Parecer (G3) | Decisão |
+|---|---|---|---|---|---|---|---|
+| Solicitante | R | I | C | I | I | A | C |
+| Desenvolvedor | R | I | R | R | R | C | I |
+| Lab (pesquisa) | C | A | A | C | A | R | C |
+| Sponsor | I | I | I | I | I | I | A |
+| BO (responsável pelo experimento) | A | C | R | I | I | R | R |
+| Agente Cientista | R | I | C | I | I | I | I |
+| Agente Revisor | I | R | I | I | I | I | I |
+| Agentes da bancada | I | I | R | R | R | R | I |
 
-Na jornada do solicitante, as colunas Construção e Qualidade ficam com os agentes da bancada. Na jornada do desenvolvedor, quando ele constrói por conta própria, essas colunas ficam com ele; se escolher a bancada, voltam para os agentes.
+Quando o desenvolvedor constrói por conta própria, Construção e Qualidade ficam com ele (o CI do kit faz o papel do QA); se escolher a bancada, voltam para os agentes.
 
 ## Como mudar
 
-- Papéis, preferências, ferramentas e encaminhamentos: `metaexp/papeis.py`.
-- Tom e profundidade de cada jornada: `metaexp/prompts/jornada_solicitante.md` e `metaexp/prompts/jornada_desenvolvedor.md`.
-- Regras comuns do método: `metaexp/prompts/cientista.md` e `metaexp/metodo.py`.
+- Papéis, preferências, ferramentas e encaminhamentos: `metaexp/core/papeis.py`.
+- Dimensões do mapa do problema e técnicas de pergunta: `metaexp/core/descoberta.py`.
+- Tom de cada jornada: `metaexp/prompts/papel_solicitante.md` e `metaexp/prompts/papel_desenvolvedor.md`.
+- Regras comuns do método: `metaexp/prompts/cientista.md` e `metaexp/core/metodo.py`.
 - Depois de mudar, regere este documento com `python -m metaexp papeis` e rode `python -m metaexp avaliar --n 5 --sim`.

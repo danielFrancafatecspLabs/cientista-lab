@@ -12,9 +12,9 @@ from __future__ import annotations
 import json
 from typing import Protocol
 
-from ..context.builder import ficha_json, system_bancada
-from ..llm.client import LLM
-from ..schemas import AnaliseAmostra, Ficha, PlanoTecnico, Resultados
+from metaexp.prompts import ficha_json, system_bancada
+from metaexp.llm import LLM
+from metaexp.core.schemas import AnaliseAmostra, Ficha, PlanoTecnico, Resultados
 
 
 class Executor(Protocol):

@@ -7,7 +7,7 @@ from metaexp.synthetic.generator import gerar
 from metaexp.synthetic.ingest import ingerir, unidades
 from metaexp.synthetic.taxonomy import Especificacao
 
-from .fakes import FakeLLM
+from tests.fakes import FakeLLM
 
 SEEDS = load_dir(ROOT / "data/corpus/sintetico")
 
@@ -72,6 +72,6 @@ def test_cli_plano_e_confirmacao_de_gasto(capsys):
 
 
 def test_documento_de_papeis_esta_em_dia():
-    from metaexp.papeis_doc import markdown
+    from metaexp.core.papeis_doc import markdown
     doc = (ROOT / "docs/papeis-e-responsabilidades.md").read_text(encoding="utf-8")
     assert doc == markdown(), "rode `python -m metaexp papeis` para regerar o documento"

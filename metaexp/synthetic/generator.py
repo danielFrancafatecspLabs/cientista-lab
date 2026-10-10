@@ -24,14 +24,14 @@ import anthropic
 from anthropic.types.messages.batch_create_params import Request
 from pydantic import ValidationError
 
-from ..config import Settings, settings as default_settings
-from ..context.builder import exemplos_reais, system_sintetico
-from ..context.golden_paths import BY_ID as GOLDEN
-from ..corpus.store import Corpus, save
-from ..llm.client import LLM
-from ..schemas import Experimento
-from .quality import Relatorio, validar
-from .taxonomy import Especificacao
+from metaexp.config import Settings, settings as default_settings
+from metaexp.prompts import exemplos_reais, system_sintetico
+from metaexp.corpus.golden_paths import BY_ID as GOLDEN
+from metaexp.corpus.store import Corpus, save
+from metaexp.llm import LLM
+from metaexp.core.schemas import Experimento
+from metaexp.synthetic.quality import Relatorio, validar
+from metaexp.synthetic.taxonomy import Especificacao
 
 log = logging.getLogger("metaexp.synthetic")
 

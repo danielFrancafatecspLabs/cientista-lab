@@ -1,0 +1,39 @@
+.shell { min-height: 100%; display: flex; flex-direction: column; }
+.topbar {
+  position: sticky; top: 0; z-index: 30; height: 60px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 10px; border: 0; background: none; cursor: pointer; padding: 6px 4px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); color: #fff; display: grid; place-items: center; }
+.brand-name { font: 700 17px/1 var(--f-display); letter-spacing: -0.02em; }
+.brand-sub { font: 500 13px/1 var(--f-ui); color: var(--mute); padding-left: 10px; border-left: 1px solid var(--line-2); }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.modo { display: inline-flex; align-items: center; gap: 7px; font: 600 12px/1 var(--f-ui); color: var(--mute); padding: 0 10px; }
+.modo i { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); }
+.modo.ao_vivo i { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); animation: pulse 2.4s infinite; }
+.conteudo { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+.papel-switch { position: relative; }
+.menu {
+  position: absolute; right: 0; top: calc(100% + 8px); width: 300px; background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-lg); box-shadow: var(--shadow-2); padding: 6px; animation: rise 0.16s var(--ease);
+}
+.menu button {
+  width: 100%; display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; text-align: left;
+  border: 0; background: none; padding: 9px 10px; border-radius: 12px; cursor: pointer;
+}
+.menu button:hover, .menu button.on { background: var(--sunken); }
+.menu b { display: block; font-size: 14px; }
+.menu small { color: var(--mute); font-size: 12.5px; }
+.mi-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--sunken); }
+
+.avatar { width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; color: var(--bg); font: 700 11.5px/1 var(--f-ui); flex: none; }
+.ring { position: relative; display: inline-grid; place-items: center; flex: none; }
+.ring svg { position: absolute; inset: 0; }
+.ring-label { position: relative; font: 700 12px/1 var(--f-mono); }
+
+@media (max-width: 640px) {
+  .topbar { padding: 0 12px; }
+  .brand-sub, .modo { display: none; }
+}

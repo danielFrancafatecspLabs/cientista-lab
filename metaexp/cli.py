@@ -1,7 +1,7 @@
 """Linha de comando: `python -m metaexp <comando>`.
 
   servir                   sobe a API e o front em http://localhost:8000
-  papeis                   regera docs/papeis-e-responsabilidades.md a partir de metaexp/papeis.py
+  papeis                   regera docs/papeis-e-responsabilidades.md a partir de metaexp/core/papeis.py
   corpus                   mostra a composição do corpus (reais × sintéticos, domínios, vereditos)
   ingerir                  converte documentos de data/real/ em registros do corpus
   sintetico --n 30         gera experimentos sintéticos equilibrados (--batch usa a Batches API)
@@ -17,8 +17,8 @@ import logging
 import sys
 from datetime import datetime
 
-from .config import ROOT, settings
-from .corpus.store import Corpus
+from metaexp.config import ROOT, settings
+from metaexp.corpus.store import Corpus
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -49,12 +49,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "servir":
         import uvicorn
 
-        from .api.app import create_app
+        from metaexp.api import create_app
         uvicorn.run(create_app(), host=args.host, port=args.port)
         return 0
 
     if args.cmd == "papeis":
-        from .papeis_doc import markdown
+        from metaexp.core.papeis_doc import markdown
         destino = ROOT / "docs/papeis-e-responsabilidades.md"
         destino.parent.mkdir(exist_ok=True)
         destino.write_text(markdown(), encoding="utf-8")
@@ -68,16 +68,16 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "plano-sintetico":
-        from .synthetic.taxonomy import amostrar, cobertura
+        from metaexp.synthetic.taxonomy import amostrar, cobertura
         specs = amostrar(args.n, args.seed, args.prefixo)
         print(json.dumps(cobertura(specs), ensure_ascii=False, indent=2))
         return 0
 
-    from .llm.client import AnthropicLLM
+    from metaexp.llm import AnthropicLLM
     llm = AnthropicLLM()
 
     if args.cmd == "ingerir":
-        from .synthetic.ingest import ingerir
+        from metaexp.synthetic.ingest import ingerir
         ids = ingerir(llm)
         print(f"{len(ids)} experimento(s) ingerido(s): {', '.join(ids) or '-'}")
         return 0
@@ -89,8 +89,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if args.cmd == "sintetico":
-        from .synthetic.generator import gerar, gerar_lote_batch
-        from .synthetic.taxonomy import amostrar
+        from metaexp.synthetic.generator import gerar, gerar_lote_batch
+        from metaexp.synthetic.taxonomy import amostrar
         destino = ROOT / "data/corpus/sintetico"
         specs = amostrar(args.n, args.seed, args.prefixo)
         rel = gerar_lote_batch(specs, llm.client, destino, corpus) if args.batch else gerar(specs, llm, destino, corpus)
@@ -98,7 +98,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "avaliar":
-        from .evals.runner import rodar
+        from metaexp.evals.runner import rodar
         saida = ROOT / f"data/evals/avaliacao-{datetime.now():%Y%m%d-%H%M%S}.json"
         out = rodar(corpus, llm, n=args.n, saida=saida, usar_juiz=not args.sem_juiz)
         print(json.dumps(out["agregado"], ensure_ascii=False, indent=2))

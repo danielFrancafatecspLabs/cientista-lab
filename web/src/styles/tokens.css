@@ -1,0 +1,60 @@
+:root {
+  --f-display: "Bricolage Grotesque Variable", "Figtree Variable", system-ui, sans-serif;
+  --f-ui: "Figtree Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --surface-2: #fbfaf7;
+  --sunken: #efece5;
+  --ink: #1b1a17;
+  --ink-2: #47433c;
+  --mute: #7a746a;
+  --line: #e6e2d9;
+  --line-2: #d7d1c4;
+  --accent: #da291c;
+  --accent-ink: #ffffff;
+  --accent-soft: #fdeceb;
+  --accent-line: #f4bdb7;
+  --ok: #2b8a4b;
+  --ok-soft: #e5f3e9;
+  --warn: #a8700f;
+  --warn-soft: #fbf0dc;
+  --info: #2c67ad;
+  --info-soft: #e6effa;
+
+  --ag-cientista: #da291c;
+  --ag-dados: #2c67ad;
+  --ag-dev: #6a4cc0;
+  --ag-qa: #2b8a4b;
+  --ag-analista: #b8650f;
+
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 18px;
+  --shadow-1: 0 1px 2px rgba(27, 26, 23, 0.06), 0 1px 1px rgba(27, 26, 23, 0.03);
+  --shadow-2: 0 2px 6px rgba(27, 26, 23, 0.06), 0 12px 32px rgba(27, 26, 23, 0.08);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121110; --surface: #1b1a18; --surface-2: #201e1b; --sunken: #0d0c0b;
+    --ink: #f2eee7; --ink-2: #cbc5ba; --mute: #958e82; --line: #2d2b27; --line-2: #3b3833;
+    --accent: #ff5544; --accent-ink: #1b0705; --accent-soft: #3a1613; --accent-line: #6b2620;
+    --ok: #5cc27a; --ok-soft: #142d1c; --warn: #e5ac52; --warn-soft: #33250e; --info: #73aaf0; --info-soft: #132238;
+    --ag-cientista: #ff5544; --ag-dados: #73aaf0; --ag-dev: #a68cf0; --ag-qa: #5cc27a; --ag-analista: #eea055;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4); --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.35), 0 16px 40px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121110; --surface: #1b1a18; --surface-2: #201e1b; --sunken: #0d0c0b;
+  --ink: #f2eee7; --ink-2: #cbc5ba; --mute: #958e82; --line: #2d2b27; --line-2: #3b3833;
+  --accent: #ff5544; --accent-ink: #1b0705; --accent-soft: #3a1613; --accent-line: #6b2620;
+  --ok: #5cc27a; --ok-soft: #142d1c; --warn: #e5ac52; --warn-soft: #33250e; --info: #73aaf0; --info-soft: #132238;
+  --ag-cientista: #ff5544; --ag-dados: #73aaf0; --ag-dev: #a68cf0; --ag-qa: #5cc27a; --ag-analista: #eea055;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4); --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.35), 0 16px 40px rgba(0, 0, 0, 0.35);
+  color-scheme: dark;
+}
