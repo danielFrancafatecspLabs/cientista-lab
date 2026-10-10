@@ -29,11 +29,12 @@ from metaexp.sessions import Sessao
 
 log = logging.getLogger("metaexp.cientista")
 
-ABERTURA = ("<abertura>\nA pessoa acabou de abrir o METAEXP.\nNome: {nome}\nPapel: {papel} ({descricao})\n"
-            "Preferências:\n{preferencias}\n</abertura>\n"
-            "Cumprimente pelo nome, diga em uma frase o que vamos construir juntos e faça a primeira pergunta.")
-RETOMADA = "Voltei para ajustar a ficha conforme a revisão do Lab."
-MAX_ITERACOES = 10
+ABERTURA = ("(A pessoa acabou de abrir o METAEXP. Nome: {nome}. Papel escolhido: {papel} ({descricao}).\n"
+            "Preferências escolhidas:\n{preferencias}\n"
+            "LEMBRETE DE FORMATO: máximo 4 linhas, uma pergunta só, NUNCA diga o que vai fazer, "
+            "NUNCA simule etapas. Quando a pessoa responder com o problema, chame "
+            "buscar_experimentos_similares antes de responder.")
+MAX_ITERACOES = 8
 MAX_JSON_RETRIES = 2
 
 

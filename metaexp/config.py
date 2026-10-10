@@ -32,7 +32,9 @@ def _env(name: str, default: str) -> str:
 class Settings:
     # Modelo principal de todos os agentes. Esforço por papel: conversa é
     # interativa (medium), artefatos da bancada pedem mais raciocínio (high).
-    model: str = field(default_factory=lambda: _env("METAEXP_MODEL", "claude-opus-5-5"))
+    model: str = field(default_factory=lambda: _env("METAEXP_MODEL", "deepseek-v4-flash"))
+    anthropic_base_url: str | None = field(default_factory=lambda: _env("ANTHROPIC_BASE_URL", "") or None)
+    anthropic_verify_ssl: bool = field(default_factory=lambda: _env("ANTHROPIC_VERIFY_SSL", "1") == "1")
     effort_chat: str = field(default_factory=lambda: _env("METAEXP_EFFORT_CHAT", "medium"))
     effort_bench: str = field(default_factory=lambda: _env("METAEXP_EFFORT_BENCH", "high"))
     effort_synth: str = field(default_factory=lambda: _env("METAEXP_EFFORT_SYNTH", "medium"))

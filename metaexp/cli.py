@@ -4,6 +4,7 @@
   papeis                   regera docs/papeis-e-responsabilidades.md a partir de metaexp/core/papeis.py
   corpus                   mostra a composição do corpus (reais × sintéticos, domínios, vereditos)
   ingerir                  converte documentos de data/real/ em registros do corpus
+  extrair-pptx <origem>    descompacta ZIP/pasta com .pptx e extrai fichas/experimentos
   sintetico --n 30         gera experimentos sintéticos equilibrados (--batch usa a Batches API)
   plano-sintetico --n 30   mostra a cobertura das especificações, sem chamar o modelo
   avaliar --n 5            roda a avaliação do Cientista com solicitantes simulados
@@ -16,6 +17,7 @@ import json
 import logging
 import sys
 from datetime import datetime
+from pathlib import Path
 
 from metaexp.config import ROOT, settings
 from metaexp.corpus.store import Corpus
@@ -30,6 +32,8 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("corpus")
     sub.add_parser("papeis")
     sub.add_parser("ingerir")
+    ep = sub.add_parser("extrair-pptx")
+    ep.add_argument("origem", help="Caminho do arquivo .zip ou pasta com .pptx")
     for nome in ("sintetico", "plano-sintetico"):
         p = sub.add_parser(nome)
         p.add_argument("--n", type=int, default=30)
@@ -71,6 +75,13 @@ def main(argv: list[str] | None = None) -> int:
         from metaexp.synthetic.taxonomy import amostrar, cobertura
         specs = amostrar(args.n, args.seed, args.prefixo)
         print(json.dumps(cobertura(specs), ensure_ascii=False, indent=2))
+        return 0
+
+    if args.cmd == "extrair-pptx":
+        from .extract_pptx import extrair_pptx
+        origem = Path(args.origem)
+        ids = extrair_pptx(origem)
+        print(f"{len(ids)} experimento(s) extraído(s) de .pptx: {', '.join(ids) or '-'}")
         return 0
 
     from metaexp.llm import AnthropicLLM
