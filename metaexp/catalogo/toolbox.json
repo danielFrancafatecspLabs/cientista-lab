@@ -1,0 +1,183 @@
+{
+  "versao": "2026-10",
+  "atualizado_em": "2026-10-12",
+  "nota_edicao": "Fonte única da caixa de ferramentas do desenvolvedor. Edite este arquivo para mudar modelos, ferramentas, práticas e o checklist de piloto: a API (/api/toolbox), o prompt do Cientista na jornada Desenvolvedor e o modo demonstração leem daqui.",
+
+  "hub": {
+    "nome": "Hub de GPUs do Lab",
+    "descricao": "Modelos open-weight servidos nas GPUs do beOn Labs atrás do gateway LiteLLM (API compatível com OpenAI). Os dados não saem da casa, e o custo por token é o da infraestrutura do Lab.",
+    "protocolo": "OpenAI-compatible (/v1/chat/completions) via LiteLLM",
+    "como_pedir": "Peça uma chave de API na aba Recursos. A chave vale para os modelos do hub e para os recomendados."
+  },
+
+  "modelos": [
+    {
+      "id": "deepseek-v4-flash", "nome": "DeepSeek V4 Flash", "fornecedor": "DeepSeek", "grupo": "recomendado", "destaque": "Padrão do Lab",
+      "alias": "deepseek-v4-flash", "arquitetura": "MoE · 284B total / 13B ativos", "contexto": "1M tokens", "licenca": "open-weight (ver model card)",
+      "uso_ideal": "Padrão para protótipos: agentes com ferramentas, RAG, extração estruturada e chat. Rápido e barato por token.",
+      "cuidados": "Para raciocínio difícil, use o modo de pensamento estendido ou suba para o V4 Pro. Valide o JSON de saída com schema.",
+      "modos": ["non-think", "think-high", "think-max"]
+    },
+    {
+      "id": "deepseek-v4-pro", "nome": "DeepSeek V4 Pro", "fornecedor": "DeepSeek", "grupo": "recomendado", "destaque": "Tarefas difíceis",
+      "alias": "deepseek-v4-pro", "arquitetura": "MoE · 1,6T total / 49B ativos", "contexto": "1M tokens", "licenca": "open-weight (ver model card)",
+      "uso_ideal": "Raciocínio longo, código, agentes de vários passos e avaliação (LLM como juiz). Use quando o Flash não bater a meta do protocolo.",
+      "cuidados": "Mais lento e mais caro que o Flash: meça custo e latência p95 no protocolo de avaliação antes de adotar.",
+      "modos": ["non-think", "think-high", "think-max"]
+    },
+    {
+      "id": "gpt-oss-120b", "nome": "GPT-OSS 120B", "fornecedor": "OpenAI", "grupo": "hub", "destaque": "No hub",
+      "alias": "gpt-oss-120b", "arquitetura": "MoE · 117B total / 5,1B ativos", "contexto": "128K tokens", "licenca": "Apache 2.0",
+      "uso_ideal": "Raciocínio e uso de ferramentas com dados que não podem sair da casa. Cabe em uma GPU de 80 GB.",
+      "cuidados": "Usa o formato de conversa harmony; o gateway já converte. Esforço de raciocínio (low/medium/high) muda muito qualidade e latência."
+    },
+    {
+      "id": "gpt-oss-20b", "nome": "GPT-OSS 20B", "fornecedor": "OpenAI", "grupo": "hub", "destaque": "No hub",
+      "alias": "gpt-oss-20b", "arquitetura": "MoE · 21B total / 3,6B ativos", "contexto": "128K tokens", "licenca": "Apache 2.0",
+      "uso_ideal": "Classificação, roteamento e extração com baixa latência; bom para rodar local em 16 GB.",
+      "cuidados": "Menos conhecimento de mundo: combine com RAG quando a resposta depender de fatos."
+    },
+    {
+      "id": "gemma-4", "nome": "Gemma 4", "fornecedor": "Google DeepMind", "grupo": "hub", "destaque": "No hub · multimodal",
+      "alias": "gemma-4-31b", "arquitetura": "Família: E2B, E4B, 26B MoE (≈4B ativos), 31B denso", "contexto": "256K tokens", "licenca": "Apache 2.0",
+      "uso_ideal": "Visão e OCR (texto, imagem e vídeo), documentos escaneados e casos que pedem modelo pequeno em borda (E2B/E4B).",
+      "cuidados": "Confirme no gateway qual variante está servida; resultados do 31B não valem para os modelos E2B/E4B."
+    },
+    {
+      "id": "qwen-3-5", "nome": "Qwen 3.5", "fornecedor": "Alibaba Qwen", "grupo": "hub", "destaque": "No hub · multilíngue",
+      "alias": "qwen3.5", "arquitetura": "Família: 0,8B a 397B (MoE 397B-A17B, 122B-A10B, 35B-A3B; densos 27B e menores)", "contexto": "256K tokens", "licenca": "Apache 2.0",
+      "uso_ideal": "Código, agentes e português; modos com e sem pensamento. Variantes pequenas são boas para fine-tuning.",
+      "cuidados": "Não transfira a nota do modelo topo para uma variante menor ou quantizada: meça a variante que vai usar."
+    }
+  ],
+
+  "benchmarks_publicos": {
+    "coletado_em": "2026-10",
+    "aviso": "Números publicados pelos fornecedores ou por agregadores, em configurações diferentes (modo de raciocínio, ferramentas, versão do benchmark). Servem para escolher o que testar, não para decidir: decida pelo protocolo de avaliação do seu experimento.",
+    "metricas": [
+      { "id": "mmlu_pro", "nome": "MMLU-Pro", "o_que_mede": "conhecimento geral e raciocínio" },
+      { "id": "gpqa", "nome": "GPQA Diamond", "o_que_mede": "perguntas científicas de nível de pós-graduação" },
+      { "id": "livecodebench", "nome": "LiveCodeBench", "o_que_mede": "programação com problemas recentes (sem vazamento)" },
+      { "id": "swe_verified", "nome": "SWE-bench Verified", "o_que_mede": "corrigir issues reais de repositórios" },
+      { "id": "aime", "nome": "AIME", "o_que_mede": "matemática de competição" }
+    ],
+    "linhas": [
+      { "modelo": "DeepSeek V4 Pro (Max)", "valores": { "mmlu_pro": "87,5", "livecodebench": "93,5", "swe_verified": "80,6" }, "fonte": "model card / relatos de lançamento (prévia)", "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro" },
+      { "modelo": "DeepSeek V4 Flash (Max)", "valores": { "swe_verified": "79,0" }, "fonte": "terceiros (ZenMux); conferir no model card", "url": "https://zenmux.ai/blog/deepseek-v4-flash-benchmarks" },
+      { "modelo": "GPT-OSS 120B (high)", "valores": { "gpqa": "80,1", "swe_verified": "62,4" }, "fonte": "model card oficial (arXiv 2508.10925)", "url": "https://arxiv.org/abs/2508.10925" },
+      { "modelo": "GPT-OSS 20B (high)", "valores": { "gpqa": "71,5", "swe_verified": "60,7" }, "fonte": "model card oficial (arXiv 2508.10925)", "url": "https://arxiv.org/abs/2508.10925" },
+      { "modelo": "Gemma 4 31B", "valores": { "livecodebench": "80,0 (v6)", "aime": "89,2 (2026)" }, "fonte": "tabela do Google no lançamento", "url": "https://ai.google.dev/gemma/docs/releases" },
+      { "modelo": "Qwen 3.5 397B-A17B", "valores": { "aime": "91,3 (2026)" }, "fonte": "guias de terceiros; conferir no model card", "url": "https://huggingface.co/Qwen" }
+    ],
+    "leaderboards": [
+      { "nome": "Artificial Analysis", "url": "https://artificialanalysis.ai/models/open-source", "o_que_mede": "índice de inteligência, preço e velocidade, com filtro de open-weight" },
+      { "nome": "LMArena", "url": "https://lmarena.ai/leaderboard", "o_que_mede": "preferência humana às cegas (texto, visão, código)" },
+      { "nome": "SWE-bench", "url": "https://www.swebench.com", "o_que_mede": "agentes de código em issues reais" },
+      { "nome": "Hugging Face Open LLM", "url": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard", "o_que_mede": "avaliações padronizadas de modelos abertos" }
+    ]
+  },
+
+  "ferramentas": [
+    { "nome": "LangGraph", "categoria": "Orquestração de agentes", "status": "adotada", "para_que": "Agentes com estado, ciclos, ferramentas e aprovação humana.", "nota_lab": "Padrão do Lab para tudo que vai virar piloto: grafo explícito, checkpoint e retomada." },
+    { "nome": "n8n", "categoria": "Automação e integrações", "status": "adotada", "para_que": "Fluxos com gatilhos, integrações SaaS e protótipos em horas.", "nota_lab": "Use para provar valor rápido e para a cola de integrações; a lógica de agente complexa fica no LangGraph." },
+    { "nome": "LiteLLM", "categoria": "Gateway de modelos", "status": "adotada", "para_que": "Uma API (OpenAI-compatible) para todos os modelos, com chaves, cotas e custo por projeto.", "nota_lab": "Toda chamada de LLM passa pelo gateway do Lab. Nunca chame o fornecedor direto do código." },
+    { "nome": "Langfuse", "categoria": "Observabilidade de LLM", "status": "adotada", "para_que": "Traces, custo por chamada, datasets e avaliação de prompts.", "nota_lab": "Ligue desde o primeiro dia: sem trace não dá para explicar uma resposta ruim no piloto." },
+    { "nome": "pgvector (Postgres)", "categoria": "Busca vetorial", "status": "adotada", "para_que": "RAG com vetores no mesmo banco dos dados de negócio.", "nota_lab": "Comece aqui. Banco vetorial dedicado só com volume que justifique." },
+    { "nome": "Pydantic / JSON Schema", "categoria": "Saída estruturada", "status": "adotada", "para_que": "Contratos de entrada e saída dos modelos.", "nota_lab": "Toda saída que alimenta código é validada por schema." },
+    { "nome": "Docling", "categoria": "Ingestão de documentos", "status": "em_avaliacao", "para_que": "PDF, DOCX e PPTX para texto estruturado antes do RAG.", "nota_lab": "Bons resultados em tabelas; ainda medindo custo em lotes grandes." },
+    { "nome": "vLLM", "categoria": "Serving", "status": "adotada", "para_que": "Servir modelos open-weight nas GPUs do hub.", "nota_lab": "Já está por trás do hub; você não precisa operar." },
+    { "nome": "Ragas / avaliador do kit", "categoria": "Avaliação", "status": "adotada", "para_que": "Métricas de RAG e o gate de regressão no CI.", "nota_lab": "O kit do METAEXP já traz o avaliador sem dependências e o workflow de CI." },
+    { "nome": "Frameworks 'mágicos' sem grafo explícito", "categoria": "Orquestração", "status": "evitar", "para_que": "Cadeias implícitas difíceis de depurar.", "nota_lab": "Difícil de observar, testar e levar para produção. Prefira LangGraph." }
+  ],
+
+  "praticas": [
+    { "titulo": "Comece pelo protocolo de avaliação", "porque": "Sem casos de teste e metas numéricas, não há como saber se uma mudança melhorou ou piorou.", "como": ["Monte 50–200 casos reais rotulados antes de escrever o agente", "Defina baseline e meta para cada métrica técnica", "Rode o avaliador no CI a cada push (já vem no kit)"] },
+    { "titulo": "A solução mais simples que pode funcionar", "porque": "Agentes complexos custam mais para avaliar e operar.", "como": ["Teste prompt + RAG antes de multiagente", "Só adicione um nó ao grafo quando a avaliação mostrar o ganho", "Use o Flash como padrão e suba de modelo com evidência"] },
+    { "titulo": "Saída estruturada sempre", "porque": "Texto livre quebra integrações em silêncio.", "como": ["JSON Schema / Pydantic em toda saída consumida por código", "Re-tentativa com o erro de validação no contexto", "Testes de contrato no CI"] },
+    { "titulo": "Observabilidade desde o dia 1", "porque": "No piloto, alguém vai perguntar por que o sistema respondeu aquilo.", "como": ["Trace de cada chamada (Langfuse)", "Custo e latência por requisição", "Guarde prompt e versão do modelo junto do resultado"] },
+    { "titulo": "Dados e segredos no lugar certo", "porque": "LGPD e segurança são critérios de aprovação do piloto.", "como": ["Chaves só por variável de ambiente ou cofre; nunca no repositório", "Dados sensíveis só nos modelos do hub (não saem da casa)", "Mascaramento de PII antes de logar"] },
+    { "titulo": "Humano no circuito onde o erro custa caro", "porque": "Confiança se constrói com revisão nos pontos críticos.", "como": ["Interrupções de aprovação no LangGraph", "Limiar de confiança para mandar para revisão", "Registro de quem aprovou o quê"] }
+  ],
+
+  "arquitetura": {
+    "langgraph": {
+      "titulo": "Por que LangGraph",
+      "resumo": "Agente de verdade é um grafo com estado: decide, chama ferramentas, volta, pede aprovação e retoma. O LangGraph torna esse grafo explícito.",
+      "pontos": [
+        "Estado tipado e checkpoints: retoma de onde parou depois de uma falha ou de uma aprovação humana",
+        "Ciclos controlados (ex.: gerar → avaliar → corrigir) com limite de iterações",
+        "Interrupções para humano no circuito, nativas",
+        "Cada nó é uma função testável; o grafo inteiro é avaliável no CI",
+        "Funciona com qualquer modelo pelo gateway LiteLLM"
+      ],
+      "quando": "Lógica de agente com decisões, ferramentas, múltiplos passos ou aprovação humana. É o padrão para o que vai virar piloto."
+    },
+    "n8n": {
+      "titulo": "Como o n8n acelera",
+      "resumo": "Para provar valor em dias, o gargalo costuma ser integração, não IA. O n8n resolve gatilhos e conectores sem código de cola.",
+      "pontos": [
+        "Centenas de conectores prontos (e-mail, planilhas, CRM, Slack, webhooks)",
+        "Protótipo funcional em horas para mostrar ao Solicitante",
+        "Agendamento, fila de execuções e re-tentativas prontos",
+        "Pode chamar um agente LangGraph exposto como API",
+        "Bom para fluxos que o negócio vai ajustar depois"
+      ],
+      "quando": "Gatilhos, integrações e orquestração de processo. Evite colocar lógica de agente complexa dentro de nós do n8n."
+    },
+    "combinacao": "Padrão recomendado: n8n cuida do gatilho e das integrações; o agente LangGraph roda como serviço (API) e é chamado pelo n8n; tudo fala com modelos pelo gateway LiteLLM e é observado no Langfuse.",
+    "camadas": [
+      { "nome": "Entrada", "itens": ["n8n (gatilhos, webhooks, agendamento)", "API do serviço"] },
+      { "nome": "Agente", "itens": ["LangGraph (estado, ferramentas, aprovação humana)", "Prompts versionados"] },
+      { "nome": "Conhecimento", "itens": ["RAG com pgvector", "Ingestão (Docling)"] },
+      { "nome": "Modelos", "itens": ["Gateway LiteLLM", "Hub de GPUs (GPT-OSS, Gemma, Qwen)", "DeepSeek V4 Flash / Pro"] },
+      { "nome": "Qualidade", "itens": ["Avaliador do kit + CI", "Langfuse (traces, custo)"] }
+    ],
+    "piloto": [
+      { "id": "avaliacao", "categoria": "Qualidade", "item": "Protocolo de avaliação no CI com metas atingidas", "por_que": "É a prova de que funciona e de que não regride." },
+      { "id": "baseline", "categoria": "Qualidade", "item": "Ganho medido contra o baseline", "por_que": "O Sponsor decide pelo ganho, não pela demo." },
+      { "id": "gateway", "categoria": "Modelos", "item": "Todas as chamadas pelo gateway LiteLLM com chave do projeto", "por_que": "Custo rastreável, troca de modelo sem mudar código." },
+      { "id": "estruturado", "categoria": "Robustez", "item": "Saídas validadas por schema e re-tentativas", "por_que": "Evita quebras silenciosas nas integrações." },
+      { "id": "observabilidade", "categoria": "Operação", "item": "Traces, custo e latência por requisição", "por_que": "Explica respostas e controla custo no piloto." },
+      { "id": "fallback", "categoria": "Robustez", "item": "Timeouts, fallback de modelo e degradação elegante", "por_que": "O piloto não pode parar se um modelo cair." },
+      { "id": "humano", "categoria": "Governança", "item": "Humano no circuito nos pontos de alto risco", "por_que": "Confiança e responsabilização." },
+      { "id": "segredos", "categoria": "Segurança", "item": "Segredos em variáveis de ambiente/cofre; nada no repositório", "por_que": "Requisito de segurança da empresa." },
+      { "id": "lgpd", "categoria": "Segurança", "item": "Dados pessoais mapeados, mascarados nos logs e no hub quando sensíveis", "por_que": "LGPD." },
+      { "id": "deploy", "categoria": "Operação", "item": "Container reprodutível e deploy no servidor do Lab", "por_que": "O piloto roda fora da máquina do dev." },
+      { "id": "runbook", "categoria": "Operação", "item": "README de operação: como rodar, monitorar e reverter", "por_que": "Outra pessoa consegue operar." },
+      { "id": "dono", "categoria": "Governança", "item": "BO e Sponsor definidos e cientes dos critérios", "por_que": "Alguém decide escalar com base no parecer." }
+    ]
+  },
+
+  "recursos": [
+    {
+      "tipo": "llm_key", "nome": "Chave de API de LLM", "icone": "spark",
+      "descricao": "Chave do gateway LiteLLM para o hub de GPUs e os modelos recomendados, com cota e validade.",
+      "sla": "Normalmente aprovada no mesmo dia",
+      "campos": [
+        { "id": "modelos", "rotulo": "Modelos", "tipo": "multi", "opcoes": [["deepseek-v4-flash", "DeepSeek V4 Flash"], ["deepseek-v4-pro", "DeepSeek V4 Pro"], ["gpt-oss-120b", "GPT-OSS 120B"], ["gpt-oss-20b", "GPT-OSS 20B"], ["gemma-4-31b", "Gemma 4"], ["qwen3.5", "Qwen 3.5"]], "padrao": "deepseek-v4-flash" },
+        { "id": "validade", "rotulo": "Validade", "tipo": "select", "opcoes": [["7d", "7 dias"], ["30d", "30 dias"], ["90d", "90 dias"]], "padrao": "30d" },
+        { "id": "orcamento", "rotulo": "Orçamento mensal", "tipo": "select", "opcoes": [["10", "US$ 10"], ["50", "US$ 50"], ["200", "US$ 200"]], "padrao": "50" }
+      ]
+    },
+    {
+      "tipo": "servidor", "nome": "Servidor de infraestrutura", "icone": "layers",
+      "descricao": "Máquina no ambiente do Lab para rodar o protótipo ou o piloto (CPU ou GPU), com acesso SSH.",
+      "sla": "Até 2 dias úteis",
+      "campos": [
+        { "id": "perfil", "rotulo": "Perfil", "tipo": "select", "opcoes": [["cpu-p", "CPU · 2 vCPU · 8 GB"], ["cpu-m", "CPU · 8 vCPU · 32 GB"], ["gpu-24", "GPU · 24 GB"], ["gpu-80", "GPU · 80 GB"]], "padrao": "cpu-p" },
+        { "id": "duracao", "rotulo": "Por quanto tempo", "tipo": "select", "opcoes": [["14d", "14 dias"], ["30d", "30 dias"], ["90d", "90 dias (piloto)"]], "padrao": "30d" },
+        { "id": "uso", "rotulo": "Para que", "tipo": "select", "opcoes": [["prototipo", "Protótipo"], ["n8n", "n8n do projeto"], ["piloto", "Piloto"]], "padrao": "prototipo" }
+      ]
+    },
+    {
+      "tipo": "github", "nome": "Acesso ao GitHub corporativo", "icone": "code",
+      "descricao": "Entrada na organização, repositório do experimento criado a partir do kit e permissão no time.",
+      "sla": "Normalmente aprovado no mesmo dia",
+      "campos": [
+        { "id": "usuario", "rotulo": "Seu usuário no GitHub", "tipo": "texto", "padrao": "" },
+        { "id": "repositorio", "rotulo": "Repositório", "tipo": "texto", "padrao": "" },
+        { "id": "permissao", "rotulo": "Permissão", "tipo": "select", "opcoes": [["write", "Escrita"], ["maintain", "Manutenção"], ["read", "Leitura"]], "padrao": "write" }
+      ]
+    }
+  ]
+}

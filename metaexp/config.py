@@ -44,6 +44,13 @@ class Settings:
     # em times sem papel de Lab: a ficha é aprovada ao ser encaminhada.
     revisao_lab: bool = field(default_factory=lambda: _env("METAEXP_REVISAO_LAB", "1") == "1")
 
+    # Caixa de ferramentas do desenvolvedor: pedidos de recursos.
+    # Com a master key do LiteLLM, aprovar um pedido de chave cria uma chave virtual de
+    # verdade no gateway; sem ela, a chave é gerada localmente e marcada como simulada.
+    litellm_master_key: str | None = field(default_factory=lambda: _env("METAEXP_LITELLM_MASTER_KEY", "") or None)
+    hub_url: str | None = field(default_factory=lambda: _env("METAEXP_HUB_URL", "") or _env("ANTHROPIC_BASE_URL", "") or None)
+    github_org: str = field(default_factory=lambda: _env("METAEXP_GITHUB_ORG", "beonlabs"))
+
     corpus_dirs: tuple[Path, ...] = field(
         default_factory=lambda: tuple(
             Path(p) for p in _env(

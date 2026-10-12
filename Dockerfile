@@ -4,6 +4,7 @@ WORKDIR /web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web/ ./
+COPY metaexp/catalogo/ /metaexp/catalogo/
 RUN npm run build
 
 # Backend + app compilado

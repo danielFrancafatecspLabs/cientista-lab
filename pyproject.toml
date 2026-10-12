@@ -28,7 +28,7 @@ metaexp = "metaexp.cli:main"
 include = ["metaexp*"]
 
 [tool.setuptools.package-data]
-metaexp = ["prompts/*.md"]
+metaexp = ["prompts/*.md", "catalogo/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

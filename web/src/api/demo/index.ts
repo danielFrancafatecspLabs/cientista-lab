@@ -4,6 +4,7 @@ import type { Backend, Detalhe, Estado, Evento, Kit, OnEvento, PreRevisao, Resum
 import { PAPEIS, TECNICAS, DIMENSOES, espera, novoEstado, pendencias, setDim } from "./base";
 import { roteiroDesenvolvedor, roteiroSolicitante, type Passo } from "./roteiros";
 import { sementes } from "./sementes";
+import { toolboxDemo } from "./toolbox";
 
 interface Registro { estado: Estado; passo: number; transcricao: { de: "pessoa" | "cientista"; texto: string }[] }
 
@@ -312,5 +313,7 @@ export const demo: Backend = {
       por_status, vereditos, historico: { total: 7, vereditos: { validada: 4, parcialmente_comprovada: 2, invalidada: 1 } },
     };
   },
+  ...toolboxDemo,
+  pedir: (body) => toolboxDemo.pedir(body, body.sessao_id ? (db.get(body.sessao_id)?.estado.ficha.titulo ?? db.get(body.sessao_id)?.estado.ficha.id) : null),
 };
 

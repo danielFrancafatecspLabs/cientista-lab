@@ -1,6 +1,11 @@
 // Backend real: REST + SSE sobre POST (fetch com leitura incremental do corpo).
 import type { Backend, Estado, OnEvento, Status } from "./types";
 
+const qs = (o: Record<string, string | undefined>) => {
+  const p = Object.entries(o).filter(([, v]) => v);
+  return p.length ? `?${p.map(([k, v]) => `${k}=${encodeURIComponent(v!)}`).join("&")}` : "";
+};
+
 async function json<T>(url: string, init?: RequestInit): Promise<T> {
   const r = await fetch(url, { headers: { "Content-Type": "application/json" }, ...init });
   if (!r.ok) {
@@ -61,6 +66,15 @@ export const live: Backend = {
   revisao: (id, body) => json(`/api/experimentos/${id}/revisao`, { method: "POST", body: JSON.stringify(body) }),
   decisao: (id, body) => json(`/api/experimentos/${id}/decisao`, { method: "POST", body: JSON.stringify(body) }),
   portfolio: () => json("/api/portfolio"),
+  toolbox: () => json("/api/toolbox"),
+  pedidos: (f = {}) => json(`/api/recursos/pedidos${qs({ status: f.status?.join(","), solicitante: f.solicitante })}`),
+  pedir: (body) => json("/api/recursos/pedidos", { method: "POST", body: JSON.stringify(body) }),
+  decidirPedido: (id, body) => json(`/api/recursos/pedidos/${id}/decisao`, { method: "POST", body: JSON.stringify(body) }),
+  revogarPedido: (id, body) => json(`/api/recursos/pedidos/${id}/revogar`, { method: "POST", body: JSON.stringify(body) }),
+  credencial: (id) => json(`/api/recursos/pedidos/${id}/credencial`),
+  benchmarksLab: () => json("/api/benchmarks-lab"),
+  registrarBenchmark: (body) => json("/api/benchmarks-lab", { method: "POST", body: JSON.stringify(body) }),
+  removerBenchmark: async (id) => { await json(`/api/benchmarks-lab/${id}`, { method: "DELETE" }); },
 };
 
 export async function backendDisponivel(): Promise<boolean> {

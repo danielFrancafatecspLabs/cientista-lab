@@ -210,7 +210,7 @@ def test_jornadas_recebem_prompt_e_ferramentas_proprios():
     assert "`premissa_critica`" in system_cientista("solicitante")          # catálogo da descoberta no prompt
     assert "mapear_problema" in t_sol and "mapear_problema" in t_dev
     abertura = dev.messages[0]["content"]
-    assert "Papel: Desenvolvedor" in abertura and "TypeScript" in abertura and "Começando" in abertura
+    assert "Papel escolhido: Desenvolvedor" in abertura and "TypeScript" in abertura and "Começando" in abertura
 
 
 def test_solicitante_nao_ve_tecnica_nem_escolhe_executor():

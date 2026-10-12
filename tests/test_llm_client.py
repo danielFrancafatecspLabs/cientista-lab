@@ -7,7 +7,7 @@ import pytest
 
 from metaexp.config import Settings
 from metaexp.llm import FALLBACK_BETA, AnthropicLLM, LLMRefusal, TextDelta, TurnResult
-from metaexp.schemas import PlanoTecnico
+from metaexp.core.schemas import PlanoTecnico
 
 PLANO = {
     "abordagem": "RAG",
@@ -77,7 +77,7 @@ def test_stream_turn_texto_e_ferramenta():
                                tools=[{"name": "sugerir_respostas", "description": "d", "strict": True, "input_schema": {"type": "object", "properties": {"opcoes": {"type": "array", "items": {"type": "string"}}}, "required": ["opcoes"], "additionalProperties": False}}]))
     assert "".join(e.text for e in out if isinstance(e, TextDelta)) == "Olá, Ana."
     final = out[-1]
-    assert isinstance(final, TurnResult) and final.stop_reason == "tool_calls"
+    assert isinstance(final, TurnResult) and final.stop_reason == "tool_use"
     assert final.tool_calls[0].input == {"opcoes": ["A"]} and final.content[1]["type"] == "tool_use"
     b = vistos["body"]
     assert b["stream"] is True
@@ -96,4 +96,4 @@ def test_mensagem_de_sistema_no_meio_da_conversa_vai_para_a_api():
     llm = AnthropicLLM(Settings(), client=_client(handler))
     llm.structured(system="s", schema=PlanoTecnico, messages=[
         {"role": "user", "content": "texto longo"}, {"role": "system", "content": "AUTO-INGESTÃO ativada"}])
-    assert vistos["body"]["messages"][1] == {"role": "system", "content": "AUTO-INGESTÃO ativada"}
+    assert vistos["body"]["messages"][2] == {"role": "system", "content": "AUTO-INGESTÃO ativada"}

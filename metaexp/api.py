@@ -20,6 +20,15 @@ Lab e Sponsor
   POST /experimentos/{id}/decisao     {decisao, comentario}           decisão do Sponsor
   GET  /portfolio                     indicadores do metaexperimento
 
+Caixa de ferramentas do desenvolvedor
+  GET  /toolbox                       catálogo: modelos, benchmarks, ferramentas, práticas, arquitetura, recursos
+  GET  /recursos/pedidos              ?status=pendente&solicitante=Ana   (credenciais sem o segredo)
+  POST /recursos/pedidos              {tipo, solicitante, justificativa, detalhes, sessao_id?}
+  POST /recursos/pedidos/{id}/decisao {decisao: aprovar|negar, comentario, revisor}   Lab
+  POST /recursos/pedidos/{id}/revogar {revisor, comentario?}                           Lab
+  GET  /recursos/pedidos/{id}/credencial  credencial completa de um pedido aprovado
+  GET  /benchmarks-lab · POST /benchmarks-lab · DELETE /benchmarks-lab/{id}
+
 Metadados
   GET  /health, /papeis
 """
@@ -41,16 +50,18 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from metaexp.agents.bancada import Bancada
-from metaexp.agents.cientista import Cientista
+from metaexp.agents.cientista import ABERTURA_PREFIXO, Cientista
 from metaexp.agents.revisor import pre_revisar
 from metaexp.config import Settings, settings as default_settings
 from metaexp.core import descoberta, kit
 from metaexp.core.ficha_doc import markdown as ficha_markdown
 from metaexp.core.papeis import ETAPAS_CICLO, JORNADAS, PAPEIS_CONVERSA, RESPONSABILIDADES
 from metaexp.core.profiling import perfilar
+from metaexp.core.recursos import catalogo, validar_detalhes
 from metaexp.core.schemas import DecisaoSponsor, Revisao
 from metaexp.corpus.store import Corpus, resumo_para_contexto
 from metaexp.llm import LLM, AnthropicLLM
+from metaexp.recursos import Provisionador, RecursoStore
 from metaexp.sessions import STATUS, Sessao, SessionStore, agora
 
 log = logging.getLogger("metaexp.api")
@@ -88,6 +99,35 @@ class NovaDecisao(BaseModel):
     comentario: str = Field("", max_length=4000)
 
 
+class NovoPedido(BaseModel):
+    tipo: Literal["llm_key", "servidor", "github"]
+    solicitante: str = Field(min_length=1, max_length=60)
+    justificativa: str = Field(min_length=1, max_length=1000)
+    detalhes: dict = Field(default_factory=dict)
+    sessao_id: Optional[str] = None
+
+
+class DecisaoPedido(BaseModel):
+    decisao: Literal["aprovar", "negar"]
+    comentario: str = Field("", max_length=1000)
+    revisor: str = Field("Lab", max_length=80)
+
+
+class Revogacao(BaseModel):
+    revisor: str = Field("Lab", max_length=80)
+    comentario: str = Field("", max_length=1000)
+
+
+class NovoBenchmark(BaseModel):
+    modelo: str = Field(min_length=1, max_length=80)
+    tarefa: str = Field(min_length=1, max_length=200)
+    metrica: str = Field(min_length=1, max_length=80)
+    valor: str = Field(min_length=1, max_length=40)
+    conjunto: Optional[str] = Field(None, max_length=200)
+    observacoes: Optional[str] = Field(None, max_length=1000)
+    responsavel: str = Field("Lab", max_length=80)
+
+
 def _sse(events: Iterator[dict]) -> Iterator[str]:
     for ev in events:
         yield f"event: {ev.get('type', 'message')}\ndata: {json.dumps(ev, ensure_ascii=False, default=str)}\n\n"
@@ -99,7 +139,7 @@ def transcricao(s: Sessao) -> list[dict]:
     for m in s.messages:
         c = m.get("content")
         if m["role"] == "user" and isinstance(c, str):
-            if c.startswith("<abertura>"):
+            if c.startswith(ABERTURA_PREFIXO):
                 continue
             if c.startswith("<arquivo_anexado>"):
                 c = "📎 " + c.rsplit("\n", 1)[-1]
@@ -112,10 +152,13 @@ def transcricao(s: Sessao) -> list[dict]:
 
 
 def create_app(llm: LLM | None = None, cfg: Settings | None = None, corpus: Corpus | None = None,
-               store: SessionStore | None = None) -> FastAPI:
+               store: SessionStore | None = None, recursos: RecursoStore | None = None,
+               provisionador: Provisionador | None = None) -> FastAPI:
     cfg = cfg or default_settings
     corpus = corpus or Corpus.from_dirs(cfg.corpus_dirs)
     store = store or SessionStore(cfg.sessions_dir)
+    recursos = recursos or RecursoStore(store.path)
+    provisionador = provisionador or Provisionador(cfg)
     _llm: dict[str, LLM] = {}
 
     def get_llm() -> LLM:
@@ -305,6 +348,94 @@ def create_app(llm: LLM | None = None, cfg: Settings | None = None, corpus: Corp
             "vereditos": dict(vereditos),
             "historico": {"total": len(historico), "vereditos": dict(Counter(h.get("veredito") for h in historico if h.get("veredito")))},
         }
+
+    # ------------------------------------------------- caixa de ferramentas ----
+
+    @app.get("/api/toolbox")
+    def toolbox():
+        c = catalogo()
+        hub = {**c["hub"], "base_url": cfg.hub_url, "chaves_reais": bool(cfg.litellm_master_key and cfg.hub_url)}
+        return {**c, "hub": hub}
+
+    def pedido(pid: str):
+        p = recursos.obter(pid)
+        if not p:
+            raise HTTPException(404, "pedido não encontrado")
+        return p
+
+    @app.get("/api/recursos/pedidos")
+    def pedidos(status: Optional[str] = Query(None), solicitante: Optional[str] = Query(None)):
+        filtro = tuple(x for x in (status or "").split(",") if x) or None
+        return [p.publico() for p in recursos.listar(filtro, solicitante)]
+
+    @app.post("/api/recursos/pedidos")
+    def pedir(body: NovoPedido):
+        try:
+            detalhes = validar_detalhes(body.tipo, body.detalhes)
+        except ValueError as e:
+            raise HTTPException(422, str(e))
+        experimento = None
+        if body.sessao_id and (s := store.get(body.sessao_id)):
+            experimento = s.ficha.titulo or s.ficha.id
+        p = recursos.criar(tipo=body.tipo, solicitante=body.solicitante.strip(), justificativa=body.justificativa.strip(),
+                           detalhes=detalhes, sessao_id=body.sessao_id, experimento=experimento)
+        return p.publico()
+
+    @app.post("/api/recursos/pedidos/{pid}/decisao")
+    def decidir_pedido(pid: str, body: DecisaoPedido):
+        p = pedido(pid)
+        if p.status != "pendente":
+            raise HTTPException(409, f"o pedido já foi decidido (status: {p.status})")
+        if body.decisao == "negar" and not body.comentario.strip():
+            raise HTTPException(422, "explique o motivo para negar o pedido")
+        if body.decisao == "aprovar":
+            try:
+                p.credencial = provisionador.provisionar(p)
+            except Exception as e:  # noqa: BLE001 - falha do gateway vira erro legível
+                log.exception("falha ao provisionar")
+                raise HTTPException(502, f"não foi possível provisionar no gateway: {type(e).__name__}")
+        p.status = "aprovado" if body.decisao == "aprovar" else "negado"
+        p.decidido_em, p.decidido_por, p.comentario = agora(), body.revisor, body.comentario.strip() or None
+        recursos.salvar(p)
+        return p.publico()
+
+    @app.post("/api/recursos/pedidos/{pid}/revogar")
+    def revogar_pedido(pid: str, body: Revogacao):
+        p = pedido(pid)
+        if p.status != "aprovado":
+            raise HTTPException(409, f"só dá para revogar um pedido aprovado (status: {p.status})")
+        try:
+            provisionador.revogar(p)
+        except Exception as e:  # noqa: BLE001
+            log.exception("falha ao revogar")
+            raise HTTPException(502, f"não foi possível revogar no gateway: {type(e).__name__}")
+        p.status, p.decidido_em, p.decidido_por = "revogado", agora(), body.revisor
+        p.comentario = body.comentario.strip() or p.comentario
+        recursos.salvar(p)
+        return p.publico()
+
+    @app.get("/api/recursos/pedidos/{pid}/credencial")
+    def credencial(pid: str):
+        # Sem login nesta versão: quem tem o id do pedido vê a credencial. Com autenticação,
+        # restrinja ao solicitante.
+        p = pedido(pid)
+        if p.status != "aprovado" or not p.credencial:
+            raise HTTPException(409, "a credencial só existe para pedidos aprovados")
+        return p.credencial.model_dump()
+
+    @app.get("/api/benchmarks-lab")
+    def benchmarks_lab():
+        return [b.model_dump() for b in recursos.benchmarks()]
+
+    @app.post("/api/benchmarks-lab")
+    def registrar_benchmark(body: NovoBenchmark):
+        return recursos.registrar_benchmark(**body.model_dump()).model_dump()
+
+    @app.delete("/api/benchmarks-lab/{bid}")
+    def remover_benchmark(bid: str):
+        if not recursos.remover_benchmark(bid):
+            raise HTTPException(404, "benchmark não encontrado")
+        return {"ok": True}
 
     # ------------------------------------------------------------- front ----
 

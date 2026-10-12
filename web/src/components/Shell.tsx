@@ -9,6 +9,7 @@ const ICONE: Record<PapelId, "chat" | "code" | "shield" | "chart"> = { solicitan
 export function papelDaRota(r: ReturnType<typeof useApp>["rota"], fallback: PapelId | null): PapelId | null {
   if (r.tela === "lab") return "lab";
   if (r.tela === "sponsor") return "sponsor";
+  if (r.tela === "dev") return "desenvolvedor";
   if (r.tela === "entrada") return null;
   return fallback;
 }
@@ -31,6 +32,7 @@ function TrocarPapel() {
     setPerfil({ papel: p });
     if (p === "lab") return ir({ tela: "lab" });
     if (p === "sponsor") return ir({ tela: "sponsor" });
+    if (p === "desenvolvedor") return ir({ tela: "dev", secao: "inicio" });
     const sid = perfil.sessoes[p];
     ir(sid ? { tela: "estudio", sid } : { tela: "entrada", papel: p });
   };

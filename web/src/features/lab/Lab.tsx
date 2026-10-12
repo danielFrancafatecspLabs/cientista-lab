@@ -4,6 +4,9 @@ import { Avatar, Badge, Empty, Icon, Meter, Ring, Tabs } from "../../components/
 import { useApp } from "../../lib/app";
 import { DOMINIO, haQuanto, RECOMENDACAO, STATUS } from "../../lib/format";
 import { Markdown } from "../../lib/markdown";
+import type { AbaLab } from "../../lib/app";
+import { LabBenchmarks, LabRecursos } from "./LabRecursos";
+import "../dev/dev.css";
 import "./lab.css";
 
 type Fila = "revisar" | "aprovados" | "devolvidos";
@@ -166,7 +169,27 @@ function Detalhe({ id, onMudou }: { id: string; onMudou: () => void }) {
   );
 }
 
-export function Lab({ id }: { id?: string }) {
+export function Lab({ id, aba = "fichas" }: { id?: string; aba?: AbaLab }) {
+  const { api, ir } = useApp();
+  const [pendentes, setPendentes] = useState<{ fichas: number; recursos: number }>({ fichas: 0, recursos: 0 });
+  useEffect(() => {
+    Promise.all([api.experimentos(["em_revisao"]), api.pedidos({ status: ["pendente"] })])
+      .then(([f, r]) => setPendentes({ fichas: f.length, recursos: r.length })).catch(() => undefined);
+  }, [api, aba, id]);
+  return (
+    <div className="lab-wrap">
+      <nav className="lab-nav">
+        <Tabs valor={aba} onChange={(a) => ir({ tela: "lab", aba: a })} itens={[
+          { id: "fichas", rotulo: "Fichas · G0", icone: "shield", count: pendentes.fichas || undefined },
+          { id: "recursos", rotulo: "Pedidos de recursos", icone: "key", count: pendentes.recursos || undefined },
+          { id: "benchmarks", rotulo: "Benchmarks do Lab", icone: "chart" }]} />
+      </nav>
+      {aba === "recursos" ? <LabRecursos id={id} /> : aba === "benchmarks" ? <LabBenchmarks /> : <LabFichas id={id} />}
+    </div>
+  );
+}
+
+function LabFichas({ id }: { id?: string }) {
   const { api, ir } = useApp();
   const [fila, setFila] = useState<Fila>("revisar");
   const [todos, setTodos] = useState<Resumo[] | null>(null);

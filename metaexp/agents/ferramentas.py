@@ -128,6 +128,12 @@ class RegistrarDesenho(BaseModel):
     riscos_tecnicos: Optional[list[str]] = None
 
 
+class SugerirRecurso(BaseModel):
+    tipo: Literal["llm_key", "servidor", "github"]
+    motivo: str
+    detalhes_sugeridos: Optional[dict[str, Any]] = None
+
+
 class Encaminhar(BaseModel):
     destino: Literal["workflow", "desenvolvedor"]
     resumo: str
@@ -154,6 +160,22 @@ METRICA_TECNICA = _obj({"nome": {"type": "string", "description": "Ex.: recall@5
                        ["nome", "alvo"])
 
 TOOL_SPECS: list[dict] = [
+    {
+        "name": "sugerir_recurso",
+        "description": (
+            "Mostra no chat o botão para a pessoa pedir ao Lab um recurso de que precisa para avançar: chave de API de LLM "
+            "(llm_key), servidor de infraestrutura (servidor) ou acesso ao GitHub corporativo (github). O pedido vai para a "
+            "aprovação do Lab e a credencial aparece na caixa de ferramentas. Use quando a falta do recurso bloquear o próximo passo."
+        ),
+        "input_schema": _obj({
+            "tipo": {"type": "string", "enum": ["llm_key", "servidor", "github"]},
+            "motivo": {"type": "string", "description": "Uma frase, dirigida à pessoa, dizendo para que o recurso serve neste experimento"},
+            "detalhes_sugeridos": _obj({
+                "modelos": {"type": "array", "items": {"type": "string", "enum": ["deepseek-v4-flash", "deepseek-v4-pro", "gpt-oss-120b", "gpt-oss-20b", "gemma-4-31b", "qwen3.5"]}},
+                "perfil": {"type": "string", "enum": ["cpu-p", "cpu-m", "gpu-24", "gpu-80"]},
+            }, []),
+        }, ["tipo", "motivo"]),
+    },
     {
         "name": "mapear_problema",
         "description": (
@@ -295,6 +317,7 @@ INPUT_MODELS: dict[str, type[BaseModel]] = {
     "calcular_tamanho_amostra": CalcularAmostra, "apresentar_skills": ApresentarSkills,
     "encaminhar": Encaminhar, "gerar_ficha": GerarFicha,
     "propor_abordagens": ProporAbordagens, "registrar_desenho_tecnico": RegistrarDesenho,
+    "sugerir_recurso": SugerirRecurso,
 }
 
 
@@ -468,6 +491,15 @@ def _skills(ctx: ToolContext, a: ApresentarSkills) -> Result:
     return "ok", [_ficha_event(s, ["skills"]), {"type": "card", "kind": "skills", "data": a.model_dump()}]
 
 
+def _recurso(ctx: ToolContext, a: SugerirRecurso) -> Result:
+    from metaexp.core.recursos import tipo_recurso
+    spec = tipo_recurso(a.tipo)
+    data = {"tipo": a.tipo, "nome": spec["nome"], "motivo": a.motivo, "sla": spec["sla"],
+            "detalhes": {k: v for k, v in (a.detalhes_sugeridos or {}).items() if v}}
+    return ("ok: o botão do pedido está visível; a pessoa envia e o Lab aprova. Não prometa prazo além do SLA: "
+            f"{spec['sla']}"), [{"type": "card", "kind": "recurso", "data": data}]
+
+
 def _encaminhar(ctx: ToolContext, a: Encaminhar) -> Result:
     s = ctx.session
     if s.status != "conversa":
@@ -504,6 +536,7 @@ HANDLERS: dict[str, Callable[[ToolContext, Any], Result]] = {
     "sugerir_respostas": _sugerir, "solicitar_dados": _solicitar,
     "calcular_tamanho_amostra": _calcular, "apresentar_skills": _skills, "encaminhar": _encaminhar,
     "gerar_ficha": _gerar, "propor_abordagens": _abordagens, "registrar_desenho_tecnico": _desenho,
+    "sugerir_recurso": _recurso,
 }
 
 

@@ -20,7 +20,7 @@ A primeira tela pede que a pessoa escolha o papel. Solicitante e Desenvolvedor c
 | Tom | Reunião com quem conhece o próprio negócio: linguagem de negócio, nenhum termo técnico | Revisão de design com um tech lead: técnico, direto, trade-offs explícitos |
 | Descoberta do problema | Longa e profunda: casos concretos, quantificação, decisão em jogo | Curta e afiada: quem sofre, tamanho, decisão, sinal de sucesso |
 | Depois da descoberta | Objetivo, hipótese, sucesso em termos de negócio, dados, responsáveis | Contexto técnico, baseline, abordagens, protocolo de avaliação, arquitetura |
-| Ferramentas exclusivas | — | `propor_abordagens`, `registrar_desenho_tecnico`, `apresentar_skills` |
+| Ferramentas exclusivas | — | `propor_abordagens`, `registrar_desenho_tecnico`, `apresentar_skills`, `sugerir_recurso` |
 | Ao final | Ficha vai para a revisão do Lab e depois para a bancada | Ficha, desenho e kit (avaliador + CI); bancada opcional |
 | Personalização | Área: Atendimento, Rede, Digital, Financeiro, Suprimentos, Jurídico, RH, Marketing, Operações, Outra<br>Ritmo: Direto ao ponto, Guiado, com exemplos | Stack: Python, TypeScript / Node, Java / Kotlin, SQL e dados<br>Experiência com IA: Começando, Já usei LLMs, Especialista em ML<br>Onde vai rodar: Sandbox do Lab, Minha infraestrutura |
 

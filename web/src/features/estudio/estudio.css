@@ -6,6 +6,7 @@
 .titulo-exp { display: grid; gap: 6px; }
 .titulo-exp h1 { font-size: 22px; }
 .painel-toggle { display: none; }
+.topo-acoes { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 
 .jornada { list-style: none; margin: 0; padding: 4px 28px 14px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--line); }
 .jornada li { display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 6px; border-radius: 999px; font-size: 12.5px; color: var(--mute); white-space: nowrap; font-weight: 600; }

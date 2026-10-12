@@ -7,8 +7,8 @@ import "./entrada.css";
 const ICONE: Record<PapelId, "chat" | "code" | "shield" | "chart"> = { solicitante: "chat", desenvolvedor: "code", lab: "shield", sponsor: "chart" };
 const RECEBE: Record<PapelId, string[]> = {
   solicitante: ["Perguntas que vão ao fundo do problema", "Ficha no padrão do Lab, sem jargão", "Acompanhamento da bancada até o parecer"],
-  desenvolvedor: ["Trade-offs explícitos e baseline", "Protocolo de avaliação com metas", "Kit com avaliador e CI anti-regressão"],
-  lab: ["Fila de fichas para o gate G0", "Pré-análise do Agente Revisor", "Evidências da conversa ao lado"],
+  desenvolvedor: ["Chave de LLM, servidor e GitHub em um clique", "Modelos do hub, benchmarks e o que o Lab já testou", "Desenho técnico, kit com CI e checklist de piloto"],
+  lab: ["Fila de fichas para o gate G0 e pré-análise", "Aprovação de chaves, servidores e acessos", "Benchmarks da casa para os desenvolvedores"],
   sponsor: ["Portfólio por etapa", "Indicadores do metaexperimento", "Decisões que dependem de você"],
 };
 const CICLO = [
@@ -39,7 +39,7 @@ function Personalizar({ j, onVoltar }: { j: Jornada; onVoltar: () => void }) {
     try {
       const s = await api.criarSessao({ nome: nome.trim() || undefined, papel: j.papel as PapelConversa, preferencias: prefs });
       setPerfil({ sessoes: { [j.papel]: s.id } });
-      ir({ tela: "estudio", sid: s.id });
+      ir(j.papel === "desenvolvedor" ? { tela: "dev", secao: "inicio" } : { tela: "estudio", sid: s.id });
     } catch (e) {
       setErro((e as Error).message); setCriando(false);
     }
@@ -71,7 +71,7 @@ function Personalizar({ j, onVoltar }: { j: Jornada; onVoltar: () => void }) {
       {erro && <p className="erro">{erro}</p>}
       <button className="btn accent lg entrar" onClick={entrar} disabled={criando}>
         {criando ? <span className="spinner" /> : null}
-        {j.papel === "lab" ? "Abrir fila de revisão" : j.papel === "sponsor" ? "Abrir portfólio" : "Começar com o Cientista"}
+        {j.papel === "lab" ? "Abrir fila de revisão" : j.papel === "sponsor" ? "Abrir portfólio" : j.papel === "desenvolvedor" ? "Abrir a caixa de ferramentas" : "Começar com o Cientista"}
         <Icon name="arrow" size={17} />
       </button>
     </section>
@@ -104,7 +104,7 @@ export function Entrada({ papel }: { papel?: PapelId }) {
               <span className="porta-chamada">{x.chamada}</span>
               <span className="porta-promessa">{x.promessa}</span>
               <ul>{RECEBE[x.papel].map((r) => <li key={r}><Icon name="check" size={14} />{r}</li>)}</ul>
-              <span className="porta-cta">{x.tipo === "conversa" ? "Conversar com o Cientista" : "Abrir painel"}<Icon name="arrow" size={15} /></span>
+              <span className="porta-cta">{x.papel === "desenvolvedor" ? "Abrir a caixa de ferramentas" : x.tipo === "conversa" ? "Conversar com o Cientista" : "Abrir painel"}<Icon name="arrow" size={15} /></span>
             </button>
           ))}
         </div>

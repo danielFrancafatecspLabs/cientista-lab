@@ -30,6 +30,10 @@ T = TypeVar("T", bound=BaseModel)
 
 FALLBACK_BETA = "server-side-fallback-2026-07-01"
 
+# finish_reason (OpenAI) -> stop_reason que o laço do Cientista entende.
+_STOP = {"stop": "end_turn", "tool_calls": "tool_use", "function_call": "tool_use",
+         "length": "max_tokens", "content_filter": "refusal"}
+
 
 def _compact_text(text: str, limit: int = 2000) -> str:
     lines = [line.strip() for line in text.splitlines() if line.strip()]
@@ -180,11 +184,15 @@ class AnthropicLLM:
     def _common(self, system: str, effort: str | None) -> dict:
         return {"model": self.cfg.model}
 
+    def _conversa(self, system: str, messages: list[dict]) -> list[dict]:
+        """Prompt de sistema primeiro; avisos de sistema no meio da conversa ficam onde estão."""
+        return [{"role": "system", "content": system}, *self._messages(messages)] if system else self._messages(messages)
+
     def stream_turn(self, *, system: str, messages: list[dict], tools: list[dict],
                     effort: str | None = None) -> Iterator[TextDelta | TurnResult]:
         payload = {
             **self._common(system, effort),
-            "messages": self._messages(messages),
+            "messages": self._conversa(system, messages),
             "tools": self._tools(tools),
             "tool_choice": "auto",
             "stream": True,
@@ -242,14 +250,15 @@ class AnthropicLLM:
             tool_name = state.get("name") or "tool"
             content.append({"type": "tool_use", "id": tool_id, "name": tool_name, "input": parsed_args})
             tool_calls.append(ToolCall(tool_id, tool_name, parsed_args))
-        yield TurnResult(content=content, stop_reason=finish_reason or ("tool_use" if tool_calls else "end_turn"),
+        stop_reason = _STOP.get(finish_reason or "", finish_reason) or ("tool_use" if tool_calls else "end_turn")
+        yield TurnResult(content=content, stop_reason=stop_reason,
                          tool_calls=tool_calls, usage=usage)
 
     def structured(self, *, system: str, messages: list[dict], schema: type[T],
                    effort: str | None = None, max_tokens: int = 16000) -> T:
         payload = {
             **self._common(system, effort or self.cfg.effort_bench),
-            "messages": self._messages(messages),
+            "messages": self._conversa(system, messages),
             "max_tokens": max_tokens,
             "response_format": {
                 "type": "json_schema",

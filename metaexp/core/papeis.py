@@ -91,7 +91,7 @@ JORNADAS: dict[str, Jornada] = {
         promessa="Desenho técnico com baseline, trade-offs e protocolo de avaliação, e um kit pronto para rodar com CI.",
         etapas=("Problema", "Contexto técnico", "Baseline", "Hipótese", "Abordagens", "Avaliação", "Dados", "Ficha", "Kit"),
         prompt="papel_desenvolvedor",
-        ferramentas=COMUNS + ("propor_abordagens", "registrar_desenho_tecnico", "apresentar_skills"),
+        ferramentas=COMUNS + ("propor_abordagens", "registrar_desenho_tecnico", "apresentar_skills", "sugerir_recurso"),
         destinos=("desenvolvedor", "workflow"), perfil_corpus="desenvolvedor",
         preferencias=(
             Preferencia("stack", "Stack:", (("python", "Python"), ("typescript", "TypeScript / Node"), ("java", "Java / Kotlin"), ("sql", "SQL e dados")), "python"),

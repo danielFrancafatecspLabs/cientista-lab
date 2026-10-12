@@ -2,15 +2,22 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Backend, Papeis, PapelId } from "../api/types";
 
+export type SecaoDev = "inicio" | "recursos" | "modelos" | "arquitetura" | "ferramentas";
+export type AbaLab = "fichas" | "recursos" | "benchmarks";
+const SECOES: SecaoDev[] = ["inicio", "recursos", "modelos", "arquitetura", "ferramentas"];
+
 export type Rota =
   | { tela: "entrada"; papel?: PapelId }
   | { tela: "estudio"; sid: string }
   | { tela: "bancada"; sid: string }
-  | { tela: "lab"; id?: string }
+  | { tela: "lab"; id?: string; aba?: AbaLab }
+  | { tela: "dev"; secao?: SecaoDev; arg?: string }
   | { tela: "sponsor"; id?: string };
 
 export function lerRota(hash = window.location.hash): Rota {
-  const [, tela, arg] = hash.replace(/^#\/?/, "/").split("/");
+  const [, tela, arg, arg2] = hash.replace(/^#\/?/, "/").split("/");
+  if (tela === "dev") return { tela: "dev", secao: SECOES.includes(arg as SecaoDev) ? (arg as SecaoDev) : "inicio", arg: arg2 || undefined };
+  if (tela === "lab" && (arg === "recursos" || arg === "benchmarks")) return { tela: "lab", aba: arg, id: arg2 || undefined };
   if (tela === "estudio" && arg) return { tela: "estudio", sid: arg };
   if (tela === "bancada" && arg) return { tela: "bancada", sid: arg };
   if (tela === "lab") return { tela: "lab", id: arg || undefined };
@@ -23,7 +30,10 @@ export function hrefDe(r: Rota): string {
   switch (r.tela) {
     case "estudio": return `#/estudio/${r.sid}`;
     case "bancada": return `#/bancada/${r.sid}`;
-    case "lab": return r.id ? `#/lab/${r.id}` : "#/lab";
+    case "lab":
+      if (r.aba && r.aba !== "fichas") return r.id ? `#/lab/${r.aba}/${r.id}` : `#/lab/${r.aba}`;
+      return r.id ? `#/lab/${r.id}` : "#/lab";
+    case "dev": return `#/dev/${r.secao ?? "inicio"}${r.arg ? `/${r.arg}` : ""}`;
     case "sponsor": return r.id ? `#/sponsor/${r.id}` : "#/sponsor";
     default: return r.papel ? `#/entrada/${r.papel}` : "#/";
   }

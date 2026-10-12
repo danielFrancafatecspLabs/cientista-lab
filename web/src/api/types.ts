@@ -89,11 +89,57 @@ export interface Portfolio {
 }
 export interface Kit { pasta: string; arquivos: Record<string, string> }
 
+// ---------------------------------------------------- caixa de ferramentas ----
+// Espelha metaexp/catalogo/toolbox.json e metaexp/core/recursos.py.
+
+export type TipoRecurso = "llm_key" | "servidor" | "github";
+export type StatusPedido = "pendente" | "aprovado" | "negado" | "revogado";
+
+export interface Modelo {
+  id: string; nome: string; fornecedor: string; grupo: "recomendado" | "hub"; destaque: string; alias: string;
+  arquitetura: string; contexto: string; licenca: string; uso_ideal: string; cuidados: string; modos?: string[];
+}
+export interface CampoRecurso { id: string; rotulo: string; tipo: "select" | "multi" | "texto"; opcoes?: [string, string][]; padrao: string }
+export interface SpecRecurso { tipo: TipoRecurso; nome: string; icone: string; descricao: string; sla: string; campos: CampoRecurso[] }
+export interface Ferramenta { nome: string; categoria: string; status: "adotada" | "em_avaliacao" | "evitar"; para_que: string; nota_lab: string }
+export interface Pratica { titulo: string; porque: string; como: string[] }
+export interface ItemPiloto { id: string; categoria: string; item: string; por_que: string }
+export interface BlocoArquitetura { titulo: string; resumo: string; pontos: string[]; quando: string }
+export interface Toolbox {
+  versao: string; atualizado_em: string;
+  hub: { nome: string; descricao: string; protocolo: string; como_pedir: string; base_url?: string | null; chaves_reais?: boolean };
+  modelos: Modelo[];
+  benchmarks_publicos: {
+    coletado_em: string; aviso: string; metricas: { id: string; nome: string; o_que_mede: string }[];
+    linhas: { modelo: string; valores: Record<string, string>; fonte: string; url: string }[];
+    leaderboards: { nome: string; url: string; o_que_mede: string }[];
+  };
+  ferramentas: Ferramenta[];
+  praticas: Pratica[];
+  arquitetura: { langgraph: BlocoArquitetura; n8n: BlocoArquitetura; combinacao: string; camadas: { nome: string; itens: string[] }[]; piloto: ItemPiloto[] };
+  recursos: SpecRecurso[];
+}
+export interface Credencial {
+  resumo: string; campos: Record<string, string>; segredo?: string | null; segredo_final?: string; exemplo?: string | null;
+  expira_em?: string | null; simulada: boolean;
+}
+export interface Pedido {
+  id: string; tipo: TipoRecurso; solicitante: string; justificativa: string; detalhes: Record<string, any>;
+  sessao_id?: string | null; experimento?: string | null; status: StatusPedido; criado_em: string;
+  decidido_em?: string | null; decidido_por?: string | null; comentario?: string | null; credencial?: Credencial | null;
+}
+export interface NovoPedido { tipo: TipoRecurso; solicitante: string; justificativa: string; detalhes: Record<string, any>; sessao_id?: string }
+export interface BenchmarkLab {
+  id: string; modelo: string; tarefa: string; metrica: string; valor: string; conjunto?: string | null;
+  observacoes?: string | null; responsavel: string; em: string; ilustrativo?: boolean;
+}
+export type NovoBenchmark = Omit<BenchmarkLab, "id" | "em" | "ilustrativo">;
+
 // ---------------------------------------------------------------- eventos ----
 
 export type CardKind =
   | "sintese" | "similares" | "amostra" | "abordagens" | "avaliacao" | "desenho" | "tecnologia" | "skills"
-  | "ficha_gerada" | "ficha" | "plano" | "rodada" | "parecer";
+  | "ficha_gerada" | "ficha" | "plano" | "rodada" | "parecer" | "recurso";
 
 export type Evento =
   | { type: "text"; delta: string }
@@ -133,4 +179,13 @@ export interface Backend {
   revisao(id: string, body: { decisao: "aprovar" | "devolver"; comentario: string; revisor: string }): Promise<Estado>;
   decisao(id: string, body: { decisao: "escalar" | "iterar" | "encerrar"; comentario: string }): Promise<Estado>;
   portfolio(): Promise<Portfolio>;
+  toolbox(): Promise<Toolbox>;
+  pedidos(filtro?: { status?: StatusPedido[]; solicitante?: string }): Promise<Pedido[]>;
+  pedir(body: NovoPedido): Promise<Pedido>;
+  decidirPedido(id: string, body: { decisao: "aprovar" | "negar"; comentario: string; revisor: string }): Promise<Pedido>;
+  revogarPedido(id: string, body: { revisor: string; comentario?: string }): Promise<Pedido>;
+  credencial(id: string): Promise<Credencial>;
+  benchmarksLab(): Promise<BenchmarkLab[]>;
+  registrarBenchmark(body: NovoBenchmark): Promise<BenchmarkLab>;
+  removerBenchmark(id: string): Promise<void>;
 }

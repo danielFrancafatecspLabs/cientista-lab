@@ -34,6 +34,8 @@ ABERTURA = ("(A pessoa acabou de abrir o METAEXP. Nome: {nome}. Papel escolhido:
             "LEMBRETE DE FORMATO: máximo 4 linhas, uma pergunta só, NUNCA diga o que vai fazer, "
             "NUNCA simule etapas. Quando a pessoa responder com o problema, chame "
             "buscar_experimentos_similares antes de responder.")
+ABERTURA_PREFIXO = ABERTURA.split(" Nome:")[0]
+RETOMADA = "Voltei para ajustar a ficha conforme a revisão do Lab."
 MAX_ITERACOES = 8
 MAX_JSON_RETRIES = 2
 

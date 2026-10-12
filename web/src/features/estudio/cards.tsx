@@ -179,6 +179,22 @@ function Handoff({ data, sid }: { data: { destino: string; status: keyof typeof 
   );
 }
 
+function Recurso({ data }: { data: { tipo: string; nome: string; motivo: string; sla: string; detalhes?: { modelos?: string[] } } }) {
+  const { ir } = useApp();
+  const icone = data.tipo === "llm_key" ? "key" : data.tipo === "servidor" ? "server" : "git";
+  const preset = data.detalhes?.modelos?.[0];
+  return (
+    <div className="ccard recurso">
+      <div className="ccard-cab"><Icon name={icone} size={15} /><span>{data.nome}</span><small>{data.sla}</small></div>
+      <p className="ccard-texto">{data.motivo}</p>
+      <div className="ccard-acoes">
+        <button className="btn sm accent" onClick={() => ir({ tela: "dev", secao: "recursos", arg: preset ? `${data.tipo}~${preset}` : data.tipo })}>Pedir ao Lab<Icon name="arrow" size={14} /></button>
+      </div>
+      <p className="ccard-nota"><Icon name="info" size={12} />Uma pessoa do Lab aprova. A credencial aparece na sua caixa de ferramentas, em Recursos.</p>
+    </div>
+  );
+}
+
 export function Card({ c, acoes }: { c: CardItem; acoes: Acoes }) {
   switch (c.kind) {
     case "sintese": return <Sintese data={c.data} acoes={acoes} />;
@@ -191,6 +207,7 @@ export function Card({ c, acoes }: { c: CardItem; acoes: Acoes }) {
     case "skills": return <Skills data={c.data} />;
     case "ficha_gerada": return <FichaGerada data={c.data} />;
     case "handoff": return <Handoff data={c.data} sid={acoes.sid} />;
+    case "recurso": return <Recurso data={c.data} />;
     default: return null;
   }
 }

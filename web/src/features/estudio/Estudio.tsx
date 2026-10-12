@@ -186,7 +186,10 @@ export function Estudio({ sid }: { sid: string }) {
             <span className="eyebrow">{e.papel === "desenvolvedor" ? "Desenvolvedor" : "Solicitante"} · {e.ficha.id}</span>
             <h1>{e.ficha.titulo || "Novo experimento"}</h1>
           </div>
-          <button className="btn sm painel-toggle" onClick={() => setPainelMobile(true)}><Icon name="map" size={15} />Mapa e ficha</button>
+          <div className="topo-acoes">
+            {e.papel === "desenvolvedor" && <button className="btn sm" onClick={() => ir({ tela: "dev", secao: "inicio" })}><Icon name="box" size={15} />Caixa de ferramentas</button>}
+            <button className="btn sm painel-toggle" onClick={() => setPainelMobile(true)}><Icon name="map" size={15} />Mapa e ficha</button>
+          </div>
         </div>
         <Jornada estado={e} />
         <div className="mensagens scroll" ref={lista} aria-live="polite"

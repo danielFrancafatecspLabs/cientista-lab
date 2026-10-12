@@ -54,7 +54,11 @@ def system_cientista(papel: str = "solicitante") -> str:
     j = jornada(papel)
     if j.tipo != "conversa":
         raise ValueError(f"o papel {papel} não conversa com o Cientista")
-    return _join(prompt("cientista"), prompt(j.prompt), catalogo_markdown(), metodologia(), catalogo_golden_paths())
+    extras = []
+    if papel == "desenvolvedor":
+        from metaexp.core.recursos import resumo_para_prompt
+        extras.append(resumo_para_prompt())
+    return _join(prompt("cientista"), prompt(j.prompt), *extras, catalogo_markdown(), metodologia(), catalogo_golden_paths())
 
 
 @lru_cache(maxsize=None)
